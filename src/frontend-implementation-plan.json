@@ -1,0 +1,81 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "UEi DL589 Multimeter Guide Study Module (educational content)",
+  "requirements": [
+    {
+      "id": "REQ-4",
+      "summary": "Add a new Study module entry under Tools & Instruments and wire it to a dedicated guide view without impacting other modules.",
+      "acceptanceCriteria": [
+        "A new navigation option/module card labeled \"UEi DL589 Multimeter Guide\" is visible on the Study home screen.",
+        "Selecting the new module opens a dedicated module view for the guide.",
+        "No text/content or behavior changes occur in other Study modules (including the existing \"Multimeter Training\" module)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/study/StudySystemHome.tsx",
+          "operation": "modify",
+          "description": "Add a new module card/button labeled \"UEi DL589 Multimeter Guide\" (Tools & Instruments) and extend the onNavigate view union to include the new guide view; keep existing module cards unchanged."
+        },
+        {
+          "path": "frontend/src/pages/tabs/StudyTab.tsx",
+          "operation": "modify",
+          "description": "Extend the local StudyTab view state union and conditional rendering to support navigating to the new \"UEi DL589 Multimeter Guide\" dedicated view, while leaving existing view behaviors intact."
+        },
+        {
+          "path": "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
+          "operation": "create",
+          "description": "Create the dedicated module view component for the \"UEi DL589 Multimeter Guide\" using existing Study module layout patterns (Card/Separator/Alert) and exporting it for use in StudyTab."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Implement the UEi DL589 guide as cleanly formatted educational content with 10 distinct function sections.",
+      "acceptanceCriteria": [
+        "The module view renders 10 clearly separated sections matching the listed functions.",
+        "Each section is readable and consistently formatted using clear headers and spacing (e.g., cards/separators consistent with existing Study modules).",
+        "All user-facing text in the module is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
+          "operation": "modify",
+          "description": "Implement the 10 required sections with consistent formatting and spacing: AC Voltage (VAC), DC Voltage (VDC), AC Amps (Clamp meter use), DC Amps (Inverter systems), Resistance (Ohms), Continuity, Capacitance (microfarads), Temperature measurement (dual thermocouples), Frequency (Hz), and Differential temperature (Delta T)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add the required five subsections to every function section in the UEi DL589 guide.",
+      "acceptanceCriteria": [
+        "Every one of the 10 function sections includes all five required subsections.",
+        "Power ON/OFF rules are explicitly stated for each function (not implied).",
+        "HVAC-specific examples are present in each section and relate to real HVAC diagnostic/measurement contexts.",
+        "Common mistakes and safety warnings are present in each section and are clearly distinguishable from the other subsections."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
+          "operation": "modify",
+          "description": "For each of the 10 function sections, add subsections with clear labels: When to use it, Power ON or Power OFF rules (explicit), HVAC-specific examples, Common mistakes, and Safety warnings; ensure each section includes all five."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Keep the UEi DL589 guide educational-only with no simulations or interactive tool behavior.",
+      "acceptanceCriteria": [
+        "The new module contains educational content only (reading/scrolling/collapsing is acceptable), with no simulator widgets, dynamic measurement generators, or interactive tool simulations.",
+        "No existing simulator components under study tools are reused/embedded for this guide."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
+          "operation": "modify",
+          "description": "Ensure the guide remains stable and educational-only: do not import or embed any simulator components (e.g., study/tools/*), do not add dynamic measurement generators; limit UI to static educational content and optional native collapsing (e.g., details/summary) only."
+        }
+      ]
+    }
+  ]
+}

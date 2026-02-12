@@ -1,0 +1,99 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-add-a-new-study-module-under-tools-instruments-titled-uei-dl589-multimeter-guide-that-is-accessible-from-the-study-home-screen-without-modifying-other-existing-study-modules",
+      "featureTitle": "Add a new Study module under \"Tools & Instruments\" titled \"UEi DL589 Multimeter Guide\" that is accessible from the Study home screen, without modifying other existing Study modules.",
+      "files": [
+        "frontend/src/components/study/StudySystemHome.tsx",
+        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
+        "frontend/src/pages/tabs/StudyTab.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "qr-code@1.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-the-uei-dl589-multimeter-guide-as-structured-cleanly-formatted-educational-content-with-distinct-sections-headers-and-spacing-for-each-of-the-following-functions-ac-voltage-vac-dc-voltage-vdc-ac-amps-clamp-meter-use-dc-amps-inverter-systems-resistance-ohms-continuity-capacitance-microfarads-temperature-measurement-dual-thermocouples-frequency-hz-and-differential-temperature-delta-t",
+      "featureTitle": "Implement the \"UEi DL589 Multimeter Guide\" as structured, cleanly formatted educational content with distinct sections (headers and spacing) for each of the following functions: AC Voltage (VAC), DC Voltage (VDC), AC Amps (Clamp meter use), DC Amps (Inverter systems), Resistance (Ohms), Continuity, Capacitance (microfarads), Temperature measurement (dual thermocouples), Frequency (Hz), and Differential temperature (Delta T).",
+      "files": [
+        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "qr-code@1.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-for-each-function-section-in-the-uei-dl589-multimeter-guide-include-the-following-subsections-when-to-use-it-power-on-or-power-off-rules-hvac-specific-examples-common-mistakes-and-safety-warnings",
+      "featureTitle": "For each function section in the \"UEi DL589 Multimeter Guide\", include the following subsections: When to use it, Power ON or Power OFF rules, HVAC-specific examples, Common mistakes, and Safety warnings.",
+      "files": [
+        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "qr-code@1.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-new-uei-dl589-multimeter-guide-module-is-educational-and-stable-do-not-add-simulations-or-interactive-tool-behavior-as-part-of-this-module",
+      "featureTitle": "Ensure the new \"UEi DL589 Multimeter Guide\" module is educational and stable: do not add simulations or interactive tool behavior as part of this module.",
+      "files": [
+        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@4.0.0",
+        "camera@1.0.0",
+        "qr-code@1.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

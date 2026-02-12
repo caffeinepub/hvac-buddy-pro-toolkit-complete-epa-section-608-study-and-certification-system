@@ -1,0 +1,94 @@
+{
+  "kind": "build_request",
+  "title": "Add new Study module: UEi DL589 Multimeter Guide (educational, no simulations)",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-4",
+      "text": "Add a new Study module under \"Tools & Instruments\" titled \"UEi DL589 Multimeter Guide\" that is accessible from the Study home screen, without modifying other existing Study modules.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Add a new Study module under \"Tools & Instruments\" titled:\n\n\"UEi DL589 Multimeter Guide\""
+        ]
+      },
+      "acceptanceCriteria": [
+        "A new navigation option/module card labeled \"UEi DL589 Multimeter Guide\" is visible on the Study home screen.",
+        "Selecting the new module opens a dedicated module view for the guide.",
+        "No text/content or behavior changes occur in other Study modules (including the existing \"Multimeter Training\" module)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Implement the \"UEi DL589 Multimeter Guide\" as structured, cleanly formatted educational content with distinct sections (headers and spacing) for each of the following functions: AC Voltage (VAC), DC Voltage (VDC), AC Amps (Clamp meter use), DC Amps (Inverter systems), Resistance (Ohms), Continuity, Capacitance (microfarads), Temperature measurement (dual thermocouples), Frequency (Hz), and Differential temperature (Delta T).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Include structured educational content covering:\n\n- AC Voltage (VAC) use in HVAC\n- DC Voltage (VDC) use in modern systems\n- AC Amps (Clamp meter use)\n- DC Amps (Inverter systems)\n- Resistance (Ohms) testing\n- Continuity testing\n- Capacitance (microfarads) testing\n- Temperature measurement (dual thermocouples)\n- Frequency (Hz)\n- Differential temperature (Delta T)\n\nFormat as clean sections with headers and spacing."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The module view renders 10 clearly separated sections matching the listed functions.",
+        "Each section is readable and consistently formatted using clear headers and spacing (e.g., cards/separators consistent with existing Study modules).",
+        "All user-facing text in the module is in English."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "For each function section in the \"UEi DL589 Multimeter Guide\", include the following subsections: When to use it, Power ON or Power OFF rules, HVAC-specific examples, Common mistakes, and Safety warnings.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "For each function include:\n- When to use it\n- Power ON or Power OFF rules\n- HVAC-specific examples\n- Common mistakes\n- Safety warnings"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Every one of the 10 function sections includes all five required subsections.",
+        "Power ON/OFF rules are explicitly stated for each function (not implied).",
+        "HVAC-specific examples are present in each section and relate to real HVAC diagnostic/measurement contexts.",
+        "Common mistakes and safety warnings are present in each section and are clearly distinguishable from the other subsections."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Ensure the new \"UEi DL589 Multimeter Guide\" module is educational and stable: do not add simulations or interactive tool behavior as part of this module.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Do not add simulations.\nKeep it educational and stable."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The new module contains educational content only (reading/scrolling/collapsing is acceptable), with no simulator widgets, dynamic measurement generators, or interactive tool simulations.",
+        "No existing simulator components under study tools are reused/embedded for this guide."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify other study modules’ content or behavior.",
+    "Do not add simulations to the new UEi DL589 Multimeter Guide module.",
+    "Respect frontend immutable paths listed in SYSTEM_CONTEXT; do not edit files under frontend/src/components/ui or identity/actor hooks.",
+    "Use English for any user-facing text."
+  ],
+  "nonGoals": [
+    "Adding scenario-based practice questions for the UEi DL589 Multimeter Guide (not requested).",
+    "Creating or modifying any multimeter simulation tools or interactive simulators.",
+    "Backend changes (no new Motoko state, APIs, or migrations) unless required for basic navigation/content rendering."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

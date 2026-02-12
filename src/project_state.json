@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Add new Study modules with structured educational content and scenario-based practice questions, including the existing \"Multimeter Training\" module and a new \"UEi DL589 Multimeter Guide\" module under \"Tools & Instruments\", without modifying other Study modules and without simulations.",
+  "architectural_notes": [
+    "Study content modules should be educational and stable: include scenario-based practice questions but avoid complex simulations.",
+    "Add new Study modules without simulations; keep content educational, stable, and clearly sectioned with headers and spacing."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-add-a-new-study-module-titled-multimeter-training-in-the-study-area-accessible-from-the-study-home-screen-without-changing-existing-study-modules-content",
+      "title": "Add a new Study module titled \"Multimeter Training\" in the Study area, accessible from the Study home screen, without changing existing Study modules’ content.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-multimeter-training-module-content-as-structured-educational-sections-covering-continuity-power-off-resistance-ohms-voltage-vac-and-amperage-clamp-meter-each-section-must-include-when-to-use-power-rules-hvac-examples-common-mistakes-safety-warnings-and-scenario-based-practice-questions-formatted-with-clean-headers-and-spacing",
+      "title": "Implement the \"Multimeter Training\" module content as structured educational sections covering: Continuity (Power OFF), Resistance (Ohms), Voltage (VAC), and Amperage (Clamp Meter). Each section must include: When to use, Power rules, HVAC examples, Common mistakes, Safety warnings, and scenario-based practice questions, formatted with clean headers and spacing.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-navigation-into-the-existing-study-tab-view-controller-to-support-the-new-multimeter-training-module-view-e-g-extend-the-current-view-state-and-the-study-home-navigation-callback-types-accordingly",
+      "title": "Integrate navigation into the existing Study tab view controller to support the new \"Multimeter Training\" module view (e.g., extend the current view state and the Study home navigation callback types accordingly).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-study-module-under-tools-instruments-titled-uei-dl589-multimeter-guide-that-is-accessible-from-the-study-home-screen-without-modifying-other-existing-study-modules",
+      "title": "Add a new Study module under \"Tools & Instruments\" titled \"UEi DL589 Multimeter Guide\" that is accessible from the Study home screen, without modifying other existing Study modules.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-uei-dl589-multimeter-guide-as-structured-cleanly-formatted-educational-content-with-distinct-sections-headers-and-spacing-for-each-of-the-following-functions-ac-voltage-vac-dc-voltage-vdc-ac-amps-clamp-meter-use-dc-amps-inverter-systems-resistance-ohms-continuity-capacitance-microfarads-temperature-measurement-dual-thermocouples-frequency-hz-and-differential-temperature-delta-t",
+      "title": "Implement the \"UEi DL589 Multimeter Guide\" as structured, cleanly formatted educational content with distinct sections (headers and spacing) for each of the following functions: AC Voltage (VAC), DC Voltage (VDC), AC Amps (Clamp meter use), DC Amps (Inverter systems), Resistance (Ohms), Continuity, Capacitance (microfarads), Temperature measurement (dual thermocouples), Frequency (Hz), and Differential temperature (Delta T).",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-for-each-function-section-in-the-uei-dl589-multimeter-guide-include-the-following-subsections-when-to-use-it-power-on-or-power-off-rules-hvac-specific-examples-common-mistakes-and-safety-warnings",
+      "title": "For each function section in the \"UEi DL589 Multimeter Guide\", include the following subsections: When to use it, Power ON or Power OFF rules, HVAC-specific examples, Common mistakes, and Safety warnings.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-new-uei-dl589-multimeter-guide-module-is-educational-and-stable-do-not-add-simulations-or-interactive-tool-behavior-as-part-of-this-module",
+      "title": "Ensure the new \"UEi DL589 Multimeter Guide\" module is educational and stable: do not add simulations or interactive tool behavior as part of this module.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add new Study module \"Multimeter Training\" with sections for Continuity, Resistance, Voltage (VAC), and Amperage (Clamp Meter), each including when-to-use, power rules, HVAC examples, common mistakes, safety warnings, and practice questions; no simulations; do not modify other Study modules.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add a new Study module under \"Tools & Instruments\" titled \"UEi DL589 Multimeter Guide\" with cleanly formatted educational sections covering VAC, VDC, AC Amps (clamp), DC Amps, Resistance, Continuity, Capacitance (µF), Temperature (dual thermocouples), Frequency (Hz), and Differential Temperature (Delta T); for each include when-to-use, power ON/OFF rules, HVAC examples, common mistakes, and safety warnings; do not modify other Study modules; no simulations; keep content educational and stable.",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Add new Study module: Multimeter Training (educational content + practice questions)",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
