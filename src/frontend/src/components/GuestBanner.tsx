@@ -6,6 +6,10 @@ export default function GuestBanner() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
+  const handleCloseUpgradeModal = () => {
+    setShowUpgradeModal(false);
+  };
+
   if (isDismissed) return null;
 
   return (
@@ -41,7 +45,9 @@ export default function GuestBanner() {
         </div>
       </div>
 
-      {showUpgradeModal && <ProfileSetupModal isGuestUpgrade={true} />}
+      {showUpgradeModal && (
+        <ProfileSetupModal isGuestUpgrade={true} onClose={handleCloseUpgradeModal} />
+      )}
     </>
   );
 }

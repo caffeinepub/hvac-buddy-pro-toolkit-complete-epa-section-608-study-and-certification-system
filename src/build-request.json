@@ -1,91 +1,74 @@
 {
   "kind": "build_request",
-  "title": "Add new Study module: UEi DL589 Multimeter Guide (educational, no simulations)",
+  "title": "Implement guest-mode UI labeling as a grid/sidebar checklist with clear locked/CTA messaging",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-4",
-      "text": "Add a new Study module under \"Tools & Instruments\" titled \"UEi DL589 Multimeter Guide\" that is accessible from the Study home screen, without modifying other existing Study modules.",
+      "id": "REQ-8",
+      "text": "Add a guest-mode access checklist component that presents the user-facing labels for what is available vs locked in Guest Mode in a layout-ready format (responsive grid on desktop and sidebar/stacked layout on small screens), using the exact labels:\n- Visible to guests (Read-only/Limited):\n  - “Study (Read-only)”\n  - “Videos (Read-only)”\n  - “Parts & Specs (Read-only)”\n  - “Suppliers (Read-only)”\n  - “AI Assistant (Limited)”\n- Locked for guests (Sign in to unlock):\n  - “Jobs (Sign in to unlock)”\n  - “Logs (Sign in to unlock)”\n  - “Full Diagnostics (Sign in to unlock)”\n  - “Study Progress (Sign in to unlock)”\n  - “Community (Sign in to unlock)”\n  - “Export Data (Sign in to unlock)”",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Add a new Study module under \"Tools & Instruments\" titled:\n\n\"UEi DL589 Multimeter Guide\""
+          "Yes"
         ]
       },
       "acceptanceCriteria": [
-        "A new navigation option/module card labeled \"UEi DL589 Multimeter Guide\" is visible on the Study home screen.",
-        "Selecting the new module opens a dedicated module view for the guide.",
-        "No text/content or behavior changes occur in other Study modules (including the existing \"Multimeter Training\" module)."
+        "When the app is in Guest Mode (as determined by existing isGuest logic), the dashboard shows a clearly readable Guest Mode checklist with the exact labels specified.",
+        "The checklist renders as a multi-column grid on wider screens and a sidebar/stacked layout on small screens without overflow or layout breakage.",
+        "No user-facing label text in the checklist is missing, renamed, or paraphrased."
       ]
     },
     {
-      "id": "REQ-5",
-      "text": "Implement the \"UEi DL589 Multimeter Guide\" as structured, cleanly formatted educational content with distinct sections (headers and spacing) for each of the following functions: AC Voltage (VAC), DC Voltage (VDC), AC Amps (Clamp meter use), DC Amps (Inverter systems), Resistance (Ohms), Continuity, Capacitance (microfarads), Temperature measurement (dual thermocouples), Frequency (Hz), and Differential temperature (Delta T).",
+      "id": "REQ-9",
+      "text": "Provide a clear upgrade call-to-action from the guest-mode checklist: include a “Create an account”/“Sign in to unlock” action that opens the existing ProfileSetupModal in guest-upgrade mode (isGuestUpgrade=true) without navigating away from the dashboard.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Include structured educational content covering:\n\n- AC Voltage (VAC) use in HVAC\n- DC Voltage (VDC) use in modern systems\n- AC Amps (Clamp meter use)\n- DC Amps (Inverter systems)\n- Resistance (Ohms) testing\n- Continuity testing\n- Capacitance (microfarads) testing\n- Temperature measurement (dual thermocouples)\n- Frequency (Hz)\n- Differential temperature (Delta T)\n\nFormat as clean sections with headers and spacing."
+          "Yes"
         ]
       },
       "acceptanceCriteria": [
-        "The module view renders 10 clearly separated sections matching the listed functions.",
-        "Each section is readable and consistently formatted using clear headers and spacing (e.g., cards/separators consistent with existing Study modules).",
-        "All user-facing text in the module is in English."
+        "From the guest-mode checklist, clicking the CTA opens ProfileSetupModal with upgrade copy (isGuestUpgrade=true).",
+        "Closing/dismissing the modal returns the user to the same dashboard state without a full page reload."
       ]
     },
     {
-      "id": "REQ-6",
-      "text": "For each function section in the \"UEi DL589 Multimeter Guide\", include the following subsections: When to use it, Power ON or Power OFF rules, HVAC-specific examples, Common mistakes, and Safety warnings.",
+      "id": "REQ-10",
+      "text": "Align guest-mode restrictions with the checklist by ensuring guest users cannot persist or export data where the checklist says features are locked, and show a consistent, user-facing message when a blocked action is attempted:\n- Jobs: blocked create/save (already gated)\n- Logs: blocked add/save; exporting data must be blocked (and show a message)\n- Full Diagnostics: block saving diagnostic sessions / exporting diagnostic reports when isGuest=true\n- Community posting: block any posting/saving actions if present, or clearly indicate it is locked when isGuest=true\n- Study progress tracking: ensure no guest progress persistence calls are made (if any exist)",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "For each function include:\n- When to use it\n- Power ON or Power OFF rules\n- HVAC-specific examples\n- Common mistakes\n- Safety warnings"
+          "What should we do with the guest mode",
+          "Yes"
         ]
       },
       "acceptanceCriteria": [
-        "Every one of the 10 function sections includes all five required subsections.",
-        "Power ON/OFF rules are explicitly stated for each function (not implied).",
-        "HVAC-specific examples are present in each section and relate to real HVAC diagnostic/measurement contexts.",
-        "Common mistakes and safety warnings are present in each section and are clearly distinguishable from the other subsections."
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Ensure the new \"UEi DL589 Multimeter Guide\" module is educational and stable: do not add simulations or interactive tool behavior as part of this module.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Do not add simulations.\nKeep it educational and stable."
-        ]
-      },
-      "acceptanceCriteria": [
-        "The new module contains educational content only (reading/scrolling/collapsing is acceptable), with no simulator widgets, dynamic measurement generators, or interactive tool simulations.",
-        "No existing simulator components under study tools are reused/embedded for this guide."
+        "In Guest Mode, attempting any blocked action results in a clear error/toast message telling the user to create an account to save/unlock the feature.",
+        "DataLogging export is blocked for guests even when there are entries available, and the user is informed it requires a full account.",
+        "Diagnostic session persistence/export actions are blocked in Guest Mode, and the user is informed it requires a full account.",
+        "Non-blocked read-only areas remain accessible in Guest Mode (Study, Videos, Parts & Specs, Suppliers, and limited AI assistant usage where no saving occurs)."
       ]
     }
   ],
   "constraints": [
-    "Do not modify other study modules’ content or behavior.",
-    "Do not add simulations to the new UEi DL589 Multimeter Guide module.",
-    "Respect frontend immutable paths listed in SYSTEM_CONTEXT; do not edit files under frontend/src/components/ui or identity/actor hooks.",
-    "Use English for any user-facing text."
+    "Frontend immutable paths must not be edited: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui/*.",
+    "Use English for any user-facing text.",
+    "Do not add third-party auth; only Internet Identity.",
+    "Do not add external databases or backend services; keep within the existing Internet Computer + Motoko single-actor backend architecture."
   ],
   "nonGoals": [
-    "Adding scenario-based practice questions for the UEi DL589 Multimeter Guide (not requested).",
-    "Creating or modifying any multimeter simulation tools or interactive simulators.",
-    "Backend changes (no new Motoko state, APIs, or migrations) unless required for basic navigation/content rendering."
+    "Do not add new Study modules or modify existing study-module educational content in this change request.",
+    "Do not implement real-time chat, push notifications, or external integrations.",
+    "Do not redesign the entire dashboard navigation; only add the guest-mode labeling/checklist and ensure guest restrictions match it."
   ],
   "imageRequirements": {
     "required": [],

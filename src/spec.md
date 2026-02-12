@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Add a new educational Study module under Tools & Instruments called “UEi DL589 Multimeter Guide” with structured, HVAC-focused reading content (no simulations).
+**Goal:** Make Guest Mode restrictions clearly understandable on the dashboard via a responsive checklist and ensure blocked guest actions consistently show an upgrade prompt.
 
 **Planned changes:**
-- Add a new module card/navigation option on the Study home screen labeled “UEi DL589 Multimeter Guide” under “Tools & Instruments”.
-- Create a dedicated module view that contains 10 clearly separated function sections: AC Voltage (VAC), DC Voltage (VDC), AC Amps (Clamp meter use), DC Amps (Inverter systems), Resistance (Ohms), Continuity, Capacitance (microfarads), Temperature measurement (dual thermocouples), Frequency (Hz), Differential temperature (Delta T).
-- Within each function section, include the required subsections: When to use it, Power ON or Power OFF rules, HVAC-specific examples, Common mistakes, Safety warnings.
-- Ensure the module is educational-only (reading/scrolling/collapsing acceptable) and does not alter any other existing Study modules.
+- Add a Guest Mode access checklist component shown when `isGuest` is true, listing what is available vs locked using the exact required labels.
+- Implement responsive layout for the checklist (multi-column grid on wider screens; sidebar/stacked on small screens) without overflow/breakage.
+- Add a “Create an account” / “Sign in to unlock” CTA in the checklist that opens the existing `ProfileSetupModal` with `isGuestUpgrade=true` without leaving the dashboard.
+- Align guest restrictions to the checklist by blocking guest persistence/export/posting actions (where applicable) and showing a consistent user-facing message when blocked (including DataLogging export and diagnostic session save/export).
 
-**User-visible outcome:** On the Study home screen, users can open the new “UEi DL589 Multimeter Guide” module and read a structured, sectioned guide for 10 multimeter functions with HVAC examples, explicit power rules, mistakes, and safety warnings—without any simulations.
+**User-visible outcome:** In Guest Mode, users see a clear checklist of what they can access vs what requires sign-in, can open an upgrade/sign-in modal directly from the dashboard, and receive consistent messaging when attempting locked save/export/post actions.

@@ -12,6 +12,8 @@ import {
   MessageSquare,
   MapPin,
 } from 'lucide-react';
+import GuestModeChecklist from '@/components/GuestModeChecklist';
+import ProfileSetupModal from '@/components/ProfileSetupModal';
 
 // Lazy load tab components for better performance
 const TroubleshooterTab = lazy(() => import('./tabs/TroubleshooterTab'));
@@ -39,6 +41,15 @@ function TabLoader() {
 
 export default function Dashboard({ isGuest }: DashboardProps) {
   const [activeTab, setActiveTab] = useState('troubleshooter');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const handleUpgrade = () => {
+    setShowUpgradeModal(true);
+  };
+
+  const handleCloseUpgradeModal = () => {
+    setShowUpgradeModal(false);
+  };
 
   return (
     <div className="container mx-auto px-4 py-6 sm:py-8">
@@ -48,6 +59,13 @@ export default function Dashboard({ isGuest }: DashboardProps) {
           Your complete toolkit for HVAC diagnostics, learning, and field work
         </p>
       </div>
+
+      {/* Guest Mode Checklist */}
+      {isGuest && (
+        <div className="mb-6 sm:mb-8">
+          <GuestModeChecklist onUpgrade={handleUpgrade} />
+        </div>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6 sm:mb-8 grid w-full grid-cols-3 gap-1 sm:gap-2 lg:grid-cols-9 h-auto">
@@ -121,11 +139,15 @@ export default function Dashboard({ isGuest }: DashboardProps) {
             <DataLoggingTab isGuest={isGuest} />
           </TabsContent>
           <TabsContent value="community" className="mt-0">
-            <CommunityTab />
+            <CommunityTab isGuest={isGuest} />
           </TabsContent>
         </Suspense>
       </Tabs>
+
+      {/* Upgrade Modal */}
+      {showUpgradeModal && (
+        <ProfileSetupModal isGuestUpgrade={true} onClose={handleCloseUpgradeModal} />
+      )}
     </div>
   );
 }
-

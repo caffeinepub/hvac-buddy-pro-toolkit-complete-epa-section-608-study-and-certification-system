@@ -9,9 +9,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ProfileSetupModalProps {
   isGuestUpgrade: boolean;
+  onClose?: () => void;
 }
 
-export default function ProfileSetupModal({ isGuestUpgrade }: ProfileSetupModalProps) {
+export default function ProfileSetupModal({ isGuestUpgrade, onClose }: ProfileSetupModalProps) {
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [email, setEmail] = useState('');
@@ -54,9 +55,15 @@ export default function ProfileSetupModal({ isGuestUpgrade }: ProfileSetupModalP
     }
   };
 
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
+
   if (showSuccess) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-md">
           <div className="flex flex-col items-center justify-center space-y-4 py-8">
             <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/20">
@@ -75,7 +82,7 @@ export default function ProfileSetupModal({ isGuestUpgrade }: ProfileSetupModalP
   }
 
   return (
-    <Dialog open={true}>
+    <Dialog open={true} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl">
@@ -204,4 +211,3 @@ export default function ProfileSetupModal({ isGuestUpgrade }: ProfileSetupModalP
     </Dialog>
   );
 }
-

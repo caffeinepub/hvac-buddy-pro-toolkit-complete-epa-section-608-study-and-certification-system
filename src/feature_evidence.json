@@ -2,12 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-new-study-module-under-tools-instruments-titled-uei-dl589-multimeter-guide-that-is-accessible-from-the-study-home-screen-without-modifying-other-existing-study-modules",
-      "featureTitle": "Add a new Study module under \"Tools & Instruments\" titled \"UEi DL589 Multimeter Guide\" that is accessible from the Study home screen, without modifying other existing Study modules.",
+      "featureId": "feature-add-a-guest-mode-access-checklist-component-that-presents-the-user-facing-labels-for-what-is-available-vs-locked-in-guest-mode-in-a-layout-ready-format-responsive-grid-on-desktop-and-sidebar-stacked-layout-on-small-screens-using-the-exact-labels-visible-to-guests-read-only-limited-study-read-only-videos-read-only-parts-specs-read-only-suppliers-read-only-ai-assistant-limited-locked-for-guests-sign-in-to-unlock-jobs-sign-in-to-unlock-logs-sign-in-to-unlock-full-diagnostics-sign-in-to-unlock-study-progress-sign-in-to-unlock-community-sign-in-to-unlock-export-data-sign-in-to-unlock",
+      "featureTitle": "Add a guest-mode access checklist component that presents the user-facing labels for what is available vs locked in Guest Mode in a layout-ready format (responsive grid on desktop and sidebar/stacked layout on small screens), using the exact labels:\n- Visible to guests (Read-only/Limited):\n  - “Study (Read-only)”\n  - “Videos (Read-only)”\n  - “Parts & Specs (Read-only)”\n  - “Suppliers (Read-only)”\n  - “AI Assistant (Limited)”\n- Locked for guests (Sign in to unlock):\n  - “Jobs (Sign in to unlock)”\n  - “Logs (Sign in to unlock)”\n  - “Full Diagnostics (Sign in to unlock)”\n  - “Study Progress (Sign in to unlock)”\n  - “Community (Sign in to unlock)”\n  - “Export Data (Sign in to unlock)”",
       "files": [
-        "frontend/src/components/study/StudySystemHome.tsx",
-        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
-        "frontend/src/pages/tabs/StudyTab.tsx"
+        "frontend/src/components/GuestModeChecklist.tsx",
+        "frontend/src/pages/Dashboard.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -22,15 +21,18 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-4"
+        "REQ-8"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-the-uei-dl589-multimeter-guide-as-structured-cleanly-formatted-educational-content-with-distinct-sections-headers-and-spacing-for-each-of-the-following-functions-ac-voltage-vac-dc-voltage-vdc-ac-amps-clamp-meter-use-dc-amps-inverter-systems-resistance-ohms-continuity-capacitance-microfarads-temperature-measurement-dual-thermocouples-frequency-hz-and-differential-temperature-delta-t",
-      "featureTitle": "Implement the \"UEi DL589 Multimeter Guide\" as structured, cleanly formatted educational content with distinct sections (headers and spacing) for each of the following functions: AC Voltage (VAC), DC Voltage (VDC), AC Amps (Clamp meter use), DC Amps (Inverter systems), Resistance (Ohms), Continuity, Capacitance (microfarads), Temperature measurement (dual thermocouples), Frequency (Hz), and Differential temperature (Delta T).",
+      "featureId": "feature-provide-a-clear-upgrade-call-to-action-from-the-guest-mode-checklist-include-a-create-an-account-sign-in-to-unlock-action-that-opens-the-existing-profilesetupmodal-in-guest-upgrade-mode-isguestupgrade-true-without-navigating-away-from-the-dashboard",
+      "featureTitle": "Provide a clear upgrade call-to-action from the guest-mode checklist: include a “Create an account”/“Sign in to unlock” action that opens the existing ProfileSetupModal in guest-upgrade mode (isGuestUpgrade=true) without navigating away from the dashboard.",
       "files": [
-        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx"
+        "frontend/src/components/GuestBanner.tsx",
+        "frontend/src/components/GuestModeChecklist.tsx",
+        "frontend/src/components/ProfileSetupModal.tsx",
+        "frontend/src/pages/Dashboard.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -45,15 +47,19 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-5"
+        "REQ-9"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-for-each-function-section-in-the-uei-dl589-multimeter-guide-include-the-following-subsections-when-to-use-it-power-on-or-power-off-rules-hvac-specific-examples-common-mistakes-and-safety-warnings",
-      "featureTitle": "For each function section in the \"UEi DL589 Multimeter Guide\", include the following subsections: When to use it, Power ON or Power OFF rules, HVAC-specific examples, Common mistakes, and Safety warnings.",
+      "featureId": "feature-align-guest-mode-restrictions-with-the-checklist-by-ensuring-guest-users-cannot-persist-or-export-data-where-the-checklist-says-features-are-locked-and-show-a-consistent-user-facing-message-when-a-blocked-action-is-attempted-jobs-blocked-create-save-already-gated-logs-blocked-add-save-exporting-data-must-be-blocked-and-show-a-message-full-diagnostics-block-saving-diagnostic-sessions-exporting-diagnostic-reports-when-isguest-true-community-posting-block-any-posting-saving-actions-if-present-or-clearly-indicate-it-is-locked-when-isguest-true-study-progress-tracking-ensure-no-guest-progress-persistence-calls-are-made-if-any-exist",
+      "featureTitle": "Align guest-mode restrictions with the checklist by ensuring guest users cannot persist or export data where the checklist says features are locked, and show a consistent, user-facing message when a blocked action is attempted:\n- Jobs: blocked create/save (already gated)\n- Logs: blocked add/save; exporting data must be blocked (and show a message)\n- Full Diagnostics: block saving diagnostic sessions / exporting diagnostic reports when isGuest=true\n- Community posting: block any posting/saving actions if present, or clearly indicate it is locked when isGuest=true\n- Study progress tracking: ensure no guest progress persistence calls are made (if any exist)",
       "files": [
-        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx"
+        "frontend/src/pages/tabs/CommunityTab.tsx",
+        "frontend/src/pages/tabs/DataLoggingTab.tsx",
+        "frontend/src/pages/tabs/JobsTab.tsx",
+        "frontend/src/pages/tabs/TroubleshooterTab.tsx",
+        "frontend/src/utils/guestRestrictions.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -68,30 +74,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-6"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-the-new-uei-dl589-multimeter-guide-module-is-educational-and-stable-do-not-add-simulations-or-interactive-tool-behavior-as-part-of-this-module",
-      "featureTitle": "Ensure the new \"UEi DL589 Multimeter Guide\" module is educational and stable: do not add simulations or interactive tool behavior as part of this module.",
-      "files": [
-        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@4.0.0",
-        "camera@1.0.0",
-        "qr-code@1.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-7"
+        "REQ-10"
       ],
       "confidence": "high"
     }

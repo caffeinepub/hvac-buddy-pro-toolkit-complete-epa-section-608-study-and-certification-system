@@ -1,50 +1,81 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T03:19:08.126Z",
-  "summary": "Diff adds a new UEi DL589 Multimeter Guide component and wires a new view route into StudyTab/StudySystemHome, but the provided truncated diff does not show enough evidence that the Study home card exists, nor that the guide contains all 10 required function sections and all required subsections per section.",
+  "generatedAt": "2026-02-12T23:56:37.434Z",
+  "summary": "REQ-9 is largely implemented via a guest-mode CTA that opens ProfileSetupModal (isGuestUpgrade=true) from the Dashboard without navigation. REQ-8 is only partially implemented: a GuestModeChecklist exists and uses a responsive grid, but it does not use the exact required checklist labels (it splits labels/status into separate UI elements and changes section headings). REQ-10 is partially implemented: Jobs and DataLogging add/export are blocked with a consistent toast message, but Community posting/saving locks and Study Progress persistence safeguards are not evidenced; Diagnostics save/export blocking is only partially evidenced (export messaging mentioned, but persistence/export coverage is unclear from the truncated diff).",
   "missing_requirements": [
     {
-      "id": "REQ-4",
-      "requirement": "Add a new Study module under \"Tools & Instruments\" titled \"UEi DL589 Multimeter Guide\" that is accessible from the Study home screen, without modifying other existing Study modules.",
-      "reason": "Navigation/view state for 'uei-dl589-guide' is added, but the diff excerpt for the Study home screen is truncated before showing a new module card under \"Tools & Instruments\" labeled \"UEi DL589 Multimeter Guide\".",
+      "id": "REQ-8",
+      "requirement": "Use the exact guest-mode checklist labels as specified (e.g., “Study (Read-only)”, “Jobs (Sign in to unlock)”, etc.) with no missing/renamed/paraphrased text.",
+      "reason": "GuestModeChecklist renders feature name and status separately (e.g., label 'Study' with badge 'Read-only', and locked items show label 'Jobs' with badge 'Sign in to unlock') rather than the exact combined strings required. Section headings also differ from the requested phrasing ('Visible to guests (Read-only/Limited)' and 'Locked for guests (Sign in to unlock)').",
       "evidence": [
-        "frontend/src/components/study/StudySystemHome.tsx (truncated)",
-        "frontend/src/pages/tabs/StudyTab.tsx"
+        "frontend/src/components/GuestModeChecklist.tsx"
       ]
     },
     {
-      "id": "REQ-5",
-      "requirement": "Implement the \"UEi DL589 Multimeter Guide\" as structured, cleanly formatted educational content with 10 distinct sections for the listed functions (VAC, VDC, AC Amps, DC Amps, Resistance, Continuity, Capacitance, Temperature, Frequency, Differential temperature).",
-      "reason": "The new guide file shows the module header and the beginning of Section 1 (AC Voltage), but the remainder is truncated; there is no visible evidence in the diff summary that all 10 required sections are implemented.",
+      "id": "REQ-10",
+      "requirement": "Community posting: block any posting/saving actions if present, or clearly indicate it is locked when isGuest=true.",
+      "reason": "CommunityTab only adds an optional isGuest prop and shows no gating/blocked-action messaging for posting/saving actions in the provided diff excerpt.",
       "evidence": [
-        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx (truncated)"
+        "frontend/src/pages/tabs/CommunityTab.tsx",
+        "frontend-file-summaries.txt (CommunityTab summary mentions 'future guest restriction implementation')"
       ]
     },
     {
-      "id": "REQ-6",
-      "requirement": "For each of the 10 function sections, include subsections: When to use it, Power ON/OFF rules, HVAC-specific examples, Common mistakes, and Safety warnings.",
-      "reason": "Section 1 visibly includes several required subsections (e.g., When to Use It, Power ON/OFF Rules, HVAC-Specific Examples), but the file is truncated before showing completion of Section 1 and any other sections; the diff summary does not provide evidence that every section includes all five required subsections with explicit power rules and safety warnings.",
+      "id": "REQ-10",
+      "requirement": "Study progress tracking: ensure no guest progress persistence calls are made (if any exist).",
+      "reason": "No evidence in the diff summary shows removal/gating of any Study progress persistence calls for guests; StudyTab changes are mentioned but not tied to guest progress persistence prevention.",
       "evidence": [
-        "frontend/src/components/study/UEiDL589MultimeterGuide.tsx (truncated)"
+        "frontend-file-summaries.txt (StudyTab summary)",
+        "frontend/src/pages/tabs/StudyTab.tsx (mentioned in summaries; diff content not shown)"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "requirement": "Full Diagnostics: block saving diagnostic sessions / exporting diagnostic reports when isGuest=true and inform the user it requires a full account.",
+      "reason": "TroubleshooterTab references guest restrictions on report export and removal of non-existent backend save functionality, but the diff excerpt does not clearly evidence that all diagnostic session persistence and export paths are gated when isGuest=true.",
+      "evidence": [
+        "frontend/src/pages/tabs/TroubleshooterTab.tsx",
+        "frontend-file-summaries.txt (TroubleshooterTab summary)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Project metadata describes adding scenario-based practice questions (and multiple new study modules) as part of this change.",
-      "reason": "The BuildRequest explicitly lists scenario-based practice questions for the UEi DL589 guide as a non-goal, and only requests adding the UEi DL589 guide module; the diff includes an updated project_state summary referencing scenario-based practice questions beyond the request.",
+      "description": "Added/modified Study modules and Study content (e.g., 'UEi DL589 Multimeter Guide' and 'Multimeter Training'), despite the BuildRequest non-goal explicitly stating not to add new Study modules or modify educational content for this change.",
+      "reason": "The diff summary explicitly describes new Study modules and content changes unrelated to guest-mode labeling/restrictions.",
       "evidence": [
-        "project_state.json (truncated)"
+        "frontend-file-summaries.txt (StudyTab summary mentions new UEi DL589 multimeter guide)",
+        "project_state.json (summary and existing_features list includes new study modules reqIds REQ-1..REQ-5, etc.)"
+      ]
+    },
+    {
+      "description": "Enhanced Parts & Specs with a comprehensive refrigerant specification database and related UI (searchable table, dialogs, safety/environmental data), which is outside the guest-mode checklist/CTA/restrictions scope.",
+      "reason": "Not requested by REQ-8/REQ-9/REQ-10 and contradicts the request focus to avoid broader redesign/features.",
+      "evidence": [
+        "frontend-file-summaries.txt (PartsTab summary)"
+      ]
+    },
+    {
+      "description": "Large global style overhaul (OKLCH color system, performance optimizations, touch targets) unrelated to guest-mode checklist and restrictions.",
+      "reason": "Not requested by REQ-8/REQ-9/REQ-10.",
+      "evidence": [
+        "frontend-file-summaries.txt (index.css summary)"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.73,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/study/StudySystemHome.tsx",
-    "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
-    "frontend/src/pages/tabs/StudyTab.tsx",
+    "frontend/src/components/GuestBanner.tsx",
+    "frontend/src/components/GuestModeChecklist.tsx",
+    "frontend/src/components/ProfileSetupModal.tsx",
+    "frontend/src/pages/Dashboard.tsx",
+    "frontend/src/pages/tabs/CommunityTab.tsx",
+    "frontend/src/pages/tabs/DataLoggingTab.tsx",
+    "frontend/src/pages/tabs/JobsTab.tsx",
+    "frontend/src/pages/tabs/TroubleshooterTab.tsx",
+    "frontend/src/utils/guestRestrictions.ts",
     "project_state.json"
   ]
 }

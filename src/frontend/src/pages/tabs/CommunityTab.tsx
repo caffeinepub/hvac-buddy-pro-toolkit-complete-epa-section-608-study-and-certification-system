@@ -6,7 +6,11 @@ import TroubleshootingChat from '@/components/community/TroubleshootingChat';
 import VideoLibrary from '@/components/community/VideoLibrary';
 import HelpAIChat from '@/components/community/HelpAIChat';
 
-export default function CommunityTab() {
+interface CommunityTabProps {
+  isGuest?: boolean;
+}
+
+export default function CommunityTab({ isGuest }: CommunityTabProps) {
   const [showChat, setShowChat] = useState(false);
   const [showVideos, setShowVideos] = useState(false);
   const [showHelpAI, setShowHelpAI] = useState(false);

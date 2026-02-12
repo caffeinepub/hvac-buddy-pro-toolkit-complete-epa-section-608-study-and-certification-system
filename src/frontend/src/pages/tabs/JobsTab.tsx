@@ -9,6 +9,7 @@ import { Briefcase, Plus, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
+import { GUEST_RESTRICTION_MESSAGE } from '../../utils/guestRestrictions';
 
 interface JobsTabProps {
   isGuest: boolean;
@@ -24,7 +25,7 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
     e.preventDefault();
     
     if (isGuest) {
-      toast.error('Guest users cannot create jobs. Create an account to save your work.');
+      toast.error(GUEST_RESTRICTION_MESSAGE);
       return;
     }
     
@@ -59,7 +60,7 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
             </div>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button disabled={isGuest}>
                   <Plus className="mr-2 h-4 w-4" />
                   New Job
                 </Button>

@@ -1,79 +1,93 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "UEi DL589 Multimeter Guide Study Module (educational content)",
+  "title": "Guest-mode checklist UI + upgrade CTA + consistent guest restriction messaging",
   "requirements": [
     {
-      "id": "REQ-4",
-      "summary": "Add a new Study module entry under Tools & Instruments and wire it to a dedicated guide view without impacting other modules.",
+      "id": "REQ-8",
+      "summary": "Add a responsive Guest Mode access checklist component with exact visible/locked labels for dashboard display.",
       "acceptanceCriteria": [
-        "A new navigation option/module card labeled \"UEi DL589 Multimeter Guide\" is visible on the Study home screen.",
-        "Selecting the new module opens a dedicated module view for the guide.",
-        "No text/content or behavior changes occur in other Study modules (including the existing \"Multimeter Training\" module)."
+        "When the app is in Guest Mode (as determined by existing isGuest logic), the dashboard shows a clearly readable Guest Mode checklist with the exact labels specified.",
+        "The checklist renders as a multi-column grid on wider screens and a sidebar/stacked layout on small screens without overflow or layout breakage.",
+        "No user-facing label text in the checklist is missing, renamed, or paraphrased."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/study/StudySystemHome.tsx",
-          "operation": "modify",
-          "description": "Add a new module card/button labeled \"UEi DL589 Multimeter Guide\" (Tools & Instruments) and extend the onNavigate view union to include the new guide view; keep existing module cards unchanged."
-        },
-        {
-          "path": "frontend/src/pages/tabs/StudyTab.tsx",
-          "operation": "modify",
-          "description": "Extend the local StudyTab view state union and conditional rendering to support navigating to the new \"UEi DL589 Multimeter Guide\" dedicated view, while leaving existing view behaviors intact."
-        },
-        {
-          "path": "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
+          "path": "frontend/src/components/GuestModeChecklist.tsx",
           "operation": "create",
-          "description": "Create the dedicated module view component for the \"UEi DL589 Multimeter Guide\" using existing Study module layout patterns (Card/Separator/Alert) and exporting it for use in StudyTab."
+          "description": "Create a GuestModeChecklist component that renders two sections (Visible to guests / Locked for guests) with the exact labels provided, using a responsive layout (multi-column grid on desktop; stacked/sidebar-style on small screens). Use existing shadcn/ui primitives (e.g., Card, Badge, Separator, Button) from frontend/src/components/ui/* for consistent styling. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/Dashboard.tsx",
+          "operation": "modify",
+          "description": "Wire GuestModeChecklist into the dashboard UI so it is shown when isGuest=true, positioned in a layout-ready location (without changing overall dashboard navigation). Ensure the checklist area remains readable across breakpoints."
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Implement the UEi DL589 guide as cleanly formatted educational content with 10 distinct function sections.",
+      "id": "REQ-9",
+      "summary": "Add a guest-upgrade CTA on the checklist that opens the existing ProfileSetupModal in guest-upgrade mode without leaving the dashboard.",
       "acceptanceCriteria": [
-        "The module view renders 10 clearly separated sections matching the listed functions.",
-        "Each section is readable and consistently formatted using clear headers and spacing (e.g., cards/separators consistent with existing Study modules).",
-        "All user-facing text in the module is in English."
+        "From the guest-mode checklist, clicking the CTA opens ProfileSetupModal with upgrade copy (isGuestUpgrade=true).",
+        "Closing/dismissing the modal returns the user to the same dashboard state without a full page reload."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
+          "path": "frontend/src/components/GuestModeChecklist.tsx",
           "operation": "modify",
-          "description": "Implement the 10 required sections with consistent formatting and spacing: AC Voltage (VAC), DC Voltage (VDC), AC Amps (Clamp meter use), DC Amps (Inverter systems), Resistance (Ohms), Continuity, Capacitance (microfarads), Temperature measurement (dual thermocouples), Frequency (Hz), and Differential temperature (Delta T)."
+          "description": "Add a clear upgrade CTA (\"Create an account\" / \"Sign in to unlock\") to GuestModeChecklist and expose an onUpgrade callback so the dashboard can open ProfileSetupModal without navigation. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/ProfileSetupModal.tsx",
+          "operation": "modify",
+          "description": "Add optional controlled close support (e.g., onClose callback and Dialog onOpenChange handling) so the modal can be opened/closed from the dashboard CTA and dismissed cleanly back to the dashboard state. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/Dashboard.tsx",
+          "operation": "modify",
+          "description": "Add local state to open/close ProfileSetupModal from the GuestModeChecklist CTA (isGuestUpgrade=true) and ensure dismissing the modal preserves the current dashboard tab/state without reload."
+        },
+        {
+          "path": "frontend/src/components/GuestBanner.tsx",
+          "operation": "modify",
+          "description": "Update GuestBanner’s ProfileSetupModal usage to pass the new optional onClose behavior (if introduced) so banner and checklist upgrade flows behave consistently. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-6",
-      "summary": "Add the required five subsections to every function section in the UEi DL589 guide.",
+      "id": "REQ-10",
+      "summary": "Ensure guest users cannot save/persist or export data for locked features, with a consistent upgrade-required toast/message on blocked actions.",
       "acceptanceCriteria": [
-        "Every one of the 10 function sections includes all five required subsections.",
-        "Power ON/OFF rules are explicitly stated for each function (not implied).",
-        "HVAC-specific examples are present in each section and relate to real HVAC diagnostic/measurement contexts.",
-        "Common mistakes and safety warnings are present in each section and are clearly distinguishable from the other subsections."
+        "In Guest Mode, attempting any blocked action results in a clear error/toast message telling the user to create an account to save/unlock the feature.",
+        "DataLogging export is blocked for guests even when there are entries available, and the user is informed it requires a full account.",
+        "Diagnostic session persistence/export actions are blocked in Guest Mode, and the user is informed it requires a full account.",
+        "Non-blocked read-only areas remain accessible in Guest Mode (Study, Videos, Parts & Specs, Suppliers, and limited AI assistant usage where no saving occurs)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
-          "operation": "modify",
-          "description": "For each of the 10 function sections, add subsections with clear labels: When to use it, Power ON or Power OFF rules (explicit), HVAC-specific examples, Common mistakes, and Safety warnings; ensure each section includes all five."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Keep the UEi DL589 guide educational-only with no simulations or interactive tool behavior.",
-      "acceptanceCriteria": [
-        "The new module contains educational content only (reading/scrolling/collapsing is acceptable), with no simulator widgets, dynamic measurement generators, or interactive tool simulations.",
-        "No existing simulator components under study tools are reused/embedded for this guide."
-      ],
-      "file_operations": [
+          "path": "frontend/src/utils/guestRestrictions.ts",
+          "operation": "create",
+          "description": "Create a small shared helper (e.g., a single exported constant message string and guard function) for consistent guest blocked-action messaging (\"Create an account to save/unlock this feature.\") and reuse it across restricted UI actions."
+        },
         {
-          "path": "frontend/src/components/study/UEiDL589MultimeterGuide.tsx",
+          "path": "frontend/src/pages/tabs/DataLoggingTab.tsx",
           "operation": "modify",
-          "description": "Ensure the guide remains stable and educational-only: do not import or embed any simulator components (e.g., study/tools/*), do not add dynamic measurement generators; limit UI to static educational content and optional native collapsing (e.g., details/summary) only."
+          "description": "Block CSV export when isGuest=true (even if logEntries exist) by intercepting the export action and showing the shared guest restriction message; ensure the action does not generate/download a file for guests."
+        },
+        {
+          "path": "frontend/src/pages/tabs/TroubleshooterTab.tsx",
+          "operation": "modify",
+          "description": "Add guest guards around diagnostic persistence and any export/download/report actions so isGuest=true prevents saving diagnostic sessions and exporting diagnostic reports, and shows the shared guest restriction message instead."
+        },
+        {
+          "path": "frontend/src/pages/tabs/JobsTab.tsx",
+          "operation": "modify",
+          "description": "Ensure any remaining job create/save UI actions are consistently blocked for isGuest=true with the shared guest restriction message (do not change read-only viewing if present)."
+        },
+        {
+          "path": "frontend/src/pages/tabs/CommunityTab.tsx",
+          "operation": "modify",
+          "description": "Plumb isGuest into community-related modules where posting/saving may occur so guest users see Community as locked (or have posting/saving disabled) with the shared guest restriction message when they attempt a blocked action."
         }
       ]
     }
