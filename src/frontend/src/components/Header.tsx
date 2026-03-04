@@ -1,22 +1,22 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetCallerUserProfile } from '../hooks/useQueries';
-import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Moon, Sun, Menu, LogOut, User } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useState } from 'react';
+} from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useQueryClient } from "@tanstack/react-query";
+import { LogOut, Menu, Moon, Sun, User } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useState } from "react";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import { useGetCallerUserProfile } from "../hooks/useQueries";
 
 export default function Header() {
-  const { identity, clear, isLoggingIn } = useInternetIdentity();
+  const { identity, clear } = useInternetIdentity();
   const { data: userProfile } = useGetCallerUserProfile();
   const queryClient = useQueryClient();
   const { theme, setTheme } = useTheme();
@@ -32,9 +32,9 @@ export default function Header() {
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
+      .split(" ")
       .map((n) => n[0])
-      .join('')
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -58,7 +58,11 @@ export default function Header() {
         {/* Desktop Navigation */}
         {isAuthenticated && (
           <nav className="hidden items-center gap-6 md:flex">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground"
+            >
               Dashboard
             </Button>
           </nav>
@@ -70,7 +74,7 @@ export default function Header() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="hidden sm:inline-flex"
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -88,21 +92,34 @@ export default function Header() {
                       {getInitials(userProfile.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm font-medium">{userProfile.name}</span>
+                  <span className="text-sm font-medium">
+                    {userProfile.name}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-1.5">
                   <p className="text-sm font-medium">{userProfile.name}</p>
-                  <p className="text-xs text-muted-foreground">{userProfile.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {userProfile.email}
+                  </p>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                  {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+                <DropdownMenuItem
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                >
+                  {theme === "dark" ? (
+                    <Sun className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Moon className="mr-2 h-4 w-4" />
+                  )}
                   Toggle Theme
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-destructive"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
@@ -129,19 +146,31 @@ export default function Header() {
                       </Avatar>
                       <div>
                         <p className="font-medium">{userProfile.name}</p>
-                        <p className="text-xs text-muted-foreground">{userProfile.email}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {userProfile.email}
+                        </p>
                       </div>
                     </div>
                   )}
                   <Button
                     variant="ghost"
                     className="justify-start"
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    onClick={() =>
+                      setTheme(theme === "dark" ? "light" : "dark")
+                    }
                   >
-                    {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+                    {theme === "dark" ? (
+                      <Sun className="mr-2 h-4 w-4" />
+                    ) : (
+                      <Moon className="mr-2 h-4 w-4" />
+                    )}
                     Toggle Theme
                   </Button>
-                  <Button variant="ghost" className="justify-start text-destructive" onClick={handleLogout}>
+                  <Button
+                    variant="ghost"
+                    className="justify-start text-destructive"
+                    onClick={handleLogout}
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
                   </Button>

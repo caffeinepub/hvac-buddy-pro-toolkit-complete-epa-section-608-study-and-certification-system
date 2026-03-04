@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
-import type { Flashcard } from '../types/local';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { useState } from "react";
+import type { Flashcard } from "../types/local";
 
 interface FlashcardViewerProps {
   flashcards: Flashcard[];
@@ -13,7 +13,11 @@ export default function FlashcardViewer({ flashcards }: FlashcardViewerProps) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   if (flashcards.length === 0) {
-    return <p className="text-center text-muted-foreground">No flashcards available.</p>;
+    return (
+      <p className="text-center text-muted-foreground">
+        No flashcards available.
+      </p>
+    );
   }
 
   const currentCard = flashcards[currentIndex];
@@ -25,7 +29,9 @@ export default function FlashcardViewer({ flashcards }: FlashcardViewerProps) {
 
   const handlePrevious = () => {
     setIsFlipped(false);
-    setCurrentIndex((prev) => (prev - 1 + flashcards.length) % flashcards.length);
+    setCurrentIndex(
+      (prev) => (prev - 1 + flashcards.length) % flashcards.length,
+    );
   };
 
   const handleFlip = () => {
@@ -45,18 +51,26 @@ export default function FlashcardViewer({ flashcards }: FlashcardViewerProps) {
         <CardContent className="flex min-h-[300px] items-center justify-center p-8">
           <div className="text-center">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {isFlipped ? 'Answer' : 'Question'}
+              {isFlipped ? "Answer" : "Question"}
             </p>
-            <p className="text-lg">{isFlipped ? currentCard.answer : currentCard.question}</p>
+            <p className="text-lg">
+              {isFlipped ? currentCard.answer : currentCard.question}
+            </p>
             {!isFlipped && (
-              <p className="mt-4 text-sm text-muted-foreground">Click to reveal answer</p>
+              <p className="mt-4 text-sm text-muted-foreground">
+                Click to reveal answer
+              </p>
             )}
           </div>
         </CardContent>
       </Card>
 
       <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={handlePrevious} disabled={flashcards.length <= 1}>
+        <Button
+          variant="outline"
+          onClick={handlePrevious}
+          disabled={flashcards.length <= 1}
+        >
           <ChevronLeft className="mr-2 h-4 w-4" />
           Previous
         </Button>
@@ -64,7 +78,11 @@ export default function FlashcardViewer({ flashcards }: FlashcardViewerProps) {
           <RotateCcw className="mr-2 h-4 w-4" />
           Reset
         </Button>
-        <Button variant="outline" onClick={handleNext} disabled={flashcards.length <= 1}>
+        <Button
+          variant="outline"
+          onClick={handleNext}
+          disabled={flashcards.length <= 1}
+        >
           Next
           <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
@@ -72,4 +90,3 @@ export default function FlashcardViewer({ flashcards }: FlashcardViewerProps) {
     </div>
   );
 }
-

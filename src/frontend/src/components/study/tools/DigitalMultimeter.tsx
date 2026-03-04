@@ -1,23 +1,39 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
-import { Zap, AlertTriangle, CheckCircle2, Info, ShieldAlert } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Info,
+  ShieldAlert,
+  Zap,
+} from "lucide-react";
+import { useState } from "react";
 
 interface DigitalMultimeterProps {
-  studyMode: { __kind__: 'beginner' | 'expert' };
+  studyMode: { __kind__: "beginner" | "expert" };
 }
 
-export default function DigitalMultimeter({ studyMode }: DigitalMultimeterProps) {
-  const [mode, setMode] = useState<'voltage' | 'amperage' | 'resistance'>('voltage');
+export default function DigitalMultimeter({
+  studyMode,
+}: DigitalMultimeterProps) {
+  const [mode, setMode] = useState<"voltage" | "amperage" | "resistance">(
+    "voltage",
+  );
   const [reading, setReading] = useState<number>(240);
-  const [component, setComponent] = useState<string>('compressor');
+  const [component, setComponent] = useState<string>("compressor");
 
-  const isBeginner = studyMode.__kind__ === 'beginner';
+  const isBeginner = studyMode.__kind__ === "beginner";
 
   const componentSpecs = {
     compressor: { voltage: [220, 240], amperage: [15, 25], resistance: [1, 5] },
@@ -31,51 +47,51 @@ export default function DigitalMultimeter({ studyMode }: DigitalMultimeterProps)
 
   const getStatus = () => {
     if (reading >= ranges[0] && reading <= ranges[1]) {
-      return { color: 'green', text: 'Normal', icon: CheckCircle2 };
-    } else if (reading >= ranges[0] * 0.8 && reading <= ranges[1] * 1.2) {
-      return { color: 'yellow', text: 'Caution', icon: AlertTriangle };
-    } else {
-      return { color: 'red', text: 'Critical', icon: ShieldAlert };
+      return { color: "green", text: "Normal", icon: CheckCircle2 };
     }
+    if (reading >= ranges[0] * 0.8 && reading <= ranges[1] * 1.2) {
+      return { color: "yellow", text: "Caution", icon: AlertTriangle };
+    }
+    return { color: "red", text: "Critical", icon: ShieldAlert };
   };
 
   const status = getStatus();
   const StatusIcon = status.icon;
 
   const getFeedback = () => {
-    if (mode === 'voltage') {
+    if (mode === "voltage") {
       if (reading < ranges[0]) {
-        return `Low voltage detected. Check power supply, connections, and circuit breaker. Low voltage can cause motor damage and inefficient operation.`;
-      } else if (reading > ranges[1]) {
-        return `High voltage detected. This can damage components. Verify utility supply and transformer settings.`;
-      } else {
-        return `Voltage is within normal range for ${component}. Power supply is adequate.`;
+        return "Low voltage detected. Check power supply, connections, and circuit breaker. Low voltage can cause motor damage and inefficient operation.";
       }
-    } else if (mode === 'amperage') {
-      if (reading < ranges[0]) {
-        return `Low amperage may indicate: open circuit, failed component, or incorrect wiring. Verify component operation.`;
-      } else if (reading > ranges[1]) {
-        return `High amperage indicates overload. Check for: locked rotor, shorted windings, mechanical binding, or low voltage. SAFETY HAZARD - disconnect power immediately.`;
-      } else {
-        return `Amperage is within normal operating range. Component is drawing expected current.`;
+      if (reading > ranges[1]) {
+        return "High voltage detected. This can damage components. Verify utility supply and transformer settings.";
       }
-    } else {
-      if (reading < ranges[0]) {
-        return `Very low resistance may indicate shorted windings or direct short circuit. Component likely failed.`;
-      } else if (reading > ranges[1]) {
-        return `High resistance may indicate: open circuit, corroded connections, or failed component. Check continuity.`;
-      } else {
-        return `Resistance is within normal range. Component windings appear intact.`;
-      }
+      return `Voltage is within normal range for ${component}. Power supply is adequate.`;
     }
+    if (mode === "amperage") {
+      if (reading < ranges[0]) {
+        return "Low amperage may indicate: open circuit, failed component, or incorrect wiring. Verify component operation.";
+      }
+      if (reading > ranges[1]) {
+        return "High amperage indicates overload. Check for: locked rotor, shorted windings, mechanical binding, or low voltage. SAFETY HAZARD - disconnect power immediately.";
+      }
+      return "Amperage is within normal operating range. Component is drawing expected current.";
+    }
+    if (reading < ranges[0]) {
+      return "Very low resistance may indicate shorted windings or direct short circuit. Component likely failed.";
+    }
+    if (reading > ranges[1]) {
+      return "High resistance may indicate: open circuit, corroded connections, or failed component. Check continuity.";
+    }
+    return "Resistance is within normal range. Component windings appear intact.";
   };
 
   const getSafetyWarning = () => {
-    if (mode === 'voltage' && reading > 50) {
-      return 'DANGER: High voltage present. Use proper PPE and follow lockout/tagout procedures.';
+    if (mode === "voltage" && reading > 50) {
+      return "DANGER: High voltage present. Use proper PPE and follow lockout/tagout procedures.";
     }
-    if (mode === 'amperage' && reading > ranges[1]) {
-      return 'WARNING: Overcurrent condition detected. Disconnect power immediately to prevent fire hazard.';
+    if (mode === "amperage" && reading > ranges[1]) {
+      return "WARNING: Overcurrent condition detected. Disconnect power immediately to prevent fire hazard.";
     }
     return null;
   };
@@ -95,9 +111,10 @@ export default function DigitalMultimeter({ studyMode }: DigitalMultimeterProps)
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              A multimeter measures voltage (V), amperage (A), and resistance (Ω). Always follow electrical
-              safety procedures: turn off power, verify with meter, and use proper PPE. Never measure
-              resistance on live circuits.
+              A multimeter measures voltage (V), amperage (A), and resistance
+              (Ω). Always follow electrical safety procedures: turn off power,
+              verify with meter, and use proper PPE. Never measure resistance on
+              live circuits.
             </AlertDescription>
           </Alert>
         )}
@@ -114,7 +131,10 @@ export default function DigitalMultimeter({ studyMode }: DigitalMultimeterProps)
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label>Measurement Mode</Label>
-            <Select value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
+            <Select
+              value={mode}
+              onValueChange={(v) => setMode(v as typeof mode)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -144,33 +164,44 @@ export default function DigitalMultimeter({ studyMode }: DigitalMultimeterProps)
 
         <div className="space-y-2">
           <Label>
-            Reading: {reading.toFixed(1)} {mode === 'voltage' ? 'VAC' : mode === 'amperage' ? 'A' : 'Ω'}
+            Reading: {reading.toFixed(1)}{" "}
+            {mode === "voltage" ? "VAC" : mode === "amperage" ? "A" : "Ω"}
           </Label>
           <input
             type="range"
             min="0"
-            max={mode === 'voltage' ? 300 : mode === 'amperage' ? 40 : 100}
-            step={mode === 'voltage' ? 1 : mode === 'amperage' ? 0.5 : 0.5}
+            max={mode === "voltage" ? 300 : mode === "amperage" ? 40 : 100}
+            step={mode === "voltage" ? 1 : mode === "amperage" ? 0.5 : 0.5}
             value={reading}
             onChange={(e) => setReading(Number(e.target.value))}
             className="w-full"
           />
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>0</span>
-            <span>Normal: {ranges[0]}-{ranges[1]}</span>
-            <span>{mode === 'voltage' ? '300' : mode === 'amperage' ? '40' : '100'}</span>
+            <span>
+              Normal: {ranges[0]}-{ranges[1]}
+            </span>
+            <span>
+              {mode === "voltage" ? "300" : mode === "amperage" ? "40" : "100"}
+            </span>
           </div>
         </div>
 
-        <Card className={`border-2 border-${status.color}-500 bg-${status.color}-500/10`}>
+        <Card
+          className={`border-2 border-${status.color}-500 bg-${status.color}-500/10`}
+        >
           <CardContent className="p-6">
             <div className="flex items-center justify-center gap-4">
               <StatusIcon className={`h-12 w-12 text-${status.color}-600`} />
               <div className="text-center">
                 <div className="text-4xl font-bold">
-                  {reading.toFixed(1)} {mode === 'voltage' ? 'VAC' : mode === 'amperage' ? 'A' : 'Ω'}
+                  {reading.toFixed(1)}{" "}
+                  {mode === "voltage" ? "VAC" : mode === "amperage" ? "A" : "Ω"}
                 </div>
-                <Badge variant="outline" className={`mt-2 border-${status.color}-500 text-${status.color}-700`}>
+                <Badge
+                  variant="outline"
+                  className={`mt-2 border-${status.color}-500 text-${status.color}-700`}
+                >
                   {status.text}
                 </Badge>
               </div>
@@ -178,7 +209,9 @@ export default function DigitalMultimeter({ studyMode }: DigitalMultimeterProps)
           </CardContent>
         </Card>
 
-        <Alert className={`border-${status.color}-500/50 bg-${status.color}-500/10`}>
+        <Alert
+          className={`border-${status.color}-500/50 bg-${status.color}-500/10`}
+        >
           <Info className="h-4 w-4" />
           <AlertDescription>
             <strong>Analysis:</strong> {getFeedback()}

@@ -1,17 +1,38 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { TrendingUp, Award, BookOpen, Target, Download, Trophy, Flame, TrendingDown, CheckCircle2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import AchievementsDashboard from './AchievementsDashboard';
-import AnalyticsVisualization from './AnalyticsVisualization';
-import { useState } from 'react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Award,
+  BookOpen,
+  CheckCircle2,
+  Download,
+  Flame,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
+import { useState } from "react";
+import AchievementsDashboard from "./AchievementsDashboard";
+import AnalyticsVisualization from "./AnalyticsVisualization";
 
 export default function ProgressDashboard() {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Mock data - in real implementation, this would come from backend
   const progressData = {
@@ -39,28 +60,36 @@ export default function ProgressDashboard() {
     longestStreak: 14,
   };
 
-  const coreCompleted = Object.values(progressData.coreModules).filter((m) => m.completed).length;
+  const coreCompleted = Object.values(progressData.coreModules).filter(
+    (m) => m.completed,
+  ).length;
   const coreTotal = Object.keys(progressData.coreModules).length;
   const coreProgress = (coreCompleted / coreTotal) * 100;
 
-  const epaCompleted = Object.values(progressData.epaModules).filter((m) => m.completed).length;
+  const epaCompleted = Object.values(progressData.epaModules).filter(
+    (m) => m.completed,
+  ).length;
   const epaTotal = Object.keys(progressData.epaModules).length;
   const epaProgress = (epaCompleted / epaTotal) * 100;
 
-  const totalExercises = Object.values(progressData.exercises).reduce((a, b) => a + b, 0);
+  const totalExercises = Object.values(progressData.exercises).reduce(
+    (a, b) => a + b,
+    0,
+  );
 
   const allQuizScores = [
     ...Object.values(progressData.coreModules).map((m) => m.quizScore),
     ...Object.values(progressData.epaModules).map((m) => m.quizScore),
   ].filter((score) => score > 0);
 
-  const averageScore = allQuizScores.length > 0 
-    ? allQuizScores.reduce((a, b) => a + b, 0) / allQuizScores.length 
-    : 0;
+  const averageScore =
+    allQuizScores.length > 0
+      ? allQuizScores.reduce((a, b) => a + b, 0) / allQuizScores.length
+      : 0;
 
   const handleExportProgress = () => {
     // This would generate a comprehensive PDF with all achievements, badges, and analytics
-    console.log('Exporting progress report...');
+    console.log("Exporting progress report...");
   };
 
   return (
@@ -87,7 +116,9 @@ export default function ProgressDashboard() {
                 <Flame className="h-8 w-8 text-orange-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{progressData.currentStreak} Day Streak!</p>
+                <p className="text-2xl font-bold">
+                  {progressData.currentStreak} Day Streak!
+                </p>
                 <p className="text-sm text-muted-foreground">
                   Keep it up! Longest streak: {progressData.longestStreak} days
                 </p>
@@ -129,8 +160,12 @@ export default function ProgressDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{coreCompleted + epaCompleted}</p>
-                <p className="text-sm text-muted-foreground">out of {coreTotal + epaTotal} total</p>
+                <p className="text-3xl font-bold">
+                  {coreCompleted + epaCompleted}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  out of {coreTotal + epaTotal} total
+                </p>
               </CardContent>
             </Card>
 
@@ -143,7 +178,9 @@ export default function ProgressDashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">{averageScore.toFixed(0)}%</p>
-                <p className="text-sm text-muted-foreground">across {allQuizScores.length} quizzes</p>
+                <p className="text-sm text-muted-foreground">
+                  across {allQuizScores.length} quizzes
+                </p>
               </CardContent>
             </Card>
 
@@ -156,7 +193,9 @@ export default function ProgressDashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">{totalExercises}</p>
-                <p className="text-sm text-muted-foreground">hands-on practice sessions</p>
+                <p className="text-sm text-muted-foreground">
+                  hands-on practice sessions
+                </p>
               </CardContent>
             </Card>
 
@@ -168,8 +207,12 @@ export default function ProgressDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">{progressData.currentStreak}</p>
-                <p className="text-sm text-muted-foreground">consecutive days</p>
+                <p className="text-3xl font-bold">
+                  {progressData.currentStreak}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  consecutive days
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -178,25 +221,34 @@ export default function ProgressDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Core HVAC Lessons Progress</CardTitle>
-              <CardDescription>Track your progress through fundamental HVAC concepts</CardDescription>
+              <CardDescription>
+                Track your progress through fundamental HVAC concepts
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span>Overall Progress</span>
-                  <span className="font-semibold">{coreProgress.toFixed(0)}%</span>
+                  <span className="font-semibold">
+                    {coreProgress.toFixed(0)}%
+                  </span>
                 </div>
                 <Progress value={coreProgress} />
               </div>
 
               <div className="space-y-3">
                 {Object.entries(progressData.coreModules).map(([key, data]) => (
-                  <div key={key} className="flex items-center justify-between rounded-lg border p-3">
+                  <div
+                    key={key}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
                     <div className="flex-1">
                       <p className="font-medium capitalize">{key}</p>
                       {data.completed && (
                         <div className="flex items-center gap-2">
-                          <p className="text-sm text-muted-foreground">Quiz Score: {data.quizScore}%</p>
+                          <p className="text-sm text-muted-foreground">
+                            Quiz Score: {data.quizScore}%
+                          </p>
                           {data.quizScore >= 90 && (
                             <Badge variant="default" className="text-xs">
                               <Trophy className="mr-1 h-3 w-3" />
@@ -209,7 +261,9 @@ export default function ProgressDashboard() {
                     {data.completed ? (
                       <CheckCircle2 className="h-5 w-5 text-green-500" />
                     ) : (
-                      <span className="text-sm text-muted-foreground">Not started</span>
+                      <span className="text-sm text-muted-foreground">
+                        Not started
+                      </span>
                     )}
                   </div>
                 ))}
@@ -221,32 +275,46 @@ export default function ProgressDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>EPA Section 608 Progress</CardTitle>
-              <CardDescription>Certification preparation progress</CardDescription>
+              <CardDescription>
+                Certification preparation progress
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span>Overall Progress</span>
-                  <span className="font-semibold">{epaProgress.toFixed(0)}%</span>
+                  <span className="font-semibold">
+                    {epaProgress.toFixed(0)}%
+                  </span>
                 </div>
                 <Progress value={epaProgress} />
               </div>
 
               <div className="space-y-3">
                 {Object.entries(progressData.epaModules).map(([key, data]) => (
-                  <div key={key} className="flex items-center justify-between rounded-lg border p-3">
+                  <div
+                    key={key}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
                     <div className="flex-1">
                       <p className="font-medium uppercase">{key}</p>
                       {data.completed && (
                         <p className="text-sm text-muted-foreground">
-                          Practice Score: {data.quizScore}% {data.quizScore >= 70 ? '✓ Passing' : '✗ Review needed'}
+                          Practice Score: {data.quizScore}%{" "}
+                          {data.quizScore >= 70
+                            ? "✓ Passing"
+                            : "✗ Review needed"}
                         </p>
                       )}
                     </div>
                     {data.completed ? (
-                      <CheckCircle2 className={`h-5 w-5 ${data.quizScore >= 70 ? 'text-green-500' : 'text-yellow-500'}`} />
+                      <CheckCircle2
+                        className={`h-5 w-5 ${data.quizScore >= 70 ? "text-green-500" : "text-yellow-500"}`}
+                      />
                     ) : (
-                      <span className="text-sm text-muted-foreground">Not started</span>
+                      <span className="text-sm text-muted-foreground">
+                        Not started
+                      </span>
                     )}
                   </div>
                 ))}
@@ -261,7 +329,9 @@ export default function ProgressDashboard() {
                 <TrendingDown className="h-5 w-5 text-yellow-600" />
                 Areas for Improvement
               </CardTitle>
-              <CardDescription>Focus on these topics to strengthen your knowledge</CardDescription>
+              <CardDescription>
+                Focus on these topics to strengthen your knowledge
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Alert>
@@ -290,12 +360,17 @@ export default function ProgressDashboard() {
       {/* Export Button */}
       <Card>
         <CardContent className="pt-6">
-          <Button className="w-full" variant="outline" onClick={handleExportProgress}>
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={handleExportProgress}
+          >
             <Download className="mr-2 h-4 w-4" />
             Export Professional Progress Report (PDF)
           </Button>
           <p className="mt-2 text-center text-sm text-muted-foreground">
-            Download a comprehensive report with badges, achievements, and performance analytics
+            Download a comprehensive report with badges, achievements, and
+            performance analytics
           </p>
         </CardContent>
       </Card>

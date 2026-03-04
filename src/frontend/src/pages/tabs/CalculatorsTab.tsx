@@ -1,11 +1,17 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Calculator } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calculator } from "lucide-react";
+import { useState } from "react";
 
 export default function CalculatorsTab() {
   return (
@@ -15,7 +21,9 @@ export default function CalculatorsTab() {
           <Calculator className="h-5 w-5" />
           Quick Calculators
         </CardTitle>
-        <CardDescription>Field calculators for common HVAC calculations</CardDescription>
+        <CardDescription>
+          Field calculators for common HVAC calculations
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="superheat">
@@ -53,8 +61,8 @@ export default function CalculatorsTab() {
 }
 
 function SuperheatCalculator() {
-  const [suctionTemp, setSuctionTemp] = useState('');
-  const [suctionPressure, setSuctionPressure] = useState('');
+  const [suctionTemp, setSuctionTemp] = useState("");
+  const [suctionPressure, setSuctionPressure] = useState("");
   const [result, setResult] = useState<number | null>(null);
 
   const calculate = () => {
@@ -68,7 +76,8 @@ function SuperheatCalculator() {
     <div className="space-y-4">
       <Alert>
         <AlertDescription>
-          Superheat = Suction Line Temperature - Saturation Temperature (from pressure)
+          Superheat = Suction Line Temperature - Saturation Temperature (from
+          pressure)
         </AlertDescription>
       </Alert>
       <div className="grid gap-4 md:grid-cols-2">
@@ -99,7 +108,9 @@ function SuperheatCalculator() {
       {result !== null && (
         <div className="rounded-lg border border-primary bg-primary/5 p-4">
           <p className="text-sm text-muted-foreground">Superheat:</p>
-          <p className="text-2xl font-bold text-primary">{result.toFixed(1)}°F</p>
+          <p className="text-2xl font-bold text-primary">
+            {result.toFixed(1)}°F
+          </p>
           <p className="mt-2 text-xs text-muted-foreground">
             Target range: 8-12°F for fixed orifice, 5-7°F for TXV systems
           </p>
@@ -110,8 +121,8 @@ function SuperheatCalculator() {
 }
 
 function SubcoolingCalculator() {
-  const [liquidTemp, setLiquidTemp] = useState('');
-  const [liquidPressure, setLiquidPressure] = useState('');
+  const [liquidTemp, setLiquidTemp] = useState("");
+  const [liquidPressure, setLiquidPressure] = useState("");
   const [result, setResult] = useState<number | null>(null);
 
   const calculate = () => {
@@ -124,7 +135,8 @@ function SubcoolingCalculator() {
     <div className="space-y-4">
       <Alert>
         <AlertDescription>
-          Subcooling = Saturation Temperature (from pressure) - Liquid Line Temperature
+          Subcooling = Saturation Temperature (from pressure) - Liquid Line
+          Temperature
         </AlertDescription>
       </Alert>
       <div className="grid gap-4 md:grid-cols-2">
@@ -155,8 +167,12 @@ function SubcoolingCalculator() {
       {result !== null && (
         <div className="rounded-lg border border-primary bg-primary/5 p-4">
           <p className="text-sm text-muted-foreground">Subcooling:</p>
-          <p className="text-2xl font-bold text-primary">{result.toFixed(1)}°F</p>
-          <p className="mt-2 text-xs text-muted-foreground">Target range: 10-15°F for most systems</p>
+          <p className="text-2xl font-bold text-primary">
+            {result.toFixed(1)}°F
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Target range: 10-15°F for most systems
+          </p>
         </div>
       )}
     </div>
@@ -164,8 +180,8 @@ function SubcoolingCalculator() {
 }
 
 function LoadCalculator() {
-  const [sqft, setSqft] = useState('');
-  const [ceilingHeight, setCeilingHeight] = useState('8');
+  const [sqft, setSqft] = useState("");
+  const [ceilingHeight, setCeilingHeight] = useState("8");
   const [result, setResult] = useState<number | null>(null);
 
   const calculate = () => {
@@ -179,7 +195,10 @@ function LoadCalculator() {
   return (
     <div className="space-y-4">
       <Alert>
-        <AlertDescription>Simplified cooling load estimate based on square footage and ceiling height</AlertDescription>
+        <AlertDescription>
+          Simplified cooling load estimate based on square footage and ceiling
+          height
+        </AlertDescription>
       </Alert>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
@@ -208,9 +227,15 @@ function LoadCalculator() {
       </Button>
       {result !== null && (
         <div className="rounded-lg border border-primary bg-primary/5 p-4">
-          <p className="text-sm text-muted-foreground">Estimated Cooling Load:</p>
-          <p className="text-2xl font-bold text-primary">{result.toLocaleString()} BTU/hr</p>
-          <p className="text-lg text-primary">{(result / 12000).toFixed(1)} Tons</p>
+          <p className="text-sm text-muted-foreground">
+            Estimated Cooling Load:
+          </p>
+          <p className="text-2xl font-bold text-primary">
+            {result.toLocaleString()} BTU/hr
+          </p>
+          <p className="text-lg text-primary">
+            {(result / 12000).toFixed(1)} Tons
+          </p>
         </div>
       )}
     </div>
@@ -218,9 +243,12 @@ function LoadCalculator() {
 }
 
 function DuctSizingCalculator() {
-  const [cfm, setCfm] = useState('');
-  const [velocity, setVelocity] = useState('700');
-  const [result, setResult] = useState<{ diameter: number; area: number } | null>(null);
+  const [cfm, setCfm] = useState("");
+  const [velocity, setVelocity] = useState("700");
+  const [result, setResult] = useState<{
+    diameter: number;
+    area: number;
+  } | null>(null);
 
   const calculate = () => {
     const area = Number(cfm) / Number(velocity);
@@ -231,12 +259,20 @@ function DuctSizingCalculator() {
   return (
     <div className="space-y-4">
       <Alert>
-        <AlertDescription>Calculate required duct size based on airflow (CFM) and velocity</AlertDescription>
+        <AlertDescription>
+          Calculate required duct size based on airflow (CFM) and velocity
+        </AlertDescription>
       </Alert>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="cfm">Airflow (CFM)</Label>
-          <Input id="cfm" type="number" value={cfm} onChange={(e) => setCfm(e.target.value)} placeholder="e.g., 400" />
+          <Input
+            id="cfm"
+            type="number"
+            value={cfm}
+            onChange={(e) => setCfm(e.target.value)}
+            placeholder="e.g., 400"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="velocity">Velocity (FPM)</Label>
@@ -255,8 +291,12 @@ function DuctSizingCalculator() {
       {result !== null && (
         <div className="rounded-lg border border-primary bg-primary/5 p-4">
           <p className="text-sm text-muted-foreground">Required Duct Size:</p>
-          <p className="text-2xl font-bold text-primary">{result.diameter.toFixed(1)}" diameter</p>
-          <p className="text-sm text-muted-foreground">Cross-sectional area: {result.area.toFixed(2)} sq ft</p>
+          <p className="text-2xl font-bold text-primary">
+            {result.diameter.toFixed(1)}" diameter
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Cross-sectional area: {result.area.toFixed(2)} sq ft
+          </p>
         </div>
       )}
     </div>
@@ -264,9 +304,9 @@ function DuctSizingCalculator() {
 }
 
 function ElectricalCalculator() {
-  const [voltage, setVoltage] = useState('240');
-  const [amperage, setAmperage] = useState('');
-  const [powerFactor, setPowerFactor] = useState('0.9');
+  const [voltage, setVoltage] = useState("240");
+  const [amperage, setAmperage] = useState("");
+  const [powerFactor, setPowerFactor] = useState("0.9");
   const [result, setResult] = useState<number | null>(null);
 
   const calculate = () => {
@@ -277,7 +317,9 @@ function ElectricalCalculator() {
   return (
     <div className="space-y-4">
       <Alert>
-        <AlertDescription>Calculate electrical load: Watts = Voltage × Amperage × Power Factor</AlertDescription>
+        <AlertDescription>
+          Calculate electrical load: Watts = Voltage × Amperage × Power Factor
+        </AlertDescription>
       </Alert>
       <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-2">
@@ -318,8 +360,12 @@ function ElectricalCalculator() {
       {result !== null && (
         <div className="rounded-lg border border-primary bg-primary/5 p-4">
           <p className="text-sm text-muted-foreground">Electrical Load:</p>
-          <p className="text-2xl font-bold text-primary">{result.toFixed(0)} Watts</p>
-          <p className="text-lg text-primary">{(result / 1000).toFixed(2)} kW</p>
+          <p className="text-2xl font-bold text-primary">
+            {result.toFixed(0)} Watts
+          </p>
+          <p className="text-lg text-primary">
+            {(result / 1000).toFixed(2)} kW
+          </p>
         </div>
       )}
     </div>

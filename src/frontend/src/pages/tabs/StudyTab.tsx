@@ -1,30 +1,40 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { useGetCallerUserProfile } from '@/hooks/useQueries';
-import StudySystemHome from '@/components/study/StudySystemHome';
-import CoreLessonsModule from '@/components/study/CoreLessonsModule';
-import EPA608Module from '@/components/study/EPA608Module';
-import ProgressDashboard from '@/components/study/ProgressDashboard';
-import MultimeterTrainingModule from '@/components/study/MultimeterTrainingModule';
-import UEiDL589MultimeterGuide from '@/components/study/UEiDL589MultimeterGuide';
-import { StudyMode as LocalStudyMode } from '../../types/study';
-import { StudyMode } from '../../types/local';
+import CoreLessonsModule from "@/components/study/CoreLessonsModule";
+import EPA608Module from "@/components/study/EPA608Module";
+import HVACElectricalFundamentals from "@/components/study/HVACElectricalFundamentals";
+import MultimeterTrainingModule from "@/components/study/MultimeterTrainingModule";
+import ProgressDashboard from "@/components/study/ProgressDashboard";
+import StudySystemHome from "@/components/study/StudySystemHome";
+import UEiDL589MultimeterGuide from "@/components/study/UEiDL589MultimeterGuide";
+import { Button } from "@/components/ui/button";
+import { useGetCallerUserProfile } from "@/hooks/useQueries";
+import { useState } from "react";
+import { StudyMode } from "../../types/local";
+import type { StudyMode as LocalStudyMode } from "../../types/study";
 
 export default function StudyTab() {
-  const [currentView, setCurrentView] = useState<'home' | 'core-lessons' | 'epa-608' | 'progress' | 'multimeter-training' | 'uei-dl589-guide'>('home');
+  const [currentView, setCurrentView] = useState<
+    | "home"
+    | "core-lessons"
+    | "epa-608"
+    | "progress"
+    | "multimeter-training"
+    | "uei-dl589-guide"
+    | "hvac-electrical-fundamentals"
+  >("home");
   const { data: userProfile } = useGetCallerUserProfile();
 
   // Convert backend StudyMode enum value to local StudyMode type
   const studyMode: LocalStudyMode = userProfile?.studyMode
-    ? ((userProfile.studyMode as any) === StudyMode.beginner || (userProfile.studyMode as any) === 'beginner'
-        ? { __kind__: 'beginner' as const }
-        : { __kind__: 'expert' as const })
-    : { __kind__: 'beginner' as const };
+    ? (userProfile.studyMode as any) === StudyMode.beginner ||
+      (userProfile.studyMode as any) === "beginner"
+      ? { __kind__: "beginner" as const }
+      : { __kind__: "expert" as const }
+    : { __kind__: "beginner" as const };
 
-  if (currentView === 'core-lessons') {
+  if (currentView === "core-lessons") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView('home')}>
+        <Button variant="ghost" onClick={() => setCurrentView("home")}>
           ← Back to Study Home
         </Button>
         <CoreLessonsModule studyMode={studyMode} />
@@ -32,10 +42,10 @@ export default function StudyTab() {
     );
   }
 
-  if (currentView === 'epa-608') {
+  if (currentView === "epa-608") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView('home')}>
+        <Button variant="ghost" onClick={() => setCurrentView("home")}>
           ← Back to Study Home
         </Button>
         <EPA608Module studyMode={studyMode} />
@@ -43,10 +53,10 @@ export default function StudyTab() {
     );
   }
 
-  if (currentView === 'progress') {
+  if (currentView === "progress") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView('home')}>
+        <Button variant="ghost" onClick={() => setCurrentView("home")}>
           ← Back to Study Home
         </Button>
         <ProgressDashboard />
@@ -54,10 +64,10 @@ export default function StudyTab() {
     );
   }
 
-  if (currentView === 'multimeter-training') {
+  if (currentView === "multimeter-training") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView('home')}>
+        <Button variant="ghost" onClick={() => setCurrentView("home")}>
           ← Back to Study Home
         </Button>
         <MultimeterTrainingModule studyMode={studyMode} />
@@ -65,10 +75,10 @@ export default function StudyTab() {
     );
   }
 
-  if (currentView === 'uei-dl589-guide') {
+  if (currentView === "uei-dl589-guide") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView('home')}>
+        <Button variant="ghost" onClick={() => setCurrentView("home")}>
           ← Back to Study Home
         </Button>
         <UEiDL589MultimeterGuide studyMode={studyMode} />
@@ -76,12 +86,24 @@ export default function StudyTab() {
     );
   }
 
+  if (currentView === "hvac-electrical-fundamentals") {
+    return (
+      <div className="space-y-6">
+        <Button
+          variant="ghost"
+          onClick={() => setCurrentView("home")}
+          data-ocid="hvac-electrical.secondary_button"
+        >
+          ← Back to Study Home
+        </Button>
+        <HVACElectricalFundamentals studyMode={studyMode} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <StudySystemHome
-        onNavigate={setCurrentView}
-        studyMode={studyMode}
-      />
+      <StudySystemHome onNavigate={setCurrentView} studyMode={studyMode} />
     </div>
   );
 }

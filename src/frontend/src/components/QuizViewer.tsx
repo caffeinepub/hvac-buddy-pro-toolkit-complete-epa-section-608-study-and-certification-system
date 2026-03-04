@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
-import type { Quiz } from '../types/local';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { CheckCircle2, RotateCcw, XCircle } from "lucide-react";
+import { useState } from "react";
+import type { Quiz } from "../types/local";
 
 interface QuizViewerProps {
   quiz: Quiz;
@@ -17,7 +17,11 @@ export default function QuizViewer({ quiz }: QuizViewerProps) {
   const [showResults, setShowResults] = useState(false);
 
   if (quiz.questions.length === 0) {
-    return <p className="text-center text-muted-foreground">No quiz questions available.</p>;
+    return (
+      <p className="text-center text-muted-foreground">
+        No quiz questions available.
+      </p>
+    );
   }
 
   const handleAnswerSelect = (answer: string) => {
@@ -60,7 +64,9 @@ export default function QuizViewer({ quiz }: QuizViewerProps) {
 
   const currentQ = quiz.questions[currentQuestion];
   const isAnswered = selectedAnswers[currentQuestion] !== undefined;
-  const allAnswered = selectedAnswers.length === quiz.questions.length && selectedAnswers.every((a) => a);
+  const allAnswered =
+    selectedAnswers.length === quiz.questions.length &&
+    selectedAnswers.every((a) => a);
 
   if (showResults) {
     const score = calculateScore();
@@ -68,7 +74,11 @@ export default function QuizViewer({ quiz }: QuizViewerProps) {
 
     return (
       <div className="space-y-4">
-        <Alert className={percentage >= 70 ? 'border-green-500' : 'border-yellow-500'}>
+        <Alert
+          className={
+            percentage >= 70 ? "border-green-500" : "border-yellow-500"
+          }
+        >
           <AlertDescription>
             <div className="text-center">
               <p className="mb-2 text-2xl font-bold">
@@ -77,10 +87,10 @@ export default function QuizViewer({ quiz }: QuizViewerProps) {
               <p className="text-lg">Score: {percentage.toFixed(0)}%</p>
               <p className="mt-2 text-sm text-muted-foreground">
                 {percentage >= 90
-                  ? 'Excellent! You have mastered this material.'
+                  ? "Excellent! You have mastered this material."
                   : percentage >= 70
-                  ? 'Good job! Review the questions you missed.'
-                  : 'Keep studying. Review the material and try again.'}
+                    ? "Good job! Review the questions you missed."
+                    : "Keep studying. Review the material and try again."}
               </p>
             </div>
           </AlertDescription>
@@ -92,7 +102,11 @@ export default function QuizViewer({ quiz }: QuizViewerProps) {
             const isCorrect = userAnswer === q.correctAnswer;
 
             return (
-              <Card key={idx} className={isCorrect ? 'border-green-500' : 'border-red-500'}>
+              <Card
+                // biome-ignore lint/suspicious/noArrayIndexKey: questions have no stable ID
+                key={`question-${idx}`}
+                className={isCorrect ? "border-green-500" : "border-red-500"}
+              >
                 <CardContent className="p-4">
                   <div className="mb-2 flex items-start gap-2">
                     {isCorrect ? (
@@ -104,8 +118,14 @@ export default function QuizViewer({ quiz }: QuizViewerProps) {
                       <p className="font-medium">
                         {idx + 1}. {q.question}
                       </p>
-                      <p className="mt-1 text-sm text-muted-foreground">Your answer: {userAnswer}</p>
-                      {!isCorrect && <p className="text-sm text-green-600">Correct answer: {q.correctAnswer}</p>}
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Your answer: {userAnswer}
+                      </p>
+                      {!isCorrect && (
+                        <p className="text-sm text-green-600">
+                          Correct answer: {q.correctAnswer}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -131,12 +151,22 @@ export default function QuizViewer({ quiz }: QuizViewerProps) {
       <Card>
         <CardContent className="p-6">
           <h3 className="mb-4 text-lg font-semibold">{currentQ.question}</h3>
-          <RadioGroup value={selectedAnswers[currentQuestion] || ''} onValueChange={handleAnswerSelect}>
+          <RadioGroup
+            value={selectedAnswers[currentQuestion] || ""}
+            onValueChange={handleAnswerSelect}
+          >
             <div className="space-y-3">
               {currentQ.options.map((option, idx) => (
-                <div key={idx} className="flex items-center space-x-2">
+                <div
+                  // biome-ignore lint/suspicious/noArrayIndexKey: options are static and order-stable
+                  key={`option-${idx}`}
+                  className="flex items-center space-x-2"
+                >
                   <RadioGroupItem value={option} id={`option-${idx}`} />
-                  <Label htmlFor={`option-${idx}`} className="flex-1 cursor-pointer">
+                  <Label
+                    htmlFor={`option-${idx}`}
+                    className="flex-1 cursor-pointer"
+                  >
                     {option}
                   </Label>
                 </div>
@@ -147,11 +177,16 @@ export default function QuizViewer({ quiz }: QuizViewerProps) {
       </Card>
 
       <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={handlePrevious} disabled={currentQuestion === 0}>
+        <Button
+          variant="outline"
+          onClick={handlePrevious}
+          disabled={currentQuestion === 0}
+        >
           Previous
         </Button>
         <div className="text-sm text-muted-foreground">
-          {selectedAnswers.filter((a) => a).length} / {quiz.questions.length} answered
+          {selectedAnswers.filter((a) => a).length} / {quiz.questions.length}{" "}
+          answered
         </div>
         {currentQuestion < quiz.questions.length - 1 ? (
           <Button onClick={handleNext} disabled={!isAnswered}>
@@ -166,4 +201,3 @@ export default function QuizViewer({ quiz }: QuizViewerProps) {
     </div>
   );
 }
-

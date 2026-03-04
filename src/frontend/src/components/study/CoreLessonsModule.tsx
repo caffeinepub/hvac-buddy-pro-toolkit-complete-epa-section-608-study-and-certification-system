@@ -1,54 +1,79 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Flame, Droplets, Wind, Zap, ChevronRight, Info } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import type { StudyMode } from '../../types/study';
-import LessonViewer from './LessonViewer';
-import HandsOnExercises from './HandsOnExercises';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  BookOpen,
+  ChevronRight,
+  Droplets,
+  Flame,
+  Info,
+  Wind,
+  Zap,
+} from "lucide-react";
+import { useState } from "react";
+import type { StudyMode } from "../../types/study";
+import HandsOnExercises from "./HandsOnExercises";
+import LessonViewer from "./LessonViewer";
 
 interface CoreLessonsModuleProps {
   studyMode: StudyMode;
 }
 
-type LessonTopic = 'thermodynamics' | 'refrigeration' | 'airflow' | 'electrical' | null;
+type LessonTopic =
+  | "thermodynamics"
+  | "refrigeration"
+  | "airflow"
+  | "electrical"
+  | null;
 
-export default function CoreLessonsModule({ studyMode }: CoreLessonsModuleProps) {
+export default function CoreLessonsModule({
+  studyMode,
+}: CoreLessonsModuleProps) {
   const [selectedLesson, setSelectedLesson] = useState<LessonTopic>(null);
-  const isBeginner = studyMode.__kind__ === 'beginner';
+  const isBeginner = studyMode.__kind__ === "beginner";
 
   const lessons = [
     {
-      id: 'thermodynamics' as const,
-      title: 'Thermodynamics & Heat Transfer',
+      id: "thermodynamics" as const,
+      title: "Thermodynamics & Heat Transfer",
       icon: Flame,
-      description: 'Laws of thermodynamics, heat transfer principles, and temperature-pressure relationships',
-      color: 'text-orange-500',
-      bgColor: 'bg-orange-500/10',
+      description:
+        "Laws of thermodynamics, heat transfer principles, and temperature-pressure relationships",
+      color: "text-orange-500",
+      bgColor: "bg-orange-500/10",
     },
     {
-      id: 'refrigeration' as const,
-      title: 'Refrigeration Cycle',
+      id: "refrigeration" as const,
+      title: "Refrigeration Cycle",
       icon: Droplets,
-      description: 'Complete cycle explanation with evaporator, compressor, condenser, and expansion valve',
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-500/10',
+      description:
+        "Complete cycle explanation with evaporator, compressor, condenser, and expansion valve",
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
     },
     {
-      id: 'airflow' as const,
-      title: 'Airflow & Duct Design',
+      id: "airflow" as const,
+      title: "Airflow & Duct Design",
       icon: Wind,
-      description: 'Airflow principles, static pressure, velocity relationships, and measurement techniques',
-      color: 'text-cyan-500',
-      bgColor: 'bg-cyan-500/10',
+      description:
+        "Airflow principles, static pressure, velocity relationships, and measurement techniques",
+      color: "text-cyan-500",
+      bgColor: "bg-cyan-500/10",
     },
     {
-      id: 'electrical' as const,
-      title: 'Electrical Fundamentals',
+      id: "electrical" as const,
+      title: "Electrical Fundamentals",
       icon: Zap,
-      description: 'Basic electrical theory, motor types, wiring diagrams, and safety procedures',
-      color: 'text-yellow-500',
-      bgColor: 'bg-yellow-500/10',
+      description:
+        "Basic electrical theory, motor types, wiring diagrams, and safety procedures",
+      color: "text-yellow-500",
+      bgColor: "bg-yellow-500/10",
     },
   ];
 
@@ -73,8 +98,8 @@ export default function CoreLessonsModule({ studyMode }: CoreLessonsModuleProps)
             Core HVAC Lessons
           </CardTitle>
           <CardDescription>
-            Based on "Modern Refrigeration & Air Conditioning" - Complete fundamentals with theory, formulas, and
-            diagrams
+            Based on "Modern Refrigeration & Air Conditioning" - Complete
+            fundamentals with theory, formulas, and diagrams
           </CardDescription>
         </CardHeader>
       </Card>
@@ -83,8 +108,9 @@ export default function CoreLessonsModule({ studyMode }: CoreLessonsModuleProps)
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            <strong>Beginner Mode:</strong> Each lesson includes detailed explanations, visual aids, and step-by-step
-            guidance. Take your time to understand each concept before moving forward.
+            <strong>Beginner Mode:</strong> Each lesson includes detailed
+            explanations, visual aids, and step-by-step guidance. Take your time
+            to understand each concept before moving forward.
           </AlertDescription>
         </Alert>
       )}
@@ -96,14 +122,19 @@ export default function CoreLessonsModule({ studyMode }: CoreLessonsModuleProps)
           return (
             <Card key={lesson.id} className="transition-all hover:shadow-lg">
               <CardHeader>
-                <div className={`mb-4 flex h-14 w-14 items-center justify-center rounded-lg ${lesson.bgColor}`}>
+                <div
+                  className={`mb-4 flex h-14 w-14 items-center justify-center rounded-lg ${lesson.bgColor}`}
+                >
                   <Icon className={`h-7 w-7 ${lesson.color}`} />
                 </div>
                 <CardTitle>{lesson.title}</CardTitle>
                 <CardDescription>{lesson.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button onClick={() => setSelectedLesson(lesson.id)} className="w-full">
+                <Button
+                  onClick={() => setSelectedLesson(lesson.id)}
+                  className="w-full"
+                >
                   Start Lesson
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -118,7 +149,8 @@ export default function CoreLessonsModule({ studyMode }: CoreLessonsModuleProps)
         <CardHeader>
           <CardTitle>Hands-On Exercises</CardTitle>
           <CardDescription>
-            Practice real-world calculations and measurements with interactive exercises
+            Practice real-world calculations and measurements with interactive
+            exercises
           </CardDescription>
         </CardHeader>
         <CardContent>

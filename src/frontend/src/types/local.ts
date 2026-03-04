@@ -1,93 +1,39 @@
-// Local type definitions for frontend-specific types
-import type { Principal } from '@icp-sdk/core/principal';
+// Local type definitions for frontend-specific types not exported from backend
 
-// User profile types - defined locally since not exported from backend
-export interface Progress {
-  completedChapters: bigint[];
-  masteryScore: bigint;
+import type { Principal } from "@icp-sdk/core/principal";
+
+// Study Mode enum
+export enum StudyMode {
+  beginner = "beginner",
+  expert = "expert",
 }
 
-export interface UserProfile {
-  id: bigint;
-  name: string;
-  company: string;
-  certifications: string[];
-  experienceYears: bigint;
-  email: string;
-  phone: string;
-  progress: Progress;
-  studyMode: StudyMode;
-}
-
+// Guest Profile (local only - not stored in backend)
 export interface GuestProfile {
-  principal: Principal;
+  principal: Principal | null; // Null for anonymous guests
   name: string;
   company: string;
   studyMode: StudyMode;
   sessionStart: bigint;
 }
 
-// StudyMode - define locally to match backend enum structure
-export enum StudyMode {
-  beginner = 'beginner',
-  expert = 'expert',
+// Progress tracking
+export interface Progress {
+  completedChapters: number[];
+  masteryScore: number;
 }
 
-// Supplier types
-export enum SupplierCategory {
-  parts = 'parts',
-  refrigerant = 'refrigerant',
-  tools = 'tools',
-  wholesale = 'wholesale',
-}
-
-export interface SupplierRecord {
-  id: bigint;
-  name: string;
-  category: SupplierCategory;
-  city: string;
-  zipCode: string;
-  phone: string;
-  website: string;
-  distanceMiles: number;
-}
-
-export interface UserSupplier {
-  id: bigint;
-  name: string;
-  location: string;
-  contact: string;
-  category: SupplierCategory;
-  notes: string;
-  rating: bigint;
-}
-
-// Video types (not in backend yet)
-export enum VideoCategory {
-  epaCore = 'epaCore',
-  typeI = 'typeI',
-  typeII = 'typeII',
-  typeIII = 'typeIII',
-  epaPlaylists = 'epaPlaylists',
-  hvacFundamentals = 'hvacFundamentals',
-  diagnosticsMeasurements = 'diagnosticsMeasurements',
-  electricalControls = 'electricalControls',
-  refrigerantHandling = 'refrigerantHandling',
-  toolsInstruments = 'toolsInstruments',
-}
-
-export interface VideoRecord {
+// Study Material
+export interface StudyMaterial {
   id: bigint;
   title: string;
-  category: VideoCategory;
-  description: string;
-  url: string;
-  linkedLessonTopic: string;
-  duration: bigint;
-  thumbnailUrl: string;
+  content: string;
+  chapter: number;
+  flashcards: Flashcard[];
+  quiz: Quiz;
+  relatedAssets: bigint[];
 }
 
-// Study types
 export interface Flashcard {
   question: string;
   answer: string;
@@ -104,168 +50,192 @@ export interface Question {
   correctAnswer: string;
 }
 
-export interface StudyMaterial {
-  id: bigint;
-  title: string;
-  content: string;
-  chapter: bigint;
-  flashcards: Flashcard[];
-  quiz: Quiz;
-  relatedAssets: bigint[];
-}
-
-// Job types (not in backend yet)
-export enum JobStatus {
-  pending = 'pending',
-  inProgress = 'inProgress',
-  completed = 'completed',
-  cancelled = 'cancelled',
-}
-
+// Job Management
 export interface Job {
   id: bigint;
   customer: bigint;
   description: string;
   status: JobStatus;
   startTime: bigint;
-  endTime?: bigint;
+  endTime: bigint | null;
   partsUsed: bigint[];
-  images: Uint8Array[];
+  images: any[]; // ExternalBlob[]
 }
 
-// Parts types (not in backend yet)
+export enum JobStatus {
+  pending = "pending",
+  inProgress = "inProgress",
+  completed = "completed",
+  cancelled = "cancelled",
+}
+
+// Parts Database
 export interface PartSpec {
   id: bigint;
   name: string;
-  type_: string;
+  type: string;
   specs: string;
   compatibility: string[];
-  price: bigint;
+  price: number;
   available: boolean;
 }
 
-// Data logging types
-export enum DataType {
-  temperature = 'temperature',
-  pressure = 'pressure',
-  amperage = 'amperage',
-  refrigerantWeight = 'refrigerantWeight',
-  vibration = 'vibration',
-}
-
+// Data Logging
 export interface LogEntry {
   id: bigint;
   dataType: DataType;
   value: number;
   timestamp: bigint;
-  relatedJob?: bigint;
+  relatedJob: bigint | null;
 }
 
-// Diagnostic types
-export enum DiagnosticMode {
-  beginner = 'beginner',
-  expert = 'expert',
+export enum DataType {
+  temperature = "temperature",
+  pressure = "pressure",
+  amperage = "amperage",
+  refrigerantWeight = "refrigerantWeight",
+  vibration = "vibration",
 }
 
-export enum SessionStatus {
-  inProgress = 'inProgress',
-  completed = 'completed',
-  cancelled = 'cancelled',
-}
-
-export enum ConfidenceLevel {
-  low = 'low',
-  medium = 'medium',
-  high = 'high',
-}
-
-export interface DiagnosticSession {
-  id: bigint;
-  user: Principal;
-  mode: DiagnosticMode;
-  createdAt: bigint;
-  lastUpdated: bigint;
-  status: SessionStatus;
-  stepsCompleted: bigint;
-  results: any;
-}
-
-// Chat types
-export enum MessageType {
-  text = 'text',
-  diagnosticStep = 'diagnosticStep',
-  recommendation = 'recommendation',
-  safetyAlert = 'safetyAlert',
-  educationalTip = 'educationalTip',
-  question = 'question',
-  answer = 'answer',
-  measurementEntry = 'measurementEntry',
-}
-
-export enum MeasurementType {
-  temperature = 'temperature',
-  pressure = 'pressure',
-  superheat = 'superheat',
-  subcooling = 'subcooling',
-  airflow = 'airflow',
-  electrical = 'electrical',
-  refrigerantWeight = 'refrigerantWeight',
-}
-
-export enum MeasurementSource {
-  manual = 'manual',
-  device = 'device',
-  voiceEntry = 'voiceEntry',
-}
-
-export enum ResourceType {
-  lesson = 'lesson',
-  diagram = 'diagram',
-  calculator = 'calculator',
-  video = 'video',
-  article = 'article',
-  tool = 'tool',
-  quiz = 'quiz',
-}
-
-export enum ChatSessionStatus {
-  inProgress = 'inProgress',
-  completed = 'completed',
-  cancelled = 'cancelled',
-  archived = 'archived',
-}
-
+// Troubleshooting Chat
 export interface TroubleshootingChatSession {
   id: bigint;
   userId: Principal;
   startedAt: bigint;
   lastUpdated: bigint;
-  messages: any[];
-  currentStep: bigint;
-  status: string;
-  measurements: any[];
+  messages: ChatMessage[];
+  currentStep: number;
+  status: ChatSessionStatus;
+  measurements: MeasurementEntry[];
   likelyCauses: string[];
   recommendedActions: string[];
-  linkedResources: any[];
-  confidenceLevel?: any;
-  transcripts: any[];
+  linkedResources: ResourceLink[];
+  confidenceLevel: ConfidenceLevel | null;
+  transcripts: TranscriptEntry[];
 }
 
-// EPA types (not in backend yet)
+export interface ChatMessage {
+  id: bigint;
+  sender: MessageSender;
+  content: string;
+  timestamp: bigint;
+  messageType: MessageType;
+}
+
+export enum MessageSender {
+  user = "user",
+  assistant = "assistant",
+  systemMessage = "systemMessage",
+}
+
+export enum MessageType {
+  text = "text",
+  diagnosticStep = "diagnosticStep",
+  recommendation = "recommendation",
+  safetyAlert = "safetyAlert",
+  educationalTip = "educationalTip",
+  question = "question",
+  answer = "answer",
+  measurementEntry = "measurementEntry",
+}
+
+export enum ChatSessionStatus {
+  inProgress = "inProgress",
+  completed = "completed",
+  cancelled = "cancelled",
+  archived = "archived",
+}
+
+export interface MeasurementEntry {
+  id: bigint;
+  type: MeasurementType;
+  value: number;
+  units: string;
+  timestamp: bigint;
+  source: MeasurementSource;
+}
+
+export enum MeasurementType {
+  temperature = "temperature",
+  pressure = "pressure",
+  superheat = "superheat",
+  subcooling = "subcooling",
+  airflow = "airflow",
+  electrical = "electrical",
+  refrigerantWeight = "refrigerantWeight",
+}
+
+export enum MeasurementSource {
+  manual = "manual",
+  device = "device",
+  voiceEntry = "voiceEntry",
+}
+
+export interface ResourceLink {
+  id: bigint;
+  title: string;
+  url: string;
+  resourceType: ResourceType;
+  description: string;
+}
+
+export enum ResourceType {
+  lesson = "lesson",
+  diagram = "diagram",
+  calculator = "calculator",
+  video = "video",
+  article = "article",
+  tool = "tool",
+  quiz = "quiz",
+}
+
+export interface TranscriptEntry {
+  id: bigint;
+  content: string;
+  timestamp: bigint;
+  author: string;
+}
+
+export enum ConfidenceLevel {
+  low = "low",
+  medium = "medium",
+  high = "high",
+}
+
+// EPA Content
+export interface EpaCoreContent {
+  id: number;
+  title: string;
+  content: string;
+  section: EpaSection;
+  flashcards: Flashcard[];
+  quiz: EpaQuiz;
+  relatedAssets: bigint[];
+}
+
 export enum EpaSection {
-  core = 'core',
-  typeI = 'typeI',
-  typeII = 'typeII',
-  typeIII = 'typeIII',
-  universal = 'universal',
+  core = "core",
+  typeI = "typeI",
+  typeII = "typeII",
+  typeIII = "typeIII",
+  universal = "universal",
 }
 
-export enum QuestionDifficulty {
-  easy = 'easy',
-  medium = 'medium',
-  hard = 'hard',
+export interface EpaQuiz {
+  questions: EpaQuizQuestion[];
+  answerKey: string[];
 }
 
+export interface EpaQuizQuestion {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation: string;
+  difficulty: QuestionDifficulty;
+  section: EpaSection;
+}
+
+// EPA Exam Question (for exam simulation)
 export interface EpaExamQuestion {
   id: bigint;
   section: EpaSection;
@@ -279,29 +249,185 @@ export interface EpaExamQuestion {
   topicCategory: string;
 }
 
-export interface EpaCoreContent {
-  id: bigint;
-  title: string;
-  content: string;
-  section: EpaSection;
-  flashcards: Flashcard[];
-  quiz: Quiz;
-  relatedAssets: bigint[];
+export enum QuestionDifficulty {
+  easy = "easy",
+  medium = "medium",
+  hard = "hard",
 }
 
+// Progress Tracking
 export interface ProgressTracking {
   modulesCompleted: EpaSection[];
-  quizScores: bigint[];
-  readinessRatings: bigint[];
-  simulatedExams: any[];
-  passThroughRate: bigint;
+  quizScores: number[];
+  readinessRatings: number[];
+  simulatedExams: ExamSimulationResult[];
+  passThroughRate: number;
   currentSection: EpaSection;
-  currentProgress: bigint;
+  currentProgress: number;
 }
 
-// User role types
-export enum UserRole {
-  admin = 'admin',
-  user = 'user',
-  guest = 'guest',
+export interface ExamSimulationResult {
+  score: number;
+  passed: boolean;
+  completed: boolean;
+}
+
+// Diagnostic Session
+export interface DiagnosticSession {
+  id: bigint;
+  user: Principal;
+  mode: DiagnosticMode;
+  createdAt: bigint;
+  lastUpdated: bigint;
+  status: SessionStatus;
+  stepsCompleted: number;
+  results: SessionResults;
+}
+
+export enum DiagnosticMode {
+  beginner = "beginner",
+  expert = "expert",
+}
+
+export enum SessionStatus {
+  inProgress = "inProgress",
+  completed = "completed",
+  cancelled = "cancelled",
+}
+
+export interface SessionResults {
+  thermostat: ThermostatResult | null;
+  powerCheck: PowerCheckResult | null;
+  airFilter: AirFilterResult | null;
+  airflow: AirflowResult | null;
+  temperature: TempResult | null;
+  pressureCheck: PressureResult | null;
+  superheatSubcooling: SuperheatSubcoolingResult | null;
+  compressorCheck: CompressorResult | null;
+  coilCondition: CoilConditionResult | null;
+  leakDetection: LeakDetectionResult | null;
+  deltaT: number | null;
+  superheat: number | null;
+  subcooling: number | null;
+  ampVariance: number | null;
+  confidenceLevel: ConfidenceLevel | null;
+  likelyCauses: string[];
+  recommendedActions: string[];
+  partsNeeded: string[];
+  estimatedTime: number | null;
+}
+
+export interface ThermostatResult {
+  modeCorrect: boolean;
+  tempSet: boolean;
+  measurements: Measurement;
+}
+
+export interface PowerCheckResult {
+  powerStatus: boolean;
+  measurements: Measurement;
+}
+
+export interface AirFilterResult {
+  filterCondition: boolean;
+  measurements: Measurement;
+}
+
+export interface AirflowResult {
+  airflowStatus: boolean;
+  measurements: Measurement;
+}
+
+export interface TempResult {
+  returnTemp: number;
+  supplyTemp: number;
+  measurements: Measurement;
+}
+
+export interface PressureResult {
+  suctionPressure: number;
+  dischargePressure: number;
+  measurements: Measurement;
+}
+
+export interface SuperheatSubcoolingResult {
+  superheat: number;
+  subcooling: number;
+  measurements: Measurement;
+}
+
+export interface CompressorResult {
+  ampDraw: number;
+  nameplateAmp: number;
+  measurements: Measurement;
+}
+
+export interface CoilConditionResult {
+  coilStatus: boolean;
+  measurements: Measurement;
+}
+
+export interface LeakDetectionResult {
+  leakStatus: boolean;
+  measurements: Measurement;
+}
+
+export interface Measurement {
+  value: number;
+  units: string;
+  timestamp: bigint;
+}
+
+// Video Library
+export interface VideoRecord {
+  id: bigint;
+  title: string;
+  category: VideoCategory;
+  description: string;
+  url: string;
+  linkedLessonTopic: string;
+  duration: number; // Duration in seconds (not bigint)
+  thumbnailUrl: string;
+}
+
+export enum VideoCategory {
+  epaCore = "epaCore",
+  typeI = "typeI",
+  typeII = "typeII",
+  typeIII = "typeIII",
+  epaPlaylists = "epaPlaylists",
+  hvacFundamentals = "hvacFundamentals",
+  diagnosticsMeasurements = "diagnosticsMeasurements",
+  electricalControls = "electricalControls",
+  refrigerantHandling = "refrigerantHandling",
+  toolsInstruments = "toolsInstruments",
+}
+
+// Suppliers
+export interface SupplierRecord {
+  id: bigint;
+  name: string;
+  category: SupplierCategory;
+  city: string;
+  zipCode: string;
+  phone: string;
+  website: string;
+  distanceMiles: number;
+}
+
+export enum SupplierCategory {
+  parts = "parts",
+  refrigerant = "refrigerant",
+  tools = "tools",
+  wholesale = "wholesale",
+}
+
+export interface UserSupplier {
+  id: bigint;
+  name: string;
+  location: string;
+  contact: string;
+  category: SupplierCategory;
+  notes: string;
+  rating: number;
 }

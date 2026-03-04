@@ -1,41 +1,56 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState } from 'react';
-import { Calculator, AlertTriangle, CheckCircle2, Info, TrendingUp, TrendingDown } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertTriangle,
+  Calculator,
+  CheckCircle2,
+  Info,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import { useState } from "react";
 
 interface SuperheatSubcoolingCalculatorProps {
-  studyMode: { __kind__: 'beginner' | 'expert' };
+  studyMode: { __kind__: "beginner" | "expert" };
 }
 
-export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSubcoolingCalculatorProps) {
-  const [refrigerant, setRefrigerant] = useState<string>('R-410A');
-  
+export default function SuperheatSubcoolingCalculator({
+  studyMode,
+}: SuperheatSubcoolingCalculatorProps) {
+  const [refrigerant, setRefrigerant] = useState<string>("R-410A");
+
   // Superheat inputs
   const [suctionTemp, setSuctionTemp] = useState<number>(50);
   const [suctionPressure, setSuctionPressure] = useState<number>(118);
-  
+
   // Subcooling inputs
   const [liquidTemp, setLiquidTemp] = useState<number>(95);
   const [dischargePressure, setDischargePressure] = useState<number>(278);
-  
+
   // Target charge inputs
   const [outdoorTemp, setOutdoorTemp] = useState<number>(75);
   const [indoorWetBulb, setIndoorWetBulb] = useState<number>(63);
 
-  const isBeginner = studyMode.__kind__ === 'beginner';
+  const isBeginner = studyMode.__kind__ === "beginner";
 
   // Pressure-Temperature conversion tables (simplified)
   const ptCharts: Record<string, (pressure: number) => number> = {
-    'R-410A': (p) => 0.0857 * p + 30,
-    'R-22': (p) => 0.1143 * p + 25,
-    'R-134a': (p) => 0.2286 * p + 15,
-    'R-404A': (p) => 0.1 * p + 28,
+    "R-410A": (p) => 0.0857 * p + 30,
+    "R-22": (p) => 0.1143 * p + 25,
+    "R-134a": (p) => 0.2286 * p + 15,
+    "R-404A": (p) => 0.1 * p + 28,
   };
 
   const saturationTempSuction = ptCharts[refrigerant](suctionPressure);
@@ -65,16 +80,20 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
 
   const getSuperheatStatus = () => {
     const diff = Math.abs(superheat - targetSuperheat);
-    if (diff <= 2) return { color: 'green', text: 'Optimal', icon: CheckCircle2 };
-    if (diff <= 5) return { color: 'yellow', text: 'Acceptable', icon: AlertTriangle };
-    return { color: 'red', text: 'Out of Range', icon: AlertTriangle };
+    if (diff <= 2)
+      return { color: "green", text: "Optimal", icon: CheckCircle2 };
+    if (diff <= 5)
+      return { color: "yellow", text: "Acceptable", icon: AlertTriangle };
+    return { color: "red", text: "Out of Range", icon: AlertTriangle };
   };
 
   const getSubcoolingStatus = () => {
     const diff = Math.abs(subcooling - targetSubcooling);
-    if (diff <= 2) return { color: 'green', text: 'Optimal', icon: CheckCircle2 };
-    if (diff <= 4) return { color: 'yellow', text: 'Acceptable', icon: AlertTriangle };
-    return { color: 'red', text: 'Out of Range', icon: AlertTriangle };
+    if (diff <= 2)
+      return { color: "green", text: "Optimal", icon: CheckCircle2 };
+    if (diff <= 4)
+      return { color: "yellow", text: "Acceptable", icon: AlertTriangle };
+    return { color: "red", text: "Out of Range", icon: AlertTriangle };
   };
 
   const superheatStatus = getSuperheatStatus();
@@ -84,40 +103,67 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
 
   const getDiagnosis = () => {
     const issues: string[] = [];
-    
+
     if (superheat < targetSuperheat - 5) {
-      issues.push('LOW SUPERHEAT: System may be overcharged or TXV is flooding. Risk of liquid slugging to compressor.');
+      issues.push(
+        "LOW SUPERHEAT: System may be overcharged or TXV is flooding. Risk of liquid slugging to compressor.",
+      );
     } else if (superheat > targetSuperheat + 5) {
-      issues.push('HIGH SUPERHEAT: System may be undercharged or metering device restricted. Reduced cooling capacity.');
+      issues.push(
+        "HIGH SUPERHEAT: System may be undercharged or metering device restricted. Reduced cooling capacity.",
+      );
     }
-    
+
     if (subcooling < targetSubcooling - 4) {
-      issues.push('LOW SUBCOOLING: System is undercharged. Add refrigerant and recheck.');
+      issues.push(
+        "LOW SUBCOOLING: System is undercharged. Add refrigerant and recheck.",
+      );
     } else if (subcooling > targetSubcooling + 4) {
-      issues.push('HIGH SUBCOOLING: System may be overcharged or liquid line restricted. Remove refrigerant and recheck.');
+      issues.push(
+        "HIGH SUBCOOLING: System may be overcharged or liquid line restricted. Remove refrigerant and recheck.",
+      );
     }
-    
+
     if (issues.length === 0) {
-      return 'System charge is correct. Both superheat and subcooling are within target range for current conditions.';
+      return "System charge is correct. Both superheat and subcooling are within target range for current conditions.";
     }
-    
-    return issues.join(' ');
+
+    return issues.join(" ");
   };
 
   const getChargeRecommendation = () => {
     const superheatDiff = superheat - targetSuperheat;
     const subcoolingDiff = subcooling - targetSubcooling;
-    
+
     if (superheatDiff > 5 && subcoolingDiff < -4) {
-      return { action: 'Add Refrigerant', amount: 'Moderate', icon: TrendingUp };
-    } else if (superheatDiff < -5 && subcoolingDiff > 4) {
-      return { action: 'Remove Refrigerant', amount: 'Moderate', icon: TrendingDown };
-    } else if (superheatDiff > 3) {
-      return { action: 'Add Refrigerant', amount: 'Small', icon: TrendingUp };
-    } else if (superheatDiff < -3) {
-      return { action: 'Remove Refrigerant', amount: 'Small', icon: TrendingDown };
+      return {
+        action: "Add Refrigerant",
+        amount: "Moderate",
+        icon: TrendingUp,
+      };
     }
-    return { action: 'No Adjustment Needed', amount: 'Optimal', icon: CheckCircle2 };
+    if (superheatDiff < -5 && subcoolingDiff > 4) {
+      return {
+        action: "Remove Refrigerant",
+        amount: "Moderate",
+        icon: TrendingDown,
+      };
+    }
+    if (superheatDiff > 3) {
+      return { action: "Add Refrigerant", amount: "Small", icon: TrendingUp };
+    }
+    if (superheatDiff < -3) {
+      return {
+        action: "Remove Refrigerant",
+        amount: "Small",
+        icon: TrendingDown,
+      };
+    }
+    return {
+      action: "No Adjustment Needed",
+      amount: "Optimal",
+      icon: CheckCircle2,
+    };
   };
 
   const chargeRec = getChargeRecommendation();
@@ -136,8 +182,9 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              This calculator determines proper system charge by comparing measured superheat and subcooling
-              to target values based on operating conditions. Target values adjust for outdoor temperature
+              This calculator determines proper system charge by comparing
+              measured superheat and subcooling to target values based on
+              operating conditions. Target values adjust for outdoor temperature
               and indoor humidity.
             </AlertDescription>
           </Alert>
@@ -189,7 +236,8 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
               <Card className="border-primary/20 bg-primary/5">
                 <CardContent className="p-3">
                   <p className="text-sm">
-                    <strong>Saturation Temperature:</strong> {saturationTempSuction.toFixed(1)}°F
+                    <strong>Saturation Temperature:</strong>{" "}
+                    {saturationTempSuction.toFixed(1)}°F
                   </p>
                 </CardContent>
               </Card>
@@ -211,14 +259,17 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
                   <Input
                     type="number"
                     value={dischargePressure}
-                    onChange={(e) => setDischargePressure(Number(e.target.value))}
+                    onChange={(e) =>
+                      setDischargePressure(Number(e.target.value))
+                    }
                   />
                 </div>
               </div>
               <Card className="border-primary/20 bg-primary/5">
                 <CardContent className="p-3">
                   <p className="text-sm">
-                    <strong>Saturation Temperature:</strong> {saturationTempDischarge.toFixed(1)}°F
+                    <strong>Saturation Temperature:</strong>{" "}
+                    {saturationTempDischarge.toFixed(1)}°F
                   </p>
                 </CardContent>
               </Card>
@@ -229,8 +280,8 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                Operating conditions affect target superheat and subcooling values. Enter current conditions
-                for accurate charge assessment.
+                Operating conditions affect target superheat and subcooling
+                values. Enter current conditions for accurate charge assessment.
               </AlertDescription>
             </Alert>
 
@@ -265,12 +316,20 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
                 <h4 className="font-semibold mb-2">Calculated Targets</h4>
                 <div className="grid gap-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Target Superheat:</span>
-                    <span className="font-semibold">{targetSuperheat.toFixed(1)}°F</span>
+                    <span className="text-muted-foreground">
+                      Target Superheat:
+                    </span>
+                    <span className="font-semibold">
+                      {targetSuperheat.toFixed(1)}°F
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Target Subcooling:</span>
-                    <span className="font-semibold">{targetSubcooling.toFixed(1)}°F</span>
+                    <span className="text-muted-foreground">
+                      Target Subcooling:
+                    </span>
+                    <span className="font-semibold">
+                      {targetSubcooling.toFixed(1)}°F
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -279,18 +338,29 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
 
           <TabsContent value="results" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card className={`border-2 border-${superheatStatus.color}-500 bg-${superheatStatus.color}-500/10`}>
+              <Card
+                className={`border-2 border-${superheatStatus.color}-500 bg-${superheatStatus.color}-500/10`}
+              >
                 <CardContent className="p-4">
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Superheat</p>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-3xl font-bold">{superheat.toFixed(1)}°F</p>
-                        <p className="text-xs text-muted-foreground">Target: {targetSuperheat.toFixed(1)}°F</p>
+                        <p className="text-3xl font-bold">
+                          {superheat.toFixed(1)}°F
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Target: {targetSuperheat.toFixed(1)}°F
+                        </p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <SuperheatIcon className={`h-8 w-8 text-${superheatStatus.color}-600`} />
-                        <Badge variant="outline" className={`border-${superheatStatus.color}-500`}>
+                        <SuperheatIcon
+                          className={`h-8 w-8 text-${superheatStatus.color}-600`}
+                        />
+                        <Badge
+                          variant="outline"
+                          className={`border-${superheatStatus.color}-500`}
+                        >
                           {superheatStatus.text}
                         </Badge>
                       </div>
@@ -299,18 +369,29 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
                 </CardContent>
               </Card>
 
-              <Card className={`border-2 border-${subcoolingStatus.color}-500 bg-${subcoolingStatus.color}-500/10`}>
+              <Card
+                className={`border-2 border-${subcoolingStatus.color}-500 bg-${subcoolingStatus.color}-500/10`}
+              >
                 <CardContent className="p-4">
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Subcooling</p>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-3xl font-bold">{subcooling.toFixed(1)}°F</p>
-                        <p className="text-xs text-muted-foreground">Target: {targetSubcooling.toFixed(1)}°F</p>
+                        <p className="text-3xl font-bold">
+                          {subcooling.toFixed(1)}°F
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Target: {targetSubcooling.toFixed(1)}°F
+                        </p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <SubcoolingIcon className={`h-8 w-8 text-${subcoolingStatus.color}-600`} />
-                        <Badge variant="outline" className={`border-${subcoolingStatus.color}-500`}>
+                        <SubcoolingIcon
+                          className={`h-8 w-8 text-${subcoolingStatus.color}-600`}
+                        />
+                        <Badge
+                          variant="outline"
+                          className={`border-${subcoolingStatus.color}-500`}
+                        >
                           {subcoolingStatus.text}
                         </Badge>
                       </div>
@@ -326,7 +407,9 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
                   <ChargeIcon className="h-6 w-6 text-primary" />
                   <div>
                     <h4 className="font-semibold">{chargeRec.action}</h4>
-                    <p className="text-sm text-muted-foreground">{chargeRec.amount} Adjustment</p>
+                    <p className="text-sm text-muted-foreground">
+                      {chargeRec.amount} Adjustment
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -346,8 +429,12 @@ export default function SuperheatSubcoolingCalculator({ studyMode }: SuperheatSu
             <CardContent className="p-4">
               <h4 className="font-semibold mb-2">Charging Best Practices</h4>
               <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                <li>Always use manufacturer's charging charts when available</li>
-                <li>Allow system to run 15+ minutes before taking measurements</li>
+                <li>
+                  Always use manufacturer's charging charts when available
+                </li>
+                <li>
+                  Allow system to run 15+ minutes before taking measurements
+                </li>
                 <li>Verify airflow is correct before adjusting charge</li>
                 <li>Add/remove refrigerant in small increments</li>
                 <li>Recheck measurements after each adjustment</li>

@@ -1,15 +1,41 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Shield, TrendingUp, Zap, GraduationCap, Gauge, Wrench } from 'lucide-react';
-import type { StudyMode } from '../../types/study';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  BookOpen,
+  Gauge,
+  GraduationCap,
+  Shield,
+  TrendingUp,
+  Wrench,
+  Zap,
+} from "lucide-react";
+import type { StudyMode } from "../../types/study";
 
 interface StudySystemHomeProps {
-  onNavigate: (view: 'home' | 'core-lessons' | 'epa-608' | 'progress' | 'multimeter-training' | 'uei-dl589-guide') => void;
+  onNavigate: (
+    view:
+      | "home"
+      | "core-lessons"
+      | "epa-608"
+      | "progress"
+      | "multimeter-training"
+      | "uei-dl589-guide"
+      | "hvac-electrical-fundamentals",
+  ) => void;
   studyMode: StudyMode;
 }
 
-export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHomeProps) {
-  const isBeginner = studyMode.__kind__ === 'beginner';
+export default function StudySystemHome({
+  onNavigate,
+  studyMode,
+}: StudySystemHomeProps) {
+  const isBeginner = studyMode.__kind__ === "beginner";
 
   return (
     <div className="space-y-6">
@@ -29,7 +55,7 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
               </div>
             </div>
             <div className="mt-4 rounded-lg bg-primary/10 px-3 py-1 text-sm font-medium text-primary inline-block">
-              {isBeginner ? 'Beginner Mode' : 'Expert Mode'}
+              {isBeginner ? "Beginner Mode" : "Expert Mode"}
             </div>
           </CardHeader>
           <div className="hidden md:block">
@@ -46,21 +72,27 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
               <BookOpen className="h-6 w-6 flex-shrink-0 text-primary" />
               <div>
                 <h3 className="font-semibold">Core Lessons</h3>
-                <p className="text-sm text-muted-foreground">Theory, formulas, and interactive diagrams</p>
+                <p className="text-sm text-muted-foreground">
+                  Theory, formulas, and interactive diagrams
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3 rounded-lg bg-card p-4">
               <Shield className="h-6 w-6 flex-shrink-0 text-primary" />
               <div>
                 <h3 className="font-semibold">EPA 608 Prep</h3>
-                <p className="text-sm text-muted-foreground">Certification practice questions</p>
+                <p className="text-sm text-muted-foreground">
+                  Certification practice questions
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3 rounded-lg bg-card p-4">
               <Zap className="h-6 w-6 flex-shrink-0 text-primary" />
               <div>
                 <h3 className="font-semibold">Hands-On Practice</h3>
-                <p className="text-sm text-muted-foreground">Interactive exercises</p>
+                <p className="text-sm text-muted-foreground">
+                  Interactive exercises
+                </p>
               </div>
             </div>
           </div>
@@ -84,7 +116,8 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
             </div>
             <CardTitle>Core HVAC Lessons</CardTitle>
             <CardDescription>
-              Based on "Modern Refrigeration & Air Conditioning" textbook with interactive visual diagrams
+              Based on "Modern Refrigeration & Air Conditioning" textbook with
+              interactive visual diagrams
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -106,7 +139,10 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
                 <span>Electrical Systems & Components</span>
               </div>
             </div>
-            <Button onClick={() => onNavigate('core-lessons')} className="w-full">
+            <Button
+              onClick={() => onNavigate("core-lessons")}
+              className="w-full"
+            >
               Start Learning
             </Button>
           </CardContent>
@@ -127,7 +163,8 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
             </div>
             <CardTitle>EPA Section 608 Prep</CardTitle>
             <CardDescription>
-              Complete certification study guide and practice exams with visual aids
+              Complete certification study guide and practice exams with visual
+              aids
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -149,7 +186,7 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
                 <span>Universal Certification</span>
               </div>
             </div>
-            <Button onClick={() => onNavigate('epa-608')} className="w-full">
+            <Button onClick={() => onNavigate("epa-608")} className="w-full">
               Begin Prep
             </Button>
           </CardContent>
@@ -170,7 +207,8 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
             </div>
             <CardTitle>Multimeter Training</CardTitle>
             <CardDescription>
-              Master electrical testing with comprehensive multimeter and clamp meter training
+              Master electrical testing with comprehensive multimeter and clamp
+              meter training
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -192,7 +230,11 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
                 <span>Amperage (Clamp Meter)</span>
               </div>
             </div>
-            <Button onClick={() => onNavigate('multimeter-training')} className="w-full" variant="secondary">
+            <Button
+              onClick={() => onNavigate("multimeter-training")}
+              className="w-full"
+              variant="secondary"
+            >
               Start Training
             </Button>
           </CardContent>
@@ -213,7 +255,8 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
             </div>
             <CardTitle>UEi DL589 Multimeter Guide</CardTitle>
             <CardDescription>
-              Complete reference guide for the UEi DL589 with HVAC-specific applications
+              Complete reference guide for the UEi DL589 with HVAC-specific
+              applications
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -235,8 +278,53 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
                 <span>Frequency & Delta T</span>
               </div>
             </div>
-            <Button onClick={() => onNavigate('uei-dl589-guide')} className="w-full" variant="outline">
+            <Button
+              onClick={() => onNavigate("uei-dl589-guide")}
+              className="w-full"
+              variant="outline"
+            >
               View Guide
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* HVAC Electrical Fundamentals */}
+        <Card className="overflow-hidden transition-all hover:shadow-lg border-accent/30 md:col-span-2">
+          <CardHeader>
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-accent/10">
+              <Zap className="h-8 w-8 text-accent" />
+            </div>
+            <CardTitle>HVAC Electrical Fundamentals</CardTitle>
+            <CardDescription>
+              Essential electrical theory for HVAC technicians — from Ohm's Law
+              to Variable Frequency Drives
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-accent" />
+                <span>Voltage, Current &amp; Ohm's Law</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-accent" />
+                <span>Series &amp; Parallel Circuits</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-accent" />
+                <span>Motors, Contactors &amp; Protection</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-accent" />
+                <span>Variable Frequency Drives (VFD)</span>
+              </div>
+            </div>
+            <Button
+              onClick={() => onNavigate("hvac-electrical-fundamentals")}
+              className="w-full"
+              data-ocid="study.hvac-electrical.primary_button"
+            >
+              Start Learning
             </Button>
           </CardContent>
         </Card>
@@ -258,10 +346,15 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
               Track Your Progress
             </CardTitle>
             <CardDescription>
-              View completed modules, quiz scores, and identify areas for improvement with visual analytics
+              View completed modules, quiz scores, and identify areas for
+              improvement with visual analytics
             </CardDescription>
             <div className="pt-4">
-              <Button onClick={() => onNavigate('progress')} variant="outline" className="w-full">
+              <Button
+                onClick={() => onNavigate("progress")}
+                variant="outline"
+                className="w-full"
+              >
                 View Progress Dashboard
               </Button>
             </div>
@@ -312,7 +405,9 @@ export default function StudySystemHome({ onNavigate, studyMode }: StudySystemHo
                 className="h-full w-auto object-contain"
               />
             </div>
-            <h3 className="mb-2 text-center font-semibold">Progress Analytics</h3>
+            <h3 className="mb-2 text-center font-semibold">
+              Progress Analytics
+            </h3>
             <p className="text-center text-sm text-muted-foreground">
               Track your learning journey with detailed metrics
             </p>

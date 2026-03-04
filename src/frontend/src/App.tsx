@@ -1,16 +1,24 @@
-import { useInternetIdentity } from './hooks/useInternetIdentity';
-import { useGetCallerUserProfile, useGetGuestProfile, useIsWalkthroughCompleted, useMarkWalkthroughCompleted } from './hooks/useQueries';
-import { ThemeProvider } from 'next-themes';
-import { Toaster } from '@/components/ui/sonner';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import ProfileSetupModal from './components/ProfileSetupModal';
-import Dashboard from './pages/Dashboard';
-import GuestBanner from './components/GuestBanner';
-import LandingPage from './pages/LandingPage';
-import OnboardingWalkthrough from './components/OnboardingWalkthrough';
-import { Loader2 } from 'lucide-react';
-import { Suspense } from 'react';
+import { Toaster } from "@/components/ui/sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { ThemeProvider } from "next-themes";
+import { Suspense, useEffect } from "react";
+import Footer from "./components/Footer";
+import GuestBanner from "./components/GuestBanner";
+import Header from "./components/Header";
+import OnboardingWalkthrough from "./components/OnboardingWalkthrough";
+import ProfileSetupModal from "./components/ProfileSetupModal";
+import { useInternetIdentity } from "./hooks/useInternetIdentity";
+import {
+  useClearGuestProfile,
+  useGetCallerUserProfile,
+  useGetGuestProfile,
+  useIsWalkthroughCompleted,
+  useMarkWalkthroughCompleted,
+} from "./hooks/useQueries";
+import Dashboard from "./pages/Dashboard";
+import LandingPage from "./pages/LandingPage";
+import { clearGuestSession } from "./utils/guestSession";
 
 // Loading fallback component
 function LoadingScreen() {
@@ -26,18 +34,37 @@ function LoadingScreen() {
 
 export default function App() {
   const { identity, loginStatus } = useInternetIdentity();
+  const queryClient = useQueryClient();
   const isAuthenticated = !!identity;
-  
-  // Fetch user profile with automatic initialization fallback
-  const { data: userProfile, isLoading: profileLoading, isFetched: profileFetched } = useGetCallerUserProfile();
-  const { data: guestProfile, isLoading: guestLoading, isFetched: guestFetched } = useGetGuestProfile();
-  const { data: walkthroughCompleted, isLoading: walkthroughLoading } = useIsWalkthroughCompleted();
+
+  // Fetch user profile (only when authenticated)
+  const {
+    data: userProfile,
+    isLoading: profileLoading,
+    isFetched: profileFetched,
+  } = useGetCallerUserProfile();
+
+  // Fetch guest profile (works without authentication)
+  const { data: guestProfile } = useGetGuestProfile();
+
+  const { data: walkthroughCompleted, isLoading: walkthroughLoading } =
+    useIsWalkthroughCompleted();
   const markWalkthroughCompleted = useMarkWalkthroughCompleted();
 
-  const isGuest = isAuthenticated && !!guestProfile && !userProfile;
+  // Guest mode is active when there's a guest profile and no authenticated user profile
+  const isGuest = !!guestProfile && !isAuthenticated;
+
+  // Clear guest session when user authenticates
+  useEffect(() => {
+    if (isAuthenticated && guestProfile) {
+      clearGuestSession();
+      queryClient.setQueryData(["guestProfile"], null);
+      queryClient.invalidateQueries({ queryKey: ["guestProfile"] });
+    }
+  }, [isAuthenticated, guestProfile, queryClient]);
 
   // Show loading state while initializing authentication
-  if (loginStatus === 'initializing') {
+  if (loginStatus === "initializing") {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <LoadingScreen />
@@ -47,7 +74,11 @@ export default function App() {
 
   // Show loading while profiles are being fetched after authentication
   // Only show loading if we're still fetching AND haven't received any data yet
-  if (isAuthenticated && (profileLoading || guestLoading || walkthroughLoading) && !profileFetched && !guestFetched) {
+  if (
+    isAuthenticated &&
+    (profileLoading || walkthroughLoading) &&
+    !profileFetched
+  ) {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <LoadingScreen />
@@ -57,12 +88,14 @@ export default function App() {
 
   // Determine if we should show profile setup modal
   // Only show if: authenticated, profiles are fetched, no user profile exists, and not a guest
-  // If profile is null after fetching, backend will have auto-initialized it, so we show setup
-  const showProfileSetup = isAuthenticated && profileFetched && guestFetched && !userProfile && !guestProfile;
+  const showProfileSetup =
+    isAuthenticated && profileFetched && !userProfile && !guestProfile;
 
   // Determine if we should show onboarding walkthrough
-  // Show if: authenticated, has profile (user or guest), and walkthrough not completed
-  const showOnboarding = isAuthenticated && (userProfile || guestProfile) && walkthroughCompleted === false;
+  // Show if: (authenticated with profile OR guest mode), and walkthrough not completed
+  const showOnboarding =
+    ((isAuthenticated && userProfile) || isGuest) &&
+    walkthroughCompleted === false;
 
   const handleOnboardingComplete = () => {
     markWalkthroughCompleted.mutate();
@@ -72,6 +105,10 @@ export default function App() {
     markWalkthroughCompleted.mutate();
   };
 
+  // Determine what to render
+  const shouldShowDashboard = isAuthenticated || isGuest;
+  const shouldShowLanding = !isAuthenticated && !isGuest;
+
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <div className="flex min-h-screen flex-col bg-background">
@@ -79,18 +116,20 @@ export default function App() {
         {isGuest && <GuestBanner />}
         <main className="flex-1">
           <Suspense fallback={<LoadingScreen />}>
-            {!isAuthenticated ? (
+            {shouldShowLanding ? (
               <LandingPage />
             ) : showProfileSetup ? (
               <ProfileSetupModal isGuestUpgrade={false} />
-            ) : (
+            ) : shouldShowDashboard ? (
               <Dashboard isGuest={isGuest} />
+            ) : (
+              <LandingPage />
             )}
           </Suspense>
         </main>
         <Footer />
         <Toaster richColors closeButton position="top-right" duration={4000} />
-        
+
         {/* Show onboarding walkthrough if needed */}
         {showOnboarding && (
           <OnboardingWalkthrough
@@ -102,4 +141,3 @@ export default function App() {
     </ThemeProvider>
   );
 }
-

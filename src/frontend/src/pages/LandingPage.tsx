@@ -1,16 +1,24 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useCreateGuestProfile } from '../hooks/useQueries';
-import { Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import { useCreateGuestProfile } from "../hooks/useQueries";
 
 export default function LandingPage() {
   const { login, isLoggingIn } = useInternetIdentity();
   const createGuest = useCreateGuestProfile();
+  const [guestError, setGuestError] = useState<string | null>(null);
 
   const handleGuestLogin = async () => {
     try {
+      setGuestError(null);
       await createGuest.mutateAsync();
     } catch (error) {
-      console.error('Guest login failed:', error);
+      console.error("Guest login failed:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to start guest session. Please try again.";
+      setGuestError(errorMessage);
     }
   };
 
@@ -31,10 +39,12 @@ export default function LandingPage() {
           HVAC Buddy: HVAC Pro Toolkit
         </h1>
         <p className="mx-auto mb-8 max-w-2xl text-xl text-muted-foreground">
-          A hybrid study and field workflow app for HVAC professionals to learn faster and work smarter.
+          A hybrid study and field workflow app for HVAC professionals to learn
+          faster and work smarter.
         </p>
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <button
+            type="button"
             onClick={login}
             disabled={isLoading}
             className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 disabled:opacity-50"
@@ -45,10 +55,11 @@ export default function LandingPage() {
                 Logging in...
               </>
             ) : (
-              'Create Full Account'
+              "Create Full Account"
             )}
           </button>
           <button
+            type="button"
             onClick={handleGuestLogin}
             disabled={isLoading}
             className="inline-flex items-center gap-2 rounded-full border-2 border-primary bg-background px-8 py-4 text-lg font-semibold text-primary shadow-lg transition-all hover:bg-primary/10 disabled:opacity-50"
@@ -60,12 +71,32 @@ export default function LandingPage() {
               </>
             ) : (
               <>
-                <img src="/assets/generated/guest-login-icon-transparent.dim_64x64.png" alt="" className="h-5 w-5" />
+                <img
+                  src="/assets/generated/guest-login-icon-transparent.dim_64x64.png"
+                  alt=""
+                  className="h-5 w-5"
+                />
                 Continue as Guest
               </>
             )}
           </button>
         </div>
+
+        {/* Guest Error Message */}
+        {guestError && (
+          <div className="mx-auto mt-4 max-w-md rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 flex-shrink-0 text-destructive" />
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-destructive">
+                  Guest Mode Error
+                </p>
+                <p className="mt-1 text-sm text-destructive/90">{guestError}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <p className="mt-4 text-sm text-muted-foreground">
           Guest mode: Explore all features without saving progress
         </p>
@@ -131,12 +162,16 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="rounded-2xl bg-gradient-to-r from-primary/10 to-accent/10 p-12 text-center">
-        <h2 className="mb-4 text-3xl font-bold text-foreground">Ready to Level Up Your HVAC Game?</h2>
+        <h2 className="mb-4 text-3xl font-bold text-foreground">
+          Ready to Level Up Your HVAC Game?
+        </h2>
         <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
-          Join HVAC professionals who are learning faster and working smarter with HVAC Buddy.
+          Join HVAC professionals who are learning faster and working smarter
+          with HVAC Buddy.
         </p>
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <button
+            type="button"
             onClick={login}
             disabled={isLoading}
             className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 disabled:opacity-50"
@@ -147,10 +182,11 @@ export default function LandingPage() {
                 Logging in...
               </>
             ) : (
-              'Start Free Today'
+              "Start Free Today"
             )}
           </button>
           <button
+            type="button"
             onClick={handleGuestLogin}
             disabled={isLoading}
             className="inline-flex items-center gap-2 rounded-full border-2 border-primary bg-background px-8 py-4 text-lg font-semibold text-primary shadow-lg transition-all hover:bg-primary/10 disabled:opacity-50"
@@ -162,7 +198,11 @@ export default function LandingPage() {
               </>
             ) : (
               <>
-                <img src="/assets/generated/guest-login-icon-transparent.dim_64x64.png" alt="" className="h-5 w-5" />
+                <img
+                  src="/assets/generated/guest-login-icon-transparent.dim_64x64.png"
+                  alt=""
+                  className="h-5 w-5"
+                />
                 Try as Guest
               </>
             )}
@@ -173,11 +213,17 @@ export default function LandingPage() {
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: string; title: string; description: string }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: { icon: string; title: string; description: string }) {
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md">
       <div className="mb-4 text-4xl">{icon}</div>
-      <h3 className="mb-2 text-xl font-semibold text-card-foreground">{title}</h3>
+      <h3 className="mb-2 text-xl font-semibold text-card-foreground">
+        {title}
+      </h3>
       <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   );

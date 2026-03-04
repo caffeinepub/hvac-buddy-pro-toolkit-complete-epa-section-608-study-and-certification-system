@@ -1,30 +1,30 @@
-import { useState, lazy, Suspense } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
+import GuestModeChecklist from "@/components/GuestModeChecklist";
+import ProfileSetupModal from "@/components/ProfileSetupModal";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2 } from "lucide-react";
 import {
-  Wrench,
+  BarChart3,
   BookOpen,
   Briefcase,
-  Search,
-  Camera,
   Calculator,
-  BarChart3,
-  MessageSquare,
+  Camera,
   MapPin,
-} from 'lucide-react';
-import GuestModeChecklist from '@/components/GuestModeChecklist';
-import ProfileSetupModal from '@/components/ProfileSetupModal';
+  MessageSquare,
+  Search,
+  Wrench,
+} from "lucide-react";
+import { Suspense, lazy, useState } from "react";
 
 // Lazy load tab components for better performance
-const TroubleshooterTab = lazy(() => import('./tabs/TroubleshooterTab'));
-const StudyTab = lazy(() => import('./tabs/StudyTab'));
-const JobsTab = lazy(() => import('./tabs/JobsTab'));
-const PartsTab = lazy(() => import('./tabs/PartsTab'));
-const PhotoDiagnosticTab = lazy(() => import('./tabs/PhotoDiagnosticTab'));
-const CalculatorsTab = lazy(() => import('./tabs/CalculatorsTab'));
-const DataLoggingTab = lazy(() => import('./tabs/DataLoggingTab'));
-const CommunityTab = lazy(() => import('./tabs/CommunityTab'));
-const SuppliersTab = lazy(() => import('./tabs/SuppliersTab'));
+const TroubleshooterTab = lazy(() => import("./tabs/TroubleshooterTab"));
+const StudyTab = lazy(() => import("./tabs/StudyTab"));
+const JobsTab = lazy(() => import("./tabs/JobsTab"));
+const PartsTab = lazy(() => import("./tabs/PartsTab"));
+const PhotoDiagnosticTab = lazy(() => import("./tabs/PhotoDiagnosticTab"));
+const CalculatorsTab = lazy(() => import("./tabs/CalculatorsTab"));
+const DataLoggingTab = lazy(() => import("./tabs/DataLoggingTab"));
+const CommunityTab = lazy(() => import("./tabs/CommunityTab"));
+const SuppliersTab = lazy(() => import("./tabs/SuppliersTab"));
 
 interface DashboardProps {
   isGuest: boolean;
@@ -40,7 +40,7 @@ function TabLoader() {
 }
 
 export default function Dashboard({ isGuest }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState('troubleshooter');
+  const [activeTab, setActiveTab] = useState("troubleshooter");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleUpgrade = () => {
@@ -54,7 +54,9 @@ export default function Dashboard({ isGuest }: DashboardProps) {
   return (
     <div className="container mx-auto px-4 py-6 sm:py-8">
       <div className="mb-6 sm:mb-8">
-        <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-foreground">HVAC Buddy Dashboard</h1>
+        <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-foreground">
+          HVAC Buddy Dashboard
+        </h1>
         <p className="text-sm sm:text-base text-muted-foreground">
           Your complete toolkit for HVAC diagnostics, learning, and field work
         </p>
@@ -69,44 +71,71 @@ export default function Dashboard({ isGuest }: DashboardProps) {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6 sm:mb-8 grid w-full grid-cols-3 gap-1 sm:gap-2 lg:grid-cols-9 h-auto">
-          <TabsTrigger value="troubleshooter" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+          <TabsTrigger
+            value="troubleshooter"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+          >
             <Wrench className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Troubleshooter</span>
             <span className="sm:hidden">Diag</span>
           </TabsTrigger>
-          <TabsTrigger value="study" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+          <TabsTrigger
+            value="study"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+          >
             <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Study</span>
             <span className="sm:hidden">Learn</span>
           </TabsTrigger>
-          <TabsTrigger value="jobs" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+          <TabsTrigger
+            value="jobs"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+          >
             <Briefcase className="h-3 w-3 sm:h-4 sm:w-4" />
             <span>Jobs</span>
           </TabsTrigger>
-          <TabsTrigger value="parts" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+          <TabsTrigger
+            value="parts"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+          >
             <Search className="h-3 w-3 sm:h-4 sm:w-4" />
             <span>Parts</span>
           </TabsTrigger>
-          <TabsTrigger value="suppliers" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+          <TabsTrigger
+            value="suppliers"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+          >
             <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Suppliers</span>
             <span className="sm:hidden">Local</span>
           </TabsTrigger>
-          <TabsTrigger value="photo" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+          <TabsTrigger
+            value="photo"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+          >
             <Camera className="h-3 w-3 sm:h-4 sm:w-4" />
             <span>Photo</span>
           </TabsTrigger>
-          <TabsTrigger value="calculators" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+          <TabsTrigger
+            value="calculators"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+          >
             <Calculator className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Calculators</span>
             <span className="sm:hidden">Calc</span>
           </TabsTrigger>
-          <TabsTrigger value="logging" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+          <TabsTrigger
+            value="logging"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+          >
             <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Logging</span>
             <span className="sm:hidden">Log</span>
           </TabsTrigger>
-          <TabsTrigger value="community" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2">
+          <TabsTrigger
+            value="community"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+          >
             <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Community</span>
             <span className="sm:hidden">Help</span>
@@ -146,7 +175,10 @@ export default function Dashboard({ isGuest }: DashboardProps) {
 
       {/* Upgrade Modal */}
       {showUpgradeModal && (
-        <ProfileSetupModal isGuestUpgrade={true} onClose={handleCloseUpgradeModal} />
+        <ProfileSetupModal
+          isGuestUpgrade={true}
+          onClose={handleCloseUpgradeModal}
+        />
       )}
     </div>
   );

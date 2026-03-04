@@ -1,23 +1,40 @@
-import { useState } from 'react';
-import { useCompleteUserOnboarding } from '../hooks/useQueries';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2, CheckCircle2, User, Building2, Mail, Phone, Briefcase } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Briefcase,
+  Building2,
+  CheckCircle2,
+  Loader2,
+  Mail,
+  Phone,
+  User,
+} from "lucide-react";
+import { useState } from "react";
+import { useCompleteUserOnboarding } from "../hooks/useQueries";
 
 interface ProfileSetupModalProps {
   isGuestUpgrade: boolean;
   onClose?: () => void;
 }
 
-export default function ProfileSetupModal({ isGuestUpgrade, onClose }: ProfileSetupModalProps) {
-  const [name, setName] = useState('');
-  const [company, setCompany] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [experienceYears, setExperienceYears] = useState('0');
+export default function ProfileSetupModal({
+  isGuestUpgrade,
+  onClose,
+}: ProfileSetupModalProps) {
+  const [name, setName] = useState("");
+  const [company, setCompany] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [experienceYears, setExperienceYears] = useState("0");
   const [showSuccess, setShowSuccess] = useState(false);
 
   const completeOnboarding = useCompleteUserOnboarding();
@@ -29,7 +46,7 @@ export default function ProfileSetupModal({ isGuestUpgrade, onClose }: ProfileSe
     if (!name.trim()) {
       return;
     }
-    if (!email.trim() || !email.includes('@')) {
+    if (!email.trim() || !email.includes("@")) {
       return;
     }
     if (!company.trim()) {
@@ -45,13 +62,13 @@ export default function ProfileSetupModal({ isGuestUpgrade, onClose }: ProfileSe
         company: company.trim(),
         email: email.trim(),
         phone: phone.trim(),
-        experienceYears: parseInt(experienceYears) || 0,
+        experienceYears: Number.parseInt(experienceYears) || 0,
       });
 
       // Show success message
       setShowSuccess(true);
     } catch (error) {
-      console.error('Profile setup error:', error);
+      console.error("Profile setup error:", error);
     }
   };
 
@@ -72,7 +89,8 @@ export default function ProfileSetupModal({ isGuestUpgrade, onClose }: ProfileSe
             <div className="text-center">
               <h3 className="text-xl font-semibold">Welcome to HVAC Buddy!</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Your account has been created successfully. You can now access all features.
+                Your account has been created successfully. You can now access
+                all features.
               </p>
             </div>
           </div>
@@ -83,15 +101,18 @@ export default function ProfileSetupModal({ isGuestUpgrade, onClose }: ProfileSe
 
   return (
     <Dialog open={true} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent
+        className="sm:max-w-lg"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl">
-            {isGuestUpgrade ? 'Upgrade Your Account' : 'Complete Your Profile'}
+            {isGuestUpgrade ? "Upgrade Your Account" : "Complete Your Profile"}
           </DialogTitle>
           <DialogDescription>
             {isGuestUpgrade
-              ? 'Create a full account to save your progress and access all features.'
-              : 'Tell us a bit about yourself to get started with HVAC Buddy Pro.'}
+              ? "Create a full account to save your progress and access all features."
+              : "Tell us a bit about yourself to get started with HVAC Buddy Pro."}
           </DialogDescription>
         </DialogHeader>
 
@@ -182,7 +203,8 @@ export default function ProfileSetupModal({ isGuestUpgrade, onClose }: ProfileSe
           {completeOnboarding.isError && (
             <Alert variant="destructive">
               <AlertDescription>
-                {completeOnboarding.error?.message || 'Failed to create profile. Please try again.'}
+                {completeOnboarding.error?.message ||
+                  "Failed to create profile. Please try again."}
               </AlertDescription>
             </Alert>
           )}
@@ -199,7 +221,7 @@ export default function ProfileSetupModal({ isGuestUpgrade, onClose }: ProfileSe
                 Creating Account...
               </>
             ) : (
-              'Create Account'
+              "Create Account"
             )}
           </Button>
 

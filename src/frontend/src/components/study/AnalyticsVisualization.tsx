@@ -1,7 +1,29 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { TrendingUp, TrendingDown, Activity, Target } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Activity, Target, TrendingDown, TrendingUp } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  RadarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 interface AnalyticsVisualizationProps {
   progressData: {
@@ -15,50 +37,94 @@ interface AnalyticsVisualizationProps {
   };
 }
 
-export default function AnalyticsVisualization({ progressData }: AnalyticsVisualizationProps) {
+export default function AnalyticsVisualization({
+  progressData,
+}: AnalyticsVisualizationProps) {
   // Prepare data for module performance chart
   const modulePerformanceData = [
-    { name: 'Thermodynamics', score: progressData.coreModules.thermodynamics?.quizScore || 0, status: progressData.coreModules.thermodynamics?.completed ? 'completed' : 'incomplete' },
-    { name: 'Refrigeration', score: progressData.coreModules.refrigeration?.quizScore || 0, status: progressData.coreModules.refrigeration?.completed ? 'completed' : 'incomplete' },
-    { name: 'Airflow', score: progressData.coreModules.airflow?.quizScore || 0, status: progressData.coreModules.airflow?.completed ? 'completed' : 'incomplete' },
-    { name: 'Electrical', score: progressData.coreModules.electrical?.quizScore || 0, status: progressData.coreModules.electrical?.completed ? 'completed' : 'incomplete' },
+    {
+      name: "Thermodynamics",
+      score: progressData.coreModules.thermodynamics?.quizScore || 0,
+      status: progressData.coreModules.thermodynamics?.completed
+        ? "completed"
+        : "incomplete",
+    },
+    {
+      name: "Refrigeration",
+      score: progressData.coreModules.refrigeration?.quizScore || 0,
+      status: progressData.coreModules.refrigeration?.completed
+        ? "completed"
+        : "incomplete",
+    },
+    {
+      name: "Airflow",
+      score: progressData.coreModules.airflow?.quizScore || 0,
+      status: progressData.coreModules.airflow?.completed
+        ? "completed"
+        : "incomplete",
+    },
+    {
+      name: "Electrical",
+      score: progressData.coreModules.electrical?.quizScore || 0,
+      status: progressData.coreModules.electrical?.completed
+        ? "completed"
+        : "incomplete",
+    },
   ];
 
   // EPA performance data
   const epaPerformanceData = [
-    { name: 'Type I', score: progressData.epaModules.type1?.quizScore || 0, passing: (progressData.epaModules.type1?.quizScore || 0) >= 70 },
-    { name: 'Type II', score: progressData.epaModules.type2?.quizScore || 0, passing: (progressData.epaModules.type2?.quizScore || 0) >= 70 },
-    { name: 'Type III', score: progressData.epaModules.type3?.quizScore || 0, passing: (progressData.epaModules.type3?.quizScore || 0) >= 70 },
-    { name: 'Universal', score: progressData.epaModules.universal?.quizScore || 0, passing: (progressData.epaModules.universal?.quizScore || 0) >= 70 },
+    {
+      name: "Type I",
+      score: progressData.epaModules.type1?.quizScore || 0,
+      passing: (progressData.epaModules.type1?.quizScore || 0) >= 70,
+    },
+    {
+      name: "Type II",
+      score: progressData.epaModules.type2?.quizScore || 0,
+      passing: (progressData.epaModules.type2?.quizScore || 0) >= 70,
+    },
+    {
+      name: "Type III",
+      score: progressData.epaModules.type3?.quizScore || 0,
+      passing: (progressData.epaModules.type3?.quizScore || 0) >= 70,
+    },
+    {
+      name: "Universal",
+      score: progressData.epaModules.universal?.quizScore || 0,
+      passing: (progressData.epaModules.universal?.quizScore || 0) >= 70,
+    },
   ];
 
   // Progress timeline data (mock historical data)
   const timelineData = [
-    { week: 'Week 1', modules: 0, quizAvg: 0 },
-    { week: 'Week 2', modules: 1, quizAvg: 85 },
-    { week: 'Week 3', modules: 2, quizAvg: 88 },
-    { week: 'Week 4', modules: 4, quizAvg: 86 },
+    { week: "Week 1", modules: 0, quizAvg: 0 },
+    { week: "Week 2", modules: 1, quizAvg: 85 },
+    { week: "Week 3", modules: 2, quizAvg: 88 },
+    { week: "Week 4", modules: 4, quizAvg: 86 },
   ];
 
   // Strengths and weaknesses radar data
   const skillsData = [
-    { skill: 'Theory', score: 90 },
-    { skill: 'Practical', score: 75 },
-    { skill: 'Diagnostics', score: 85 },
-    { skill: 'EPA Knowledge', score: 82 },
-    { skill: 'Calculations', score: 88 },
+    { skill: "Theory", score: 90 },
+    { skill: "Practical", score: 75 },
+    { skill: "Diagnostics", score: 85 },
+    { skill: "EPA Knowledge", score: 82 },
+    { skill: "Calculations", score: 88 },
   ];
 
   // Identify strengths and weaknesses
-  const completedModules = modulePerformanceData.filter(m => m.status === 'completed');
-  const strengths = completedModules.filter(m => m.score >= 85);
-  const weaknesses = completedModules.filter(m => m.score < 85);
+  const completedModules = modulePerformanceData.filter(
+    (m) => m.status === "completed",
+  );
+  const strengths = completedModules.filter((m) => m.score >= 85);
+  const weaknesses = completedModules.filter((m) => m.score < 85);
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return '#22c55e'; // green
-    if (score >= 80) return '#3b82f6'; // blue
-    if (score >= 70) return '#eab308'; // yellow
-    return '#ef4444'; // red
+    if (score >= 90) return "#22c55e"; // green
+    if (score >= 80) return "#3b82f6"; // blue
+    if (score >= 70) return "#eab308"; // yellow
+    return "#ef4444"; // red
   };
 
   return (
@@ -88,11 +154,16 @@ export default function AnalyticsVisualization({ progressData }: AnalyticsVisual
           </CardHeader>
           <CardContent>
             {strengths.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Complete more modules to identify strengths</p>
+              <p className="text-sm text-muted-foreground">
+                Complete more modules to identify strengths
+              </p>
             ) : (
               <div className="space-y-2">
                 {strengths.map((module) => (
-                  <div key={module.name} className="flex items-center justify-between p-2 rounded-lg bg-background/50">
+                  <div
+                    key={module.name}
+                    className="flex items-center justify-between p-2 rounded-lg bg-background/50"
+                  >
                     <span className="font-medium">{module.name}</span>
                     <Badge variant="default" className="bg-green-500">
                       {module.score}%
@@ -114,13 +185,21 @@ export default function AnalyticsVisualization({ progressData }: AnalyticsVisual
           </CardHeader>
           <CardContent>
             {weaknesses.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Great job! No weak areas identified yet</p>
+              <p className="text-sm text-muted-foreground">
+                Great job! No weak areas identified yet
+              </p>
             ) : (
               <div className="space-y-2">
                 {weaknesses.map((module) => (
-                  <div key={module.name} className="flex items-center justify-between p-2 rounded-lg bg-background/50">
+                  <div
+                    key={module.name}
+                    className="flex items-center justify-between p-2 rounded-lg bg-background/50"
+                  >
                     <span className="font-medium">{module.name}</span>
-                    <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+                    <Badge
+                      variant="outline"
+                      className="border-yellow-500 text-yellow-600"
+                    >
                       {module.score}%
                     </Badge>
                   </div>
@@ -143,16 +222,16 @@ export default function AnalyticsVisualization({ progressData }: AnalyticsVisual
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="name" className="text-xs" />
               <YAxis domain={[0, 100]} className="text-xs" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--background))', 
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--background))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px",
                 }}
               />
-              <Bar 
-                dataKey="score" 
-                fill="hsl(var(--primary))" 
+              <Bar
+                dataKey="score"
+                fill="hsl(var(--primary))"
                 radius={[8, 8, 0, 0]}
                 shape={(props: any) => {
                   const { x, y, width, height, payload } = props;
@@ -205,20 +284,20 @@ export default function AnalyticsVisualization({ progressData }: AnalyticsVisual
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="name" className="text-xs" />
               <YAxis domain={[0, 100]} className="text-xs" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--background))', 
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--background))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px",
                 }}
               />
-              <Bar 
-                dataKey="score" 
-                fill="hsl(var(--primary))" 
+              <Bar
+                dataKey="score"
+                fill="hsl(var(--primary))"
                 radius={[8, 8, 0, 0]}
                 shape={(props: any) => {
                   const { x, y, width, height, payload } = props;
-                  const color = payload.passing ? '#22c55e' : '#ef4444';
+                  const color = payload.passing ? "#22c55e" : "#ef4444";
                   return (
                     <rect
                       x={x}
@@ -259,32 +338,37 @@ export default function AnalyticsVisualization({ progressData }: AnalyticsVisual
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="week" className="text-xs" />
               <YAxis yAxisId="left" domain={[0, 5]} className="text-xs" />
-              <YAxis yAxisId="right" orientation="right" domain={[0, 100]} className="text-xs" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--background))', 
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                domain={[0, 100]}
+                className="text-xs"
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--background))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px",
                 }}
               />
               <Legend />
-              <Line 
+              <Line
                 yAxisId="left"
-                type="monotone" 
-                dataKey="modules" 
-                stroke="hsl(var(--primary))" 
+                type="monotone"
+                dataKey="modules"
+                stroke="hsl(var(--primary))"
                 strokeWidth={2}
                 name="Modules Completed"
-                dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+                dot={{ fill: "hsl(var(--primary))", r: 4 }}
               />
-              <Line 
+              <Line
                 yAxisId="right"
-                type="monotone" 
-                dataKey="quizAvg" 
-                stroke="hsl(var(--accent))" 
+                type="monotone"
+                dataKey="quizAvg"
+                stroke="hsl(var(--accent))"
                 strokeWidth={2}
                 name="Quiz Average (%)"
-                dot={{ fill: 'hsl(var(--accent))', r: 4 }}
+                dot={{ fill: "hsl(var(--accent))", r: 4 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -298,7 +382,9 @@ export default function AnalyticsVisualization({ progressData }: AnalyticsVisual
             <Target className="h-5 w-5 text-primary" />
             Skills Assessment
           </CardTitle>
-          <CardDescription>Overall competency across different areas</CardDescription>
+          <CardDescription>
+            Overall competency across different areas
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>
@@ -306,19 +392,19 @@ export default function AnalyticsVisualization({ progressData }: AnalyticsVisual
               <PolarGrid className="stroke-muted" />
               <PolarAngleAxis dataKey="skill" className="text-xs" />
               <PolarRadiusAxis domain={[0, 100]} className="text-xs" />
-              <Radar 
-                name="Your Skills" 
-                dataKey="score" 
-                stroke="hsl(var(--primary))" 
-                fill="hsl(var(--primary))" 
+              <Radar
+                name="Your Skills"
+                dataKey="score"
+                stroke="hsl(var(--primary))"
+                fill="hsl(var(--primary))"
                 fillOpacity={0.3}
                 strokeWidth={2}
               />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--background))', 
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--background))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px",
                 }}
               />
             </RadarChart>

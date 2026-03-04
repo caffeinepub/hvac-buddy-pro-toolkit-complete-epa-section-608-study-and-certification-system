@@ -1,34 +1,40 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { BookOpen, ClipboardCheck, GraduationCap, BarChart3, Wrench } from 'lucide-react';
-import EPA608Content from './EPA608Content';
-import EPA608Practice from './EPA608Practice';
-import EPA608ExamSimulation from './EPA608ExamSimulation';
-import EPA608ReadinessDashboard from './EPA608ReadinessDashboard';
-import EPA608LessonModule from './EPA608LessonModule';
-import InteractiveToolsHub from './InteractiveToolsHub';
-import type { StudyMode } from '../../types/study';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  BarChart3,
+  BookOpen,
+  ClipboardCheck,
+  GraduationCap,
+  Wrench,
+} from "lucide-react";
+import { useState } from "react";
+import type { StudyMode } from "../../types/study";
+import EPA608Content from "./EPA608Content";
+import EPA608ExamSimulation from "./EPA608ExamSimulation";
+import EPA608LessonModule from "./EPA608LessonModule";
+import EPA608Practice from "./EPA608Practice";
+import EPA608ReadinessDashboard from "./EPA608ReadinessDashboard";
+import InteractiveToolsHub from "./InteractiveToolsHub";
 
 interface EPA608ModuleProps {
   studyMode: StudyMode;
 }
 
-type CertType = 'core' | 'type1' | 'type2' | 'type3' | 'universal';
+type CertType = "core" | "type1" | "type2" | "type3" | "universal";
 
 export default function EPA608Module({ studyMode }: EPA608ModuleProps) {
-  const [selectedCert, setSelectedCert] = useState<CertType>('core');
-  const [activeTab, setActiveTab] = useState<string>('study');
+  const [selectedCert, setSelectedCert] = useState<CertType>("core");
+  const [activeTab, setActiveTab] = useState<string>("study");
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
 
   const certTypes = [
-    { id: 'core' as CertType, name: 'Core Section', color: 'blue' },
-    { id: 'type1' as CertType, name: 'Type I', color: 'green' },
-    { id: 'type2' as CertType, name: 'Type II', color: 'orange' },
-    { id: 'type3' as CertType, name: 'Type III', color: 'purple' },
-    { id: 'universal' as CertType, name: 'Universal', color: 'red' },
+    { id: "core" as CertType, name: "Core Section", color: "blue" },
+    { id: "type1" as CertType, name: "Type I", color: "green" },
+    { id: "type2" as CertType, name: "Type II", color: "orange" },
+    { id: "type3" as CertType, name: "Type III", color: "purple" },
+    { id: "universal" as CertType, name: "Universal", color: "red" },
   ];
 
   if (selectedLesson) {
@@ -53,8 +59,10 @@ export default function EPA608Module({ studyMode }: EPA608ModuleProps) {
         <CardHeader>
           <CardTitle>EPA Section 608 Certification Preparation</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Comprehensive study system aligned with ESCO Institute standards. Select your certification type
-            and explore study content, practice quizzes, interactive tools, exam simulations, and readiness tracking.
+            Comprehensive study system aligned with ESCO Institute standards.
+            Select your certification type and explore study content, practice
+            quizzes, interactive tools, exam simulations, and readiness
+            tracking.
           </p>
         </CardHeader>
         <CardContent>
@@ -62,7 +70,7 @@ export default function EPA608Module({ studyMode }: EPA608ModuleProps) {
             {certTypes.map((cert) => (
               <Button
                 key={cert.id}
-                variant={selectedCert === cert.id ? 'default' : 'outline'}
+                variant={selectedCert === cert.id ? "default" : "outline"}
                 onClick={() => setSelectedCert(cert.id)}
                 className="flex-1 min-w-[120px]"
               >
@@ -89,86 +97,124 @@ export default function EPA608Module({ studyMode }: EPA608ModuleProps) {
                 <GraduationCap className="h-4 w-4" />
                 <span className="hidden sm:inline">Exam</span>
               </TabsTrigger>
-              <TabsTrigger value="readiness" className="flex items-center gap-2">
+              <TabsTrigger
+                value="readiness"
+                className="flex items-center gap-2"
+              >
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Readiness</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="study" className="mt-6">
-              <EPA608Content studyMode={studyMode} selectedSection={selectedCert} />
+              <EPA608Content
+                studyMode={studyMode}
+                selectedSection={selectedCert}
+              />
               <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-4">Comprehensive Lesson Modules</h3>
+                <h3 className="text-lg font-semibold mb-4">
+                  Comprehensive Lesson Modules
+                </h3>
                 <div className="grid gap-3 md:grid-cols-2">
-                  {selectedCert === 'core' && (
+                  {selectedCert === "core" && (
                     <>
                       <Button
                         variant="outline"
                         className="justify-start h-auto p-4"
-                        onClick={() => setSelectedLesson('ozone-depletion')}
+                        onClick={() => setSelectedLesson("ozone-depletion")}
                       >
                         <div className="text-left">
-                          <div className="font-semibold">Module 1: Ozone Depletion</div>
-                          <div className="text-sm text-muted-foreground">Environmental impact and regulations</div>
+                          <div className="font-semibold">
+                            Module 1: Ozone Depletion
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Environmental impact and regulations
+                          </div>
                         </div>
                       </Button>
                       <Button
                         variant="outline"
                         className="justify-start h-auto p-4"
-                        onClick={() => setSelectedLesson('refrigerant-classification')}
+                        onClick={() =>
+                          setSelectedLesson("refrigerant-classification")
+                        }
                       >
                         <div className="text-left">
-                          <div className="font-semibold">Module 2: Refrigerant Classification</div>
-                          <div className="text-sm text-muted-foreground">Properties and safety groups</div>
+                          <div className="font-semibold">
+                            Module 2: Refrigerant Classification
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Properties and safety groups
+                          </div>
                         </div>
                       </Button>
                     </>
                   )}
-                  {selectedCert === 'type1' && (
+                  {selectedCert === "type1" && (
                     <Button
                       variant="outline"
                       className="justify-start h-auto p-4"
-                      onClick={() => setSelectedLesson('small-appliance-systems')}
+                      onClick={() =>
+                        setSelectedLesson("small-appliance-systems")
+                      }
                     >
                       <div className="text-left">
-                        <div className="font-semibold">Module 1: Small Appliance Systems</div>
-                        <div className="text-sm text-muted-foreground">Components and recovery procedures</div>
+                        <div className="font-semibold">
+                          Module 1: Small Appliance Systems
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Components and recovery procedures
+                        </div>
                       </div>
                     </Button>
                   )}
-                  {selectedCert === 'type2' && (
+                  {selectedCert === "type2" && (
                     <Button
                       variant="outline"
                       className="justify-start h-auto p-4"
-                      onClick={() => setSelectedLesson('high-pressure-systems')}
+                      onClick={() => setSelectedLesson("high-pressure-systems")}
                     >
                       <div className="text-left">
-                        <div className="font-semibold">Module 1: High-Pressure Systems</div>
-                        <div className="text-sm text-muted-foreground">Identification and characteristics</div>
+                        <div className="font-semibold">
+                          Module 1: High-Pressure Systems
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Identification and characteristics
+                        </div>
                       </div>
                     </Button>
                   )}
-                  {selectedCert === 'type3' && (
+                  {selectedCert === "type3" && (
                     <Button
                       variant="outline"
                       className="justify-start h-auto p-4"
-                      onClick={() => setSelectedLesson('low-pressure-systems')}
+                      onClick={() => setSelectedLesson("low-pressure-systems")}
                     >
                       <div className="text-left">
-                        <div className="font-semibold">Module 1: Low-Pressure Systems</div>
-                        <div className="text-sm text-muted-foreground">Centrifugal chillers and vacuum operation</div>
+                        <div className="font-semibold">
+                          Module 1: Low-Pressure Systems
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Centrifugal chillers and vacuum operation
+                        </div>
                       </div>
                     </Button>
                   )}
-                  {selectedCert === 'universal' && (
+                  {selectedCert === "universal" && (
                     <Button
                       variant="outline"
                       className="justify-start h-auto p-4"
-                      onClick={() => setSelectedLesson('comprehensive-regulatory')}
+                      onClick={() =>
+                        setSelectedLesson("comprehensive-regulatory")
+                      }
                     >
                       <div className="text-left">
-                        <div className="font-semibold">Module 1: Comprehensive Regulatory Knowledge</div>
-                        <div className="text-sm text-muted-foreground">Cross-system compliance and best practices</div>
+                        <div className="font-semibold">
+                          Module 1: Comprehensive Regulatory Knowledge
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Cross-system compliance and best practices
+                        </div>
                       </div>
                     </Button>
                   )}
@@ -185,7 +231,10 @@ export default function EPA608Module({ studyMode }: EPA608ModuleProps) {
             </TabsContent>
 
             <TabsContent value="exam" className="mt-6">
-              <EPA608ExamSimulation certType={selectedCert} studyMode={studyMode} />
+              <EPA608ExamSimulation
+                certType={selectedCert}
+                studyMode={studyMode}
+              />
             </TabsContent>
 
             <TabsContent value="readiness" className="mt-6">

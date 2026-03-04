@@ -1,16 +1,22 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, BookOpen, Video, MapPin, Sparkles } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import TroubleshootingChat from '@/components/community/TroubleshootingChat';
-import VideoLibrary from '@/components/community/VideoLibrary';
-import HelpAIChat from '@/components/community/HelpAIChat';
+import HelpAIChat from "@/components/community/HelpAIChat";
+import TroubleshootingChat from "@/components/community/TroubleshootingChat";
+import VideoLibrary from "@/components/community/VideoLibrary";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { BookOpen, MapPin, MessageCircle, Sparkles, Video } from "lucide-react";
+import { useState } from "react";
 
 interface CommunityTabProps {
   isGuest?: boolean;
 }
 
-export default function CommunityTab({ isGuest }: CommunityTabProps) {
+export default function CommunityTab({ isGuest: _isGuest }: CommunityTabProps) {
   const [showChat, setShowChat] = useState(false);
   const [showVideos, setShowVideos] = useState(false);
   const [showHelpAI, setShowHelpAI] = useState(false);
@@ -23,6 +29,7 @@ export default function CommunityTab({ isGuest }: CommunityTabProps) {
     return (
       <div className="space-y-4">
         <button
+          type="button"
           onClick={() => setShowVideos(false)}
           className="text-sm text-muted-foreground hover:text-foreground"
         >
@@ -45,19 +52,23 @@ export default function CommunityTab({ isGuest }: CommunityTabProps) {
             <MessageCircle className="h-5 w-5" />
             Community & Help
           </CardTitle>
-          <CardDescription>Access troubleshooting resources, tutorials, and local supplier information</CardDescription>
+          <CardDescription>
+            Access troubleshooting resources, tutorials, and local supplier
+            information
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <Alert>
             <MessageCircle className="h-4 w-4" />
             <AlertDescription>
-              Connect with other HVAC professionals, access knowledge base articles, watch video tutorials, and find
-              local suppliers.
+              Connect with other HVAC professionals, access knowledge base
+              articles, watch video tutorials, and find local suppliers.
             </AlertDescription>
           </Alert>
 
           <div className="grid gap-4 md:grid-cols-2">
             <button
+              type="button"
               onClick={() => setShowHelpAI(true)}
               className="rounded-lg border-2 border-primary bg-gradient-to-br from-primary/10 to-accent/10 p-6 text-left transition-all hover:border-primary hover:shadow-lg"
             >
@@ -69,19 +80,24 @@ export default function CommunityTab({ isGuest }: CommunityTabProps) {
               </div>
               <h3 className="mb-2 text-lg font-semibold">Ask AI a Question</h3>
               <p className="text-sm text-muted-foreground">
-                Get instant answers to your HVAC questions with our AI assistant. Ask about EPA certification,
-                troubleshooting, or app features.
+                Get instant answers to your HVAC questions with our AI
+                assistant. Ask about EPA certification, troubleshooting, or app
+                features.
               </p>
             </button>
 
             <button
+              type="button"
               onClick={() => setShowChat(true)}
               className="rounded-lg border border-border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-md"
             >
               <MessageCircle className="mb-4 h-10 w-10 text-primary" />
-              <h3 className="mb-2 text-lg font-semibold">AI Troubleshooting Chat</h3>
+              <h3 className="mb-2 text-lg font-semibold">
+                AI Troubleshooting Chat
+              </h3>
               <p className="text-sm text-muted-foreground">
-                Get instant AI-powered diagnostic help with step-by-step guidance and educational resources.
+                Get instant AI-powered diagnostic help with step-by-step
+                guidance and educational resources.
               </p>
             </button>
 
@@ -89,19 +105,21 @@ export default function CommunityTab({ isGuest }: CommunityTabProps) {
               <BookOpen className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-lg font-semibold">Knowledge Base</h3>
               <p className="text-sm text-muted-foreground">
-                Search through hundreds of articles covering common issues, best practices, and technical guides.
+                Search through hundreds of articles covering common issues, best
+                practices, and technical guides.
               </p>
             </div>
 
             <button
+              type="button"
               onClick={() => setShowVideos(true)}
               className="rounded-lg border border-border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-md"
             >
               <Video className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-lg font-semibold">Video Library</h3>
               <p className="text-sm text-muted-foreground">
-                Watch comprehensive video tutorials covering EPA 608 certification, HVAC fundamentals, diagnostics, and
-                more.
+                Watch comprehensive video tutorials covering EPA 608
+                certification, HVAC fundamentals, diagnostics, and more.
               </p>
             </button>
 
@@ -109,8 +127,8 @@ export default function CommunityTab({ isGuest }: CommunityTabProps) {
               <MapPin className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-lg font-semibold">Local Suppliers</h3>
               <p className="text-sm text-muted-foreground">
-                Find nearby HVAC supply stores with contact information, hours, and directions. Check the Suppliers tab
-                for details.
+                Find nearby HVAC supply stores with contact information, hours,
+                and directions. Check the Suppliers tab for details.
               </p>
             </div>
           </div>
@@ -119,16 +137,19 @@ export default function CommunityTab({ isGuest }: CommunityTabProps) {
             <h3 className="mb-2 text-lg font-semibold">Popular Topics</h3>
             <div className="flex flex-wrap gap-2">
               {[
-                'Refrigerant Recovery',
-                'Duct Sealing',
-                'Thermostat Wiring',
-                'Compressor Diagnosis',
-                'Airflow Issues',
-                'Electrical Troubleshooting',
-                'System Sizing',
-                'Maintenance Schedules',
+                "Refrigerant Recovery",
+                "Duct Sealing",
+                "Thermostat Wiring",
+                "Compressor Diagnosis",
+                "Airflow Issues",
+                "Electrical Troubleshooting",
+                "System Sizing",
+                "Maintenance Schedules",
               ].map((topic) => (
-                <span key={topic} className="rounded-full bg-background px-3 py-1 text-sm">
+                <span
+                  key={topic}
+                  className="rounded-full bg-background px-3 py-1 text-sm"
+                >
                   {topic}
                 </span>
               ))}

@@ -1,26 +1,41 @@
-import { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Send, Loader2, Bot, User, RotateCcw, AlertCircle, Sparkles } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
-  useStartHelpSession,
-  useGetHelpSession,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import {
   useAddHelpMessage,
   useClearHelpSession,
-} from '@/hooks/useQueries';
-import { MessageType } from '@/types/local';
-import { toast } from 'sonner';
+  useGetHelpSession,
+  useStartHelpSession,
+} from "@/hooks/useQueries";
+import { MessageType } from "@/types/local";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Bot,
+  Loader2,
+  RotateCcw,
+  Send,
+  Sparkles,
+  User,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 interface HelpAIChatProps {
   onBack: () => void;
 }
 
 export default function HelpAIChat({ onBack }: HelpAIChatProps) {
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const startSession = useStartHelpSession();
@@ -29,6 +44,7 @@ export default function HelpAIChat({ onBack }: HelpAIChatProps) {
   const clearSession = useClearHelpSession();
 
   // Auto-scroll to bottom when new messages arrive
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally scroll on message list change
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -36,6 +52,7 @@ export default function HelpAIChat({ onBack }: HelpAIChatProps) {
   }, [session?.messages]);
 
   // Start session on mount if not already started
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only run on mount
   useEffect(() => {
     if (!session && !startSession.isPending) {
       startSession.mutate();
@@ -46,7 +63,7 @@ export default function HelpAIChat({ onBack }: HelpAIChatProps) {
     if (!inputMessage.trim()) return;
 
     const userMessage = inputMessage.trim();
-    setInputMessage('');
+    setInputMessage("");
 
     try {
       // Add user message
@@ -59,8 +76,8 @@ export default function HelpAIChat({ onBack }: HelpAIChatProps) {
       setTimeout(() => {
         generateAIResponse(userMessage);
       }, 1000);
-    } catch (error) {
-      toast.error('Failed to send message');
+    } catch (_error) {
+      toast.error("Failed to send message");
     }
   };
 
@@ -68,10 +85,14 @@ export default function HelpAIChat({ onBack }: HelpAIChatProps) {
     const input = userInput.toLowerCase();
 
     // Generate contextual AI responses based on user input
-    let aiResponse = '';
-    let followUps: string[] = [];
+    let aiResponse = "";
+    let _followUps: string[] = [];
 
-    if (input.includes('epa') || input.includes('608') || input.includes('certification')) {
+    if (
+      input.includes("epa") ||
+      input.includes("608") ||
+      input.includes("certification")
+    ) {
       aiResponse = `**EPA 608 Certification Information**
 
 The EPA 608 certification is required for technicians who maintain, service, repair, or dispose of equipment that could release refrigerants into the atmosphere.
@@ -97,12 +118,16 @@ Check out our comprehensive EPA 608 study modules in the Study tab, which includ
 
 Would you like specific information about any certification type?`;
 
-      followUps = [
-        'What topics are covered in the Core section?',
-        'How do I prepare for Type II certification?',
-        'What are the recovery requirements?',
+      _followUps = [
+        "What topics are covered in the Core section?",
+        "How do I prepare for Type II certification?",
+        "What are the recovery requirements?",
       ];
-    } else if (input.includes('refrigerant') || input.includes('recovery') || input.includes('charge')) {
+    } else if (
+      input.includes("refrigerant") ||
+      input.includes("recovery") ||
+      input.includes("charge")
+    ) {
       aiResponse = `**Refrigerant Handling & Recovery**
 
 Proper refrigerant handling is critical for EPA compliance and system performance.
@@ -130,12 +155,16 @@ Use our Superheat/Subcooling Calculator in the Calculators tab for accurate char
 
 Need help with a specific refrigerant or recovery procedure?`;
 
-      followUps = [
-        'What are the vacuum requirements?',
-        'How do I calculate superheat?',
-        'What refrigerants are A2L classified?',
+      _followUps = [
+        "What are the vacuum requirements?",
+        "How do I calculate superheat?",
+        "What refrigerants are A2L classified?",
       ];
-    } else if (input.includes('troubleshoot') || input.includes('diagnos') || input.includes('not cooling')) {
+    } else if (
+      input.includes("troubleshoot") ||
+      input.includes("diagnos") ||
+      input.includes("not cooling")
+    ) {
       aiResponse = `**HVAC Troubleshooting Guidance**
 
 I can help you diagnose HVAC system issues! For comprehensive diagnostic assistance, I recommend using our **AI Troubleshooter** in the Troubleshooter tab.
@@ -167,12 +196,12 @@ I can help you diagnose HVAC system issues! For comprehensive diagnostic assista
 
 Would you like detailed guidance on a specific issue?`;
 
-      followUps = [
-        'How do I check refrigerant charge?',
-        'What causes frozen evaporator coils?',
-        'How do I test a compressor?',
+      _followUps = [
+        "How do I check refrigerant charge?",
+        "What causes frozen evaporator coils?",
+        "How do I test a compressor?",
       ];
-    } else if (input.includes('superheat') || input.includes('subcooling')) {
+    } else if (input.includes("superheat") || input.includes("subcooling")) {
       aiResponse = `**Superheat & Subcooling Explained**
 
 These are critical measurements for verifying proper refrigerant charge.
@@ -199,12 +228,16 @@ Use our Superheat/Subcooling Calculator in the Calculators tab for automatic cal
 
 Need help interpreting your readings?`;
 
-      followUps = [
-        'What if superheat is too high?',
-        'What if subcooling is too low?',
-        'How do I measure saturation temperature?',
+      _followUps = [
+        "What if superheat is too high?",
+        "What if subcooling is too low?",
+        "How do I measure saturation temperature?",
       ];
-    } else if (input.includes('electrical') || input.includes('wiring') || input.includes('voltage')) {
+    } else if (
+      input.includes("electrical") ||
+      input.includes("wiring") ||
+      input.includes("voltage")
+    ) {
       aiResponse = `**Electrical Troubleshooting & Safety**
 
 ⚠️ **SAFETY WARNING**: Electrical work can be dangerous. Always follow proper safety procedures.
@@ -244,12 +277,16 @@ Need help interpreting your readings?`;
 
 What specific electrical issue are you experiencing?`;
 
-      followUps = [
-        'How do I test a capacitor?',
-        'What causes a contactor to fail?',
-        'How do I wire a thermostat?',
+      _followUps = [
+        "How do I test a capacitor?",
+        "What causes a contactor to fail?",
+        "How do I wire a thermostat?",
       ];
-    } else if (input.includes('airflow') || input.includes('cfm') || input.includes('duct')) {
+    } else if (
+      input.includes("airflow") ||
+      input.includes("cfm") ||
+      input.includes("duct")
+    ) {
       aiResponse = `**Airflow & Duct System Guidance**
 
 Proper airflow is essential for system efficiency and comfort.
@@ -287,12 +324,16 @@ Use our Duct Sizing Calculator in the Calculators tab to determine proper duct s
 
 Need help calculating CFM or sizing ducts?`;
 
-      followUps = [
-        'How do I measure static pressure?',
-        'What causes low Delta T?',
-        'How do I calculate duct size?',
+      _followUps = [
+        "How do I measure static pressure?",
+        "What causes low Delta T?",
+        "How do I calculate duct size?",
       ];
-    } else if (input.includes('help') || input.includes('how') || input.includes('what')) {
+    } else if (
+      input.includes("help") ||
+      input.includes("how") ||
+      input.includes("what")
+    ) {
       aiResponse = `I'm here to help with any HVAC-related questions! I can assist with:
 
 **Technical Topics:**
@@ -321,10 +362,10 @@ Need help calculating CFM or sizing ducts?`;
 
 What would you like to know more about?`;
 
-      followUps = [
-        'Tell me about EPA 608 certification',
-        'How do I troubleshoot a system?',
-        'What tools are available in the app?',
+      _followUps = [
+        "Tell me about EPA 608 certification",
+        "How do I troubleshoot a system?",
+        "What tools are available in the app?",
       ];
     } else {
       aiResponse = `I understand you're asking about "${userInput}". Let me provide some guidance.
@@ -344,10 +385,10 @@ For the most accurate and detailed assistance, please provide more specific info
 
 How can I help you further?`;
 
-      followUps = [
-        'I need help troubleshooting a system',
-        'Tell me about EPA 608 certification',
-        'How do I use the calculators?',
+      _followUps = [
+        "I need help troubleshooting a system",
+        "Tell me about EPA 608 certification",
+        "How do I use the calculators?",
       ];
     }
 
@@ -361,13 +402,13 @@ How can I help you further?`;
   const handleClearChat = async () => {
     try {
       await clearSession.mutateAsync();
-      toast.success('Chat cleared');
+      toast.success("Chat cleared");
       // Restart session
       setTimeout(() => {
         startSession.mutate();
       }, 500);
-    } catch (error) {
-      toast.error('Failed to clear chat');
+    } catch (_error) {
+      toast.error("Failed to clear chat");
     }
   };
 
@@ -387,10 +428,17 @@ How can I help you further?`;
               <Sparkles className="h-5 w-5 text-primary" />
               Ask AI a Question
             </h2>
-            <p className="text-sm text-muted-foreground">Get instant answers to your HVAC questions</p>
+            <p className="text-sm text-muted-foreground">
+              Get instant answers to your HVAC questions
+            </p>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={handleClearChat} disabled={clearSession.isPending}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleClearChat}
+          disabled={clearSession.isPending}
+        >
           <RotateCcw className="mr-2 h-4 w-4" />
           Clear Chat
         </Button>
@@ -403,15 +451,17 @@ How can I help you further?`;
             AI Assistant
           </CardTitle>
           <CardDescription>
-            Ask me anything about HVAC systems, EPA certification, troubleshooting, or app features
+            Ask me anything about HVAC systems, EPA certification,
+            troubleshooting, or app features
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              This AI assistant uses the same diagnostic engine as the Troubleshooter. For step-by-step system
-              diagnostics, use the Troubleshooter tab.
+              This AI assistant uses the same diagnostic engine as the
+              Troubleshooter. For step-by-step system diagnostics, use the
+              Troubleshooter tab.
             </AlertDescription>
           </Alert>
 
@@ -425,13 +475,18 @@ How can I help you further?`;
                 </div>
               ) : session?.messages && session.messages.length > 0 ? (
                 session.messages.map((message) => {
-                  const isUser = message.sender === 'user';
+                  const isUser = message.sender === "user";
 
                   return (
-                    <div key={message.id.toString()} className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
+                    <div
+                      key={message.id.toString()}
+                      className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}
+                    >
                       <div
                         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                          isUser ? 'bg-primary' : 'bg-gradient-to-br from-primary/20 to-accent/20'
+                          isUser
+                            ? "bg-primary"
+                            : "bg-gradient-to-br from-primary/20 to-accent/20"
                         }`}
                       >
                         {isUser ? (
@@ -440,16 +495,24 @@ How can I help you further?`;
                           <Bot className="h-4 w-4 text-primary" />
                         )}
                       </div>
-                      <div className={`flex-1 space-y-1 ${isUser ? 'items-end' : ''}`}>
+                      <div
+                        className={`flex-1 space-y-1 ${isUser ? "items-end" : ""}`}
+                      >
                         <div
                           className={`rounded-lg p-3 ${
-                            isUser ? 'bg-primary text-primary-foreground ml-8' : 'bg-muted mr-8'
+                            isUser
+                              ? "bg-primary text-primary-foreground ml-8"
+                              : "bg-muted mr-8"
                           }`}
                         >
-                          <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                          <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                            {message.content}
+                          </p>
                         </div>
                         <p className="px-3 text-xs text-muted-foreground">
-                          {new Date(Number(message.timestamp) / 1000000).toLocaleTimeString()}
+                          {new Date(
+                            Number(message.timestamp) / 1000000,
+                          ).toLocaleTimeString()}
                         </p>
                       </div>
                     </div>
@@ -460,19 +523,24 @@ How can I help you further?`;
                   <div className="mb-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 p-6">
                     <Bot className="h-12 w-12 text-primary" />
                   </div>
-                  <h3 className="mb-2 text-lg font-semibold">Welcome to AI Help!</h3>
+                  <h3 className="mb-2 text-lg font-semibold">
+                    Welcome to AI Help!
+                  </h3>
                   <p className="mb-6 max-w-md text-sm text-muted-foreground">
-                    Ask me anything about HVAC systems, EPA certification, troubleshooting techniques, or how to use
-                    this app. I'm here to help!
+                    Ask me anything about HVAC systems, EPA certification,
+                    troubleshooting techniques, or how to use this app. I'm here
+                    to help!
                   </p>
                   <div className="w-full max-w-md space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground">Try asking:</p>
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      Try asking:
+                    </p>
                     <div className="grid gap-2">
                       {[
-                        'How do I prepare for EPA 608 certification?',
-                        'What causes low superheat?',
-                        'How do I troubleshoot a system that won\'t cool?',
-                        'What are the refrigerant recovery requirements?',
+                        "How do I prepare for EPA 608 certification?",
+                        "What causes low superheat?",
+                        "How do I troubleshoot a system that won't cool?",
+                        "What are the refrigerant recovery requirements?",
                       ].map((question) => (
                         <Button
                           key={question}
@@ -494,11 +562,14 @@ How can I help you further?`;
           {/* Follow-up suggestions */}
           {session?.followUps && session.followUps.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground">Suggested follow-up questions:</p>
+              <p className="text-xs font-semibold text-muted-foreground">
+                Suggested follow-up questions:
+              </p>
               <div className="flex flex-wrap gap-2">
                 {session.followUps.map((followUp, index) => (
                   <Button
-                    key={index}
+                    // biome-ignore lint/suspicious/noArrayIndexKey: follow-up suggestions have no ID
+                    key={`followup-${index}`}
                     variant="outline"
                     size="sm"
                     onClick={() => handleFollowUpClick(followUp)}
@@ -519,20 +590,29 @@ How can I help you further?`;
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
+                if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSendMessage();
                 }
               }}
               className="flex-1"
             />
-            <Button size="icon" onClick={handleSendMessage} disabled={!inputMessage.trim() || addMessage.isPending}>
-              {addMessage.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            <Button
+              size="icon"
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || addMessage.isPending}
+            >
+              {addMessage.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </div>
 
           <p className="text-xs text-muted-foreground text-center">
-            Press Enter to send • This AI provides educational guidance and should not replace professional judgment
+            Press Enter to send • This AI provides educational guidance and
+            should not replace professional judgment
           </p>
         </CardContent>
       </Card>

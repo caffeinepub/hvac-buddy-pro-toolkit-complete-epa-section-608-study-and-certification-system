@@ -1,21 +1,28 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Info, Shield, AlertTriangle, ExternalLink, PlayCircle, List } from 'lucide-react';
-import type { StudyMode } from '../../types/study';
-import RecoveryTrainingContent from './RecoveryTrainingContent';
-import { useGetVideos } from '@/hooks/useQueries';
-import { VideoCategory } from '@/types/local';
-import { useMemo } from 'react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGetVideos } from "@/hooks/useQueries";
+import { VideoCategory } from "@/types/local";
+import {
+  AlertTriangle,
+  ExternalLink,
+  Info,
+  List,
+  PlayCircle,
+  Shield,
+} from "lucide-react";
+import { useMemo } from "react";
+import type { StudyMode } from "../../types/study";
+import RecoveryTrainingContent from "./RecoveryTrainingContent";
 
 interface EPA608ContentProps {
   studyMode: StudyMode;
-  selectedSection?: 'core' | 'type1' | 'type2' | 'type3' | 'universal' | null;
+  selectedSection?: "core" | "type1" | "type2" | "type3" | "universal" | null;
 }
 
 function isPlaylist(url: string): boolean {
-  return url.includes('playlist?list=');
+  return url.includes("playlist?list=");
 }
 
 interface VideoLinkButtonProps {
@@ -26,7 +33,7 @@ interface VideoLinkButtonProps {
 
 function VideoLinkButton({ title, url, description }: VideoLinkButtonProps) {
   const isPlaylistLink = isPlaylist(url);
-  
+
   return (
     <div className="space-y-2">
       <div className="rounded-lg border bg-card p-4">
@@ -43,11 +50,7 @@ function VideoLinkButton({ title, url, description }: VideoLinkButtonProps) {
             )}
           </div>
         </div>
-        <Button
-          asChild
-          className="w-full"
-          variant="default"
-        >
+        <Button asChild className="w-full" variant="default">
           <a
             href={url}
             target="_blank"
@@ -55,7 +58,7 @@ function VideoLinkButton({ title, url, description }: VideoLinkButtonProps) {
             className="flex items-center justify-center gap-2"
           >
             <ExternalLink className="h-4 w-4" />
-            {isPlaylistLink ? 'Open Playlist' : 'Watch Video'}
+            {isPlaylistLink ? "Open Playlist" : "Watch Video"}
           </a>
         </Button>
       </div>
@@ -63,29 +66,43 @@ function VideoLinkButton({ title, url, description }: VideoLinkButtonProps) {
   );
 }
 
-export default function EPA608Content({ studyMode, selectedSection }: EPA608ContentProps) {
-  const isBeginner = studyMode.__kind__ === 'beginner';
+export default function EPA608Content({
+  studyMode,
+  selectedSection,
+}: EPA608ContentProps) {
+  const isBeginner = studyMode.__kind__ === "beginner";
   const { data: allVideos = [] } = useGetVideos();
 
   // Filter videos by section
   const sectionVideos = useMemo(() => {
     const categoryMap: Record<string, VideoCategory> = {
-      'core': VideoCategory.epaCore,
-      'type1': VideoCategory.typeI,
-      'type2': VideoCategory.typeII,
-      'type3': VideoCategory.typeIII,
-      'universal': VideoCategory.epaCore, // Universal shows core videos
+      core: VideoCategory.epaCore,
+      type1: VideoCategory.typeI,
+      type2: VideoCategory.typeII,
+      type3: VideoCategory.typeIII,
+      universal: VideoCategory.epaCore, // Universal shows core videos
     };
-    
-    const category = selectedSection ? categoryMap[selectedSection] : VideoCategory.epaCore;
-    return allVideos.filter(v => v.category === category);
+
+    const category = selectedSection
+      ? categoryMap[selectedSection]
+      : VideoCategory.epaCore;
+    return allVideos.filter((v) => v.category === category);
   }, [allVideos, selectedSection]);
 
   // Determine which tabs to show based on selected section
-  const showAllTabs = !selectedSection || selectedSection === 'core';
-  const showType1 = !selectedSection || selectedSection === 'type1' || selectedSection === 'universal';
-  const showType2 = !selectedSection || selectedSection === 'type2' || selectedSection === 'universal';
-  const showType3 = !selectedSection || selectedSection === 'type3' || selectedSection === 'universal';
+  const showAllTabs = !selectedSection || selectedSection === "core";
+  const showType1 =
+    !selectedSection ||
+    selectedSection === "type1" ||
+    selectedSection === "universal";
+  const showType2 =
+    !selectedSection ||
+    selectedSection === "type2" ||
+    selectedSection === "universal";
+  const showType3 =
+    !selectedSection ||
+    selectedSection === "type3" ||
+    selectedSection === "universal";
 
   return (
     <Card>
@@ -96,7 +113,10 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
             EPA Section 608 Study Content
             {selectedSection && (
               <span className="text-sm font-normal text-muted-foreground">
-                - {selectedSection === 'core' ? 'Core Section' : selectedSection.toUpperCase()}
+                -{" "}
+                {selectedSection === "core"
+                  ? "Core Section"
+                  : selectedSection.toUpperCase()}
               </span>
             )}
           </CardTitle>
@@ -108,7 +128,18 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue={showAllTabs ? "ozone" : showType1 ? "type1-overview" : showType2 ? "type2-overview" : "type3-overview"} className="w-full">
+        <Tabs
+          defaultValue={
+            showAllTabs
+              ? "ozone"
+              : showType1
+                ? "type1-overview"
+                : showType2
+                  ? "type2-overview"
+                  : "type3-overview"
+          }
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7">
             {showAllTabs && (
               <>
@@ -121,9 +152,15 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
                 <TabsTrigger value="regulations">Regulations</TabsTrigger>
               </>
             )}
-            {showType1 && <TabsTrigger value="type1-overview">Type I</TabsTrigger>}
-            {showType2 && <TabsTrigger value="type2-overview">Type II</TabsTrigger>}
-            {showType3 && <TabsTrigger value="type3-overview">Type III</TabsTrigger>}
+            {showType1 && (
+              <TabsTrigger value="type1-overview">Type I</TabsTrigger>
+            )}
+            {showType2 && (
+              <TabsTrigger value="type2-overview">Type II</TabsTrigger>
+            )}
+            {showType3 && (
+              <TabsTrigger value="type3-overview">Type III</TabsTrigger>
+            )}
           </TabsList>
 
           {/* Core Section Content */}
@@ -134,7 +171,8 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
                   <Alert>
                     <Info className="h-4 w-4" />
                     <AlertDescription>
-                      Understanding ozone depletion is fundamental to EPA 608 certification and environmental responsibility.
+                      Understanding ozone depletion is fundamental to EPA 608
+                      certification and environmental responsibility.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -161,19 +199,27 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
 
                 <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">Ozone Layer and Its Importance</h3>
+                    <h3 className="text-lg font-semibold">
+                      Ozone Layer and Its Importance
+                    </h3>
                     <p className="text-muted-foreground">
-                      The ozone layer in the stratosphere protects Earth from harmful ultraviolet (UV) radiation. Certain
-                      refrigerants, particularly CFCs and HCFCs, contain chlorine that destroys ozone molecules when released
-                      into the atmosphere. One chlorine atom can destroy over 100,000 ozone molecules through a catalytic chain reaction.
+                      The ozone layer in the stratosphere protects Earth from
+                      harmful ultraviolet (UV) radiation. Certain refrigerants,
+                      particularly CFCs and HCFCs, contain chlorine that
+                      destroys ozone molecules when released into the
+                      atmosphere. One chlorine atom can destroy over 100,000
+                      ozone molecules through a catalytic chain reaction.
                     </p>
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Montreal Protocol</h3>
                     <p className="text-muted-foreground">
-                      International agreement signed in 1987 to phase out ozone-depleting substances. The U.S. Clean Air Act implements these
-                      requirements, making it illegal to knowingly vent refrigerants during service, maintenance, or disposal. This treaty
-                      is considered one of the most successful environmental agreements in history.
+                      International agreement signed in 1987 to phase out
+                      ozone-depleting substances. The U.S. Clean Air Act
+                      implements these requirements, making it illegal to
+                      knowingly vent refrigerants during service, maintenance,
+                      or disposal. This treaty is considered one of the most
+                      successful environmental agreements in history.
                     </p>
                   </div>
                 </div>
@@ -202,11 +248,22 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
 
                 <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">Refrigerant Classifications</h3>
+                    <h3 className="text-lg font-semibold">
+                      Refrigerant Classifications
+                    </h3>
                     <ul className="list-disc pl-5 text-muted-foreground space-y-2">
-                      <li><strong>CFCs (R-12, R-502):</strong> Highest ODP (1.0), production banned since 1996</li>
-                      <li><strong>HCFCs (R-22):</strong> Lower ODP (0.055), being phased out</li>
-                      <li><strong>HFCs (R-410A, R-134a):</strong> Zero ODP, but high GWP</li>
+                      <li>
+                        <strong>CFCs (R-12, R-502):</strong> Highest ODP (1.0),
+                        production banned since 1996
+                      </li>
+                      <li>
+                        <strong>HCFCs (R-22):</strong> Lower ODP (0.055), being
+                        phased out
+                      </li>
+                      <li>
+                        <strong>HFCs (R-410A, R-134a):</strong> Zero ODP, but
+                        high GWP
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -222,30 +279,42 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
                 </div>
 
                 {/* Video Link Buttons */}
-                {sectionVideos.filter(v => v.linkedLessonTopic.toLowerCase().includes('recovery')).length > 0 && (
+                {sectionVideos.filter((v) =>
+                  v.linkedLessonTopic.toLowerCase().includes("recovery"),
+                ).length > 0 && (
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
                       <PlayCircle className="h-5 w-5 text-primary" />
                       Recovery Procedure Videos
                     </h3>
                     <div className="grid gap-4 md:grid-cols-2">
-                      {sectionVideos.filter(v => v.linkedLessonTopic.toLowerCase().includes('recovery')).slice(0, 2).map((video) => (
-                        <VideoLinkButton
-                          key={video.id.toString()}
-                          title={video.title}
-                          url={video.url}
-                          description={video.description}
-                        />
-                      ))}
+                      {sectionVideos
+                        .filter((v) =>
+                          v.linkedLessonTopic
+                            .toLowerCase()
+                            .includes("recovery"),
+                        )
+                        .slice(0, 2)
+                        .map((video) => (
+                          <VideoLinkButton
+                            key={video.id.toString()}
+                            title={video.title}
+                            url={video.url}
+                            description={video.description}
+                          />
+                        ))}
                     </div>
                   </div>
                 )}
 
                 <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">Recovery Requirements</h3>
+                    <h3 className="text-lg font-semibold">
+                      Recovery Requirements
+                    </h3>
                     <p className="text-muted-foreground">
-                      Technicians must recover refrigerant to EPA-mandated levels before opening systems.
+                      Technicians must recover refrigerant to EPA-mandated
+                      levels before opening systems.
                     </p>
                   </div>
                 </div>
@@ -258,9 +327,12 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
               <TabsContent value="leaks" className="space-y-4 pt-4">
                 <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">Leak Detection Methods</h3>
+                    <h3 className="text-lg font-semibold">
+                      Leak Detection Methods
+                    </h3>
                     <p className="text-muted-foreground">
-                      Electronic leak detectors, ultrasonic detectors, soap bubbles, and fluorescent dye.
+                      Electronic leak detectors, ultrasonic detectors, soap
+                      bubbles, and fluorescent dye.
                     </p>
                   </div>
                 </div>
@@ -278,7 +350,9 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
               <TabsContent value="regulations" className="space-y-4 pt-4">
                 <div className="prose prose-sm dark:prose-invert max-w-none space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">EPA Certification Requirements</h3>
+                    <h3 className="text-lg font-semibold">
+                      EPA Certification Requirements
+                    </h3>
                     <p className="text-muted-foreground">
                       All technicians must be EPA 608 certified.
                     </p>
@@ -295,27 +369,32 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    Type I certification covers small appliances with 5 pounds or less of refrigerant.
+                    Type I certification covers small appliances with 5 pounds
+                    or less of refrigerant.
                   </AlertDescription>
                 </Alert>
               )}
 
               {/* Video Link Buttons for Type I */}
-              {allVideos.filter(v => v.category === VideoCategory.typeI).length > 0 && (
+              {allVideos.filter((v) => v.category === VideoCategory.typeI)
+                .length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <PlayCircle className="h-5 w-5 text-primary" />
                     Type I Educational Videos
                   </h3>
                   <div className="grid gap-4 md:grid-cols-2">
-                    {allVideos.filter(v => v.category === VideoCategory.typeI).slice(0, 2).map((video) => (
-                      <VideoLinkButton
-                        key={video.id.toString()}
-                        title={video.title}
-                        url={video.url}
-                        description={video.description}
-                      />
-                    ))}
+                    {allVideos
+                      .filter((v) => v.category === VideoCategory.typeI)
+                      .slice(0, 2)
+                      .map((video) => (
+                        <VideoLinkButton
+                          key={video.id.toString()}
+                          title={video.title}
+                          url={video.url}
+                          description={video.description}
+                        />
+                      ))}
                   </div>
                 </div>
               )}
@@ -335,21 +414,25 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
               )}
 
               {/* Video Link Buttons for Type II */}
-              {allVideos.filter(v => v.category === VideoCategory.typeII).length > 0 && (
+              {allVideos.filter((v) => v.category === VideoCategory.typeII)
+                .length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <PlayCircle className="h-5 w-5 text-primary" />
                     Type II Educational Videos
                   </h3>
                   <div className="grid gap-4 md:grid-cols-2">
-                    {allVideos.filter(v => v.category === VideoCategory.typeII).slice(0, 2).map((video) => (
-                      <VideoLinkButton
-                        key={video.id.toString()}
-                        title={video.title}
-                        url={video.url}
-                        description={video.description}
-                      />
-                    ))}
+                    {allVideos
+                      .filter((v) => v.category === VideoCategory.typeII)
+                      .slice(0, 2)
+                      .map((video) => (
+                        <VideoLinkButton
+                          key={video.id.toString()}
+                          title={video.title}
+                          url={video.url}
+                          description={video.description}
+                        />
+                      ))}
                   </div>
                 </div>
               )}
@@ -369,21 +452,25 @@ export default function EPA608Content({ studyMode, selectedSection }: EPA608Cont
               )}
 
               {/* Video Link Buttons for Type III */}
-              {allVideos.filter(v => v.category === VideoCategory.typeIII).length > 0 && (
+              {allVideos.filter((v) => v.category === VideoCategory.typeIII)
+                .length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <PlayCircle className="h-5 w-5 text-primary" />
                     Type III Educational Videos
                   </h3>
                   <div className="grid gap-4 md:grid-cols-2">
-                    {allVideos.filter(v => v.category === VideoCategory.typeIII).slice(0, 2).map((video) => (
-                      <VideoLinkButton
-                        key={video.id.toString()}
-                        title={video.title}
-                        url={video.url}
-                        description={video.description}
-                      />
-                    ))}
+                    {allVideos
+                      .filter((v) => v.category === VideoCategory.typeIII)
+                      .slice(0, 2)
+                      .map((video) => (
+                        <VideoLinkButton
+                          key={video.id.toString()}
+                          title={video.title}
+                          url={video.url}
+                          description={video.description}
+                        />
+                      ))}
                   </div>
                 </div>
               )}
