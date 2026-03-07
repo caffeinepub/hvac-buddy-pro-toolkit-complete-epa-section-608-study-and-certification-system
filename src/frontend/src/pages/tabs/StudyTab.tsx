@@ -1,4 +1,5 @@
 import CoreLessonsModule from "@/components/study/CoreLessonsModule";
+import DigitalGaugesAndSmartProbes from "@/components/study/DigitalGaugesAndSmartProbes";
 import EPA608Module from "@/components/study/EPA608Module";
 import HVACElectricalFundamentals from "@/components/study/HVACElectricalFundamentals";
 import MultimeterTrainingModule from "@/components/study/MultimeterTrainingModule";
@@ -20,6 +21,7 @@ export default function StudyTab() {
     | "multimeter-training"
     | "uei-dl589-guide"
     | "hvac-electrical-fundamentals"
+    | "digital-gauges-probes"
   >("home");
   const { data: userProfile } = useGetCallerUserProfile();
 
@@ -97,6 +99,21 @@ export default function StudyTab() {
           ← Back to Study Home
         </Button>
         <HVACElectricalFundamentals studyMode={studyMode} />
+      </div>
+    );
+  }
+
+  if (currentView === "digital-gauges-probes") {
+    return (
+      <div className="space-y-6">
+        <Button
+          variant="ghost"
+          onClick={() => setCurrentView("home")}
+          data-ocid="digital-gauges.secondary_button"
+        >
+          ← Back to Study Home
+        </Button>
+        <DigitalGaugesAndSmartProbes studyMode={studyMode} />
       </div>
     );
   }

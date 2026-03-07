@@ -214,6 +214,19 @@ export const curatedVideos: VideoRecord[] = [
     thumbnailUrl: "https://img.youtube.com/vi/mIsXWXicB48/mqdefault.jpg",
   },
 
+  // Basic Electrical for HVAC Residential
+  {
+    id: BigInt(21),
+    title: "Basic Electrical for HVAC Residential",
+    category: VideoCategory.electricalControls,
+    description:
+      "Foundational electrical concepts for residential HVAC systems, covering circuits, components, and wiring fundamentals for techs and students.",
+    url: "https://youtu.be/RTJlq9acCSw?si=jtw-fDMBhf1iloTz",
+    linkedLessonTopic: "Electrical - Residential HVAC Fundamentals",
+    duration: 1800,
+    thumbnailUrl: "https://img.youtube.com/vi/RTJlq9acCSw/mqdefault.jpg",
+  },
+
   // EPA Playlists
   {
     id: BigInt(19),

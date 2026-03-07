@@ -1,3 +1,4 @@
+import AIKnowledgeBaseSearch from "@/components/community/AIKnowledgeBaseSearch";
 import HelpAIChat from "@/components/community/HelpAIChat";
 import TroubleshootingChat from "@/components/community/TroubleshootingChat";
 import VideoLibrary from "@/components/community/VideoLibrary";
@@ -14,12 +15,17 @@ import { useState } from "react";
 
 interface CommunityTabProps {
   isGuest?: boolean;
+  onNavigate?: (tab: string) => void;
 }
 
-export default function CommunityTab({ isGuest: _isGuest }: CommunityTabProps) {
+export default function CommunityTab({
+  isGuest: _isGuest,
+  onNavigate,
+}: CommunityTabProps) {
   const [showChat, setShowChat] = useState(false);
   const [showVideos, setShowVideos] = useState(false);
   const [showHelpAI, setShowHelpAI] = useState(false);
+  const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
 
   if (showChat) {
     return <TroubleshootingChat onBack={() => setShowChat(false)} />;
@@ -42,6 +48,10 @@ export default function CommunityTab({ isGuest: _isGuest }: CommunityTabProps) {
 
   if (showHelpAI) {
     return <HelpAIChat onBack={() => setShowHelpAI(false)} />;
+  }
+
+  if (showKnowledgeBase) {
+    return <AIKnowledgeBaseSearch onBack={() => setShowKnowledgeBase(false)} />;
   }
 
   return (
@@ -101,14 +111,25 @@ export default function CommunityTab({ isGuest: _isGuest }: CommunityTabProps) {
               </p>
             </button>
 
-            <div className="rounded-lg border border-border bg-card p-6">
-              <BookOpen className="mb-4 h-10 w-10 text-primary" />
+            <button
+              type="button"
+              onClick={() => setShowKnowledgeBase(true)}
+              className="rounded-lg border border-border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-md"
+              data-ocid="community.knowledge_base.button"
+            >
+              <div className="mb-4 flex items-center gap-2">
+                <BookOpen className="h-10 w-10 text-primary" />
+                <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
+                  AI Search
+                </span>
+              </div>
               <h3 className="mb-2 text-lg font-semibold">Knowledge Base</h3>
               <p className="text-sm text-muted-foreground">
-                Search through hundreds of articles covering common issues, best
-                practices, and technical guides.
+                AI-ranked search across study modules, video tutorials, EPA
+                guidance, ACHR News, and manufacturer technical resources — all
+                in one place.
               </p>
-            </div>
+            </button>
 
             <button
               type="button"
@@ -123,14 +144,19 @@ export default function CommunityTab({ isGuest: _isGuest }: CommunityTabProps) {
               </p>
             </button>
 
-            <div className="rounded-lg border border-border bg-card p-6">
+            <button
+              type="button"
+              onClick={() => onNavigate?.("suppliers")}
+              className="rounded-lg border border-border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-md"
+              data-ocid="community.local_suppliers.button"
+            >
               <MapPin className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-lg font-semibold">Local Suppliers</h3>
               <p className="text-sm text-muted-foreground">
-                Find nearby HVAC supply stores with contact information, hours,
-                and directions. Check the Suppliers tab for details.
+                Find nearby HVAC supply stores within 50 miles of Orlando, FL
+                (ZIP 32819) with contact info, hours, and website links.
               </p>
-            </div>
+            </button>
           </div>
 
           <div className="rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 p-6">

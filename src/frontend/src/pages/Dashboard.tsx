@@ -168,7 +168,7 @@ export default function Dashboard({ isGuest }: DashboardProps) {
             <DataLoggingTab isGuest={isGuest} />
           </TabsContent>
           <TabsContent value="community" className="mt-0">
-            <CommunityTab isGuest={isGuest} />
+            <CommunityTab isGuest={isGuest} onNavigate={setActiveTab} />
           </TabsContent>
         </Suspense>
       </Tabs>

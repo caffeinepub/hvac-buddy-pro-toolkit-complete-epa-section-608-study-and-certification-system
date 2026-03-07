@@ -26,7 +26,8 @@ interface StudySystemHomeProps {
       | "progress"
       | "multimeter-training"
       | "uei-dl589-guide"
-      | "hvac-electrical-fundamentals",
+      | "hvac-electrical-fundamentals"
+      | "digital-gauges-probes",
   ) => void;
   studyMode: StudyMode;
 }
@@ -289,7 +290,7 @@ export default function StudySystemHome({
         </Card>
 
         {/* HVAC Electrical Fundamentals */}
-        <Card className="overflow-hidden transition-all hover:shadow-lg border-accent/30 md:col-span-2">
+        <Card className="overflow-hidden transition-all hover:shadow-lg border-accent/30">
           <CardHeader>
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-accent/10">
               <Zap className="h-8 w-8 text-accent" />
@@ -325,6 +326,47 @@ export default function StudySystemHome({
               data-ocid="study.hvac-electrical.primary_button"
             >
               Start Learning
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Digital Gauges & Smart Probes */}
+        <Card className="overflow-hidden transition-all hover:shadow-lg border-primary/30">
+          <CardHeader>
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10">
+              <Gauge className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle>Digital Gauges &amp; Smart Probes</CardTitle>
+            <CardDescription>
+              Master modern HVAC diagnostic instruments — digital manifolds,
+              pressure probes, temperature clamps, and micron gauges
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <span>Digital Manifold Gauges</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <span>Pressure Probes &amp; Wireless Sensors</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <span>Temperature Clamps — Superheat &amp; Subcooling</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <span>Micron Gauges &amp; Evacuation Standards</span>
+              </div>
+            </div>
+            <Button
+              onClick={() => onNavigate("digital-gauges-probes")}
+              className="w-full"
+              data-ocid="study.digital-gauges.primary_button"
+            >
+              Start Training
             </Button>
           </CardContent>
         </Card>

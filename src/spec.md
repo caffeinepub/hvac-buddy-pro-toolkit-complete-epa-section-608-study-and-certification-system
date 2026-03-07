@@ -2,57 +2,42 @@
 
 ## Current State
 
-The Study tab (`StudyTab.tsx`) currently supports these views:
-- `home` → `StudySystemHome`
-- `core-lessons` → `CoreLessonsModule`
-- `epa-608` → `EPA608Module`
-- `progress` → `ProgressDashboard`
-- `multimeter-training` → `MultimeterTrainingModule`
-- `uei-dl589-guide` → `UEiDL589MultimeterGuide`
+The Community tab has a "Knowledge Base" card that is a non-functional placeholder (no click handler, no content). It displays a static description only.
 
-`StudySystemHome.tsx` renders module cards for each of the above. The view state is a string union typed in both `StudyTab.tsx` and the `onNavigate` prop signature of `StudySystemHome.tsx`.
+Study modules exist as separate components:
+- `MultimeterTrainingModule.tsx`
+- `HVACElectricalFundamentals.tsx`
+- `DigitalGaugesAndSmartProbes.tsx`
+- `UEiDL589MultimeterGuide.tsx`
+- `EPA608Module.tsx`, `CoreLessonsModule.tsx`
+
+Video data lives in `src/data/videoLibrary.ts` as a typed `curatedVideos` array with categories, descriptions, URLs, and linked lesson topics.
 
 ## Requested Changes (Diff)
 
 ### Add
-- New view key: `"hvac-electrical-fundamentals"` added to the view state union in `StudyTab.tsx`.
-- New component: `src/frontend/src/components/study/HVACElectricalFundamentals.tsx`
-  - A self-contained educational module with 7 structured sections:
-    1. Voltage, Current, Resistance and Ohm's Law
-    2. Types of Circuits (series, parallel, open, short)
-    3. Power Circuits vs Control Circuits in HVAC
-    4. Single-Phase vs Three-Phase Power
-    5. Electrical Protection (breakers, fuses, grounding)
-    6. Motors, Contactors and Overload Protection
-    7. Variable Frequency Drives (VFD)
-  - Each section includes: simple explanation, HVAC examples, key formulas (formatted in a formula box), and safety notes (styled as a warning callout).
-  - Tabbed or accordion layout for section navigation.
-  - No simulations or complex interactions — educational content only.
-- New card in `StudySystemHome.tsx` for "HVAC Electrical Fundamentals" linking to the new view.
-- `onNavigate` prop type updated to include `"hvac-electrical-fundamentals"`.
+- `src/data/knowledgeBase.ts` — Static knowledge base article data. Each article has:
+  - `id`, `title`, `summary`, `category`, `tags`, `relatedVideoIds` (array of video IDs from `videoLibrary.ts`), `studyModuleLink` (navigable route key), `source` (e.g., "EPA Section 608", "ACHR News", "Trane", "Carrier", "Lennox", "HVAC Buddy")
+  - Categories: `hvac-fundamentals`, `epa-608`, `electrical`, `refrigeration`, `diagnostics`, `safety`
+  - Articles cover: refrigeration cycle, EPA regulations, electrical fundamentals, diagnostics patterns, troubleshooting guides, refrigerant handling safety, multimeter use, gauge reading
+- `src/components/community/KnowledgeBaseSearch.tsx` — Full Knowledge Base search UI:
+  - Search input with live filtering across title, summary, and tags
+  - Category filter tabs (All, HVAC Fundamentals, EPA 608, Electrical, Refrigeration, Diagnostics, Safety)
+  - Result cards showing: article title, category badge, short summary (2-3 sentences), related video links (buttons that open YouTube in new tab), study module link button
+  - Empty state when no results found
+  - Back button to return to Community tab
 
 ### Modify
-- `StudyTab.tsx`:
-  - Add `"hvac-electrical-fundamentals"` to the `currentView` state union.
-  - Add a conditional render block for the new view that renders `HVACElectricalFundamentals`.
-  - Import the new component.
-- `StudySystemHome.tsx`:
-  - Update `onNavigate` prop type to include `"hvac-electrical-fundamentals"`.
-  - Add a new module card for "HVAC Electrical Fundamentals" in the main module grid.
+- `CommunityTab.tsx`:
+  - Add `showKnowledgeBase` state
+  - Render `KnowledgeBaseSearch` when active
+  - Convert the static Knowledge Base card into a clickable button that sets `showKnowledgeBase(true)`
 
 ### Remove
 - Nothing removed.
 
 ## Implementation Plan
 
-1. Create `HVACElectricalFundamentals.tsx` with all 7 sections as static educational content:
-   - Use accordion or tab layout for section navigation.
-   - Section content structure: heading, explanation paragraphs, HVAC examples list, formula box (highlighted card/code block style), safety callout (warning/alert style with icon).
-   - Apply `data-ocid` deterministic markers to all interactive controls (section tabs/accordions, back button).
-2. Update `StudyTab.tsx`:
-   - Extend `currentView` state type to include `"hvac-electrical-fundamentals"`.
-   - Add import for `HVACElectricalFundamentals`.
-   - Add conditional render for the new view with a back button.
-3. Update `StudySystemHome.tsx`:
-   - Extend `onNavigate` prop type.
-   - Add a new Card in the module grid for "HVAC Electrical Fundamentals" with a Zap icon, short description, bullet list of 4 topics, and a "Start Learning" button.
+1. Create `knowledgeBase.ts` with 20+ original summarized articles across all 6 categories, each referencing real video IDs and study module route keys.
+2. Create `KnowledgeBaseSearch.tsx` with search input, category filters, and result cards showing summary + video links + module links.
+3. Update `CommunityTab.tsx` to render the Knowledge Base view and wire the card button.
