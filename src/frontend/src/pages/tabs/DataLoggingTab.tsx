@@ -119,13 +119,14 @@ export default function DataLoggingTab({ isGuest }: DataLoggingTabProps) {
     }
 
     const csvContent = [
-      ["Timestamp", "Type", "Value", "Job ID"].join(","),
+      ["Timestamp", "Data Type", "Value", "Job ID", "Notes"].join(","),
       ...logEntries.map((entry) =>
         [
           new Date(Number(entry.timestamp) / 1000000).toLocaleString(),
           entry.dataType,
           entry.value,
           entry.relatedJob?.toString() || "N/A",
+          "",
         ].join(","),
       ),
     ].join("\n");
@@ -200,6 +201,7 @@ export default function DataLoggingTab({ isGuest }: DataLoggingTabProps) {
                 onClick={handleExportData}
                 variant="outline"
                 disabled={isGuest || logEntries.length === 0}
+                data-ocid="logging.export_button"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Export CSV

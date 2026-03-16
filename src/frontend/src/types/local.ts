@@ -388,19 +388,27 @@ export interface VideoRecord {
   linkedLessonTopic: string;
   duration: number; // Duration in seconds (not bigint)
   thumbnailUrl: string;
+  relatedModules?: string[];
+  relatedTools?: string[];
 }
 
 export enum VideoCategory {
+  // Legacy values — kept for backward compatibility
   epaCore = "epaCore",
   typeI = "typeI",
   typeII = "typeII",
   typeIII = "typeIII",
   epaPlaylists = "epaPlaylists",
-  hvacFundamentals = "hvacFundamentals",
   diagnosticsMeasurements = "diagnosticsMeasurements",
   electricalControls = "electricalControls",
   refrigerantHandling = "refrigerantHandling",
   toolsInstruments = "toolsInstruments",
+  // New structured categories
+  epa608Prep = "epa608Prep",
+  hvacFundamentals = "hvacFundamentals",
+  electricalCircuits = "electricalCircuits",
+  refrigerantDiagnostics = "refrigerantDiagnostics",
+  hvacToolsService = "hvacToolsService",
 }
 
 // Suppliers

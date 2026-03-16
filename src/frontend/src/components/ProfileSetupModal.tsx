@@ -131,6 +131,7 @@ export default function ProfileSetupModal({
               onChange={(e) => setName(e.target.value)}
               required
               autoFocus
+              data-ocid="profile.input"
             />
           </div>
 
@@ -201,10 +202,11 @@ export default function ProfileSetupModal({
 
           {/* Error Message */}
           {completeOnboarding.isError && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" data-ocid="profile.error_state">
               <AlertDescription>
-                {completeOnboarding.error?.message ||
-                  "Failed to create profile. Please try again."}
+                {typeof completeOnboarding.error?.message === "string"
+                  ? completeOnboarding.error.message
+                  : "Failed to create profile. Please try again."}
               </AlertDescription>
             </Alert>
           )}
@@ -214,6 +216,7 @@ export default function ProfileSetupModal({
             type="submit"
             className="w-full"
             disabled={completeOnboarding.isPending}
+            data-ocid="profile.submit_button"
           >
             {completeOnboarding.isPending ? (
               <>

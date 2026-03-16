@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import {
   BookOpen,
+  Eye,
   Gauge,
   GraduationCap,
   Shield,
@@ -27,7 +28,9 @@ interface StudySystemHomeProps {
       | "multimeter-training"
       | "uei-dl589-guide"
       | "hvac-electrical-fundamentals"
-      | "digital-gauges-probes",
+      | "digital-gauges-probes"
+      | "electrical-troubleshooting"
+      | "visual-learning",
   ) => void;
   studyMode: StudyMode;
 }
@@ -241,7 +244,7 @@ export default function StudySystemHome({
           </CardContent>
         </Card>
 
-        {/* UEi DL589 Multimeter Guide - NEW */}
+        {/* UEi DL589 Multimeter Guide */}
         <Card className="overflow-hidden transition-all hover:shadow-lg border-primary/30">
           <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
             <img
@@ -330,6 +333,47 @@ export default function StudySystemHome({
           </CardContent>
         </Card>
 
+        {/* Electrical Troubleshooting for HVAC Systems */}
+        <Card className="overflow-hidden transition-all hover:shadow-lg border-destructive/30">
+          <CardHeader>
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-destructive/10">
+              <Zap className="h-8 w-8 text-destructive" />
+            </div>
+            <CardTitle>Electrical Troubleshooting for HVAC</CardTitle>
+            <CardDescription>
+              Diagnose 24V control circuits, read schematics, test contactors
+              and transformers with guided troubleshooting steps
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-destructive" />
+                <span>24V Control Circuit Basics</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-destructive" />
+                <span>Reading HVAC Schematics</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-destructive" />
+                <span>Contactor Troubleshooting</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-destructive" />
+                <span>Transformer Testing</span>
+              </div>
+            </div>
+            <Button
+              onClick={() => onNavigate("electrical-troubleshooting")}
+              className="w-full"
+              data-ocid="study.electrical-troubleshooting.primary_button"
+            >
+              Start Learning
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Digital Gauges & Smart Probes */}
         <Card className="overflow-hidden transition-all hover:shadow-lg border-primary/30">
           <CardHeader>
@@ -367,6 +411,47 @@ export default function StudySystemHome({
               data-ocid="study.digital-gauges.primary_button"
             >
               Start Training
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Visual Learning Library */}
+        <Card className="overflow-hidden transition-all hover:shadow-lg border-primary/30 md:col-span-2">
+          <CardHeader>
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10">
+              <Eye className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle>Visual Learning Library</CardTitle>
+            <CardDescription>
+              Labeled HVAC diagrams and categorized training videos to reinforce
+              concepts visually
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <span>Refrigeration Cycle Diagrams</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <span>Electrical Wiring Diagrams</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <span>Electrical Troubleshooting Videos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <span>Refrigeration Diagnostics Videos</span>
+              </div>
+            </div>
+            <Button
+              onClick={() => onNavigate("visual-learning")}
+              className="w-full"
+              data-ocid="study.visual-learning.primary_button"
+            >
+              Open Visual Learning Library
             </Button>
           </CardContent>
         </Card>

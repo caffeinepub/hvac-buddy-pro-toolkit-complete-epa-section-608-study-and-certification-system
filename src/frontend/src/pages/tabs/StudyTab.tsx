@@ -1,11 +1,14 @@
+import RelatedVideos from "@/components/RelatedVideos";
 import CoreLessonsModule from "@/components/study/CoreLessonsModule";
 import DigitalGaugesAndSmartProbes from "@/components/study/DigitalGaugesAndSmartProbes";
 import EPA608Module from "@/components/study/EPA608Module";
+import ElectricalTroubleshootingModule from "@/components/study/ElectricalTroubleshootingModule";
 import HVACElectricalFundamentals from "@/components/study/HVACElectricalFundamentals";
 import MultimeterTrainingModule from "@/components/study/MultimeterTrainingModule";
 import ProgressDashboard from "@/components/study/ProgressDashboard";
 import StudySystemHome from "@/components/study/StudySystemHome";
 import UEiDL589MultimeterGuide from "@/components/study/UEiDL589MultimeterGuide";
+import VisualLearningLibrary from "@/components/study/VisualLearningLibrary";
 import { Button } from "@/components/ui/button";
 import { useGetCallerUserProfile } from "@/hooks/useQueries";
 import { useState } from "react";
@@ -22,6 +25,8 @@ export default function StudyTab() {
     | "uei-dl589-guide"
     | "hvac-electrical-fundamentals"
     | "digital-gauges-probes"
+    | "electrical-troubleshooting"
+    | "visual-learning"
   >("home");
   const { data: userProfile } = useGetCallerUserProfile();
 
@@ -36,7 +41,11 @@ export default function StudyTab() {
   if (currentView === "core-lessons") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView("home")}>
+        <Button
+          variant="ghost"
+          onClick={() => setCurrentView("home")}
+          data-ocid="core-lessons.back.button"
+        >
           ← Back to Study Home
         </Button>
         <CoreLessonsModule studyMode={studyMode} />
@@ -47,7 +56,11 @@ export default function StudyTab() {
   if (currentView === "epa-608") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView("home")}>
+        <Button
+          variant="ghost"
+          onClick={() => setCurrentView("home")}
+          data-ocid="epa-608.back.button"
+        >
           ← Back to Study Home
         </Button>
         <EPA608Module studyMode={studyMode} />
@@ -58,7 +71,11 @@ export default function StudyTab() {
   if (currentView === "progress") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView("home")}>
+        <Button
+          variant="ghost"
+          onClick={() => setCurrentView("home")}
+          data-ocid="progress.back.button"
+        >
           ← Back to Study Home
         </Button>
         <ProgressDashboard />
@@ -69,10 +86,17 @@ export default function StudyTab() {
   if (currentView === "multimeter-training") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView("home")}>
+        <Button
+          variant="ghost"
+          onClick={() => setCurrentView("home")}
+          data-ocid="multimeter-training.back.button"
+        >
           ← Back to Study Home
         </Button>
         <MultimeterTrainingModule studyMode={studyMode} />
+        <RelatedVideos
+          keywords={["multimeter", "voltage", "resistance", "electrical"]}
+        />
       </div>
     );
   }
@@ -80,7 +104,11 @@ export default function StudyTab() {
   if (currentView === "uei-dl589-guide") {
     return (
       <div className="space-y-6">
-        <Button variant="ghost" onClick={() => setCurrentView("home")}>
+        <Button
+          variant="ghost"
+          onClick={() => setCurrentView("home")}
+          data-ocid="uei-dl589.back.button"
+        >
           ← Back to Study Home
         </Button>
         <UEiDL589MultimeterGuide studyMode={studyMode} />
@@ -99,6 +127,9 @@ export default function StudyTab() {
           ← Back to Study Home
         </Button>
         <HVACElectricalFundamentals studyMode={studyMode} />
+        <RelatedVideos
+          keywords={["electrical", "circuit", "voltage", "schematic"]}
+        />
       </div>
     );
   }
@@ -114,6 +145,45 @@ export default function StudyTab() {
           ← Back to Study Home
         </Button>
         <DigitalGaugesAndSmartProbes studyMode={studyMode} />
+        <RelatedVideos
+          keywords={["gauge", "pressure", "superheat", "subcooling"]}
+        />
+      </div>
+    );
+  }
+
+  if (currentView === "electrical-troubleshooting") {
+    return (
+      <div className="space-y-6">
+        <Button
+          variant="ghost"
+          onClick={() => setCurrentView("home")}
+          data-ocid="electrical-troubleshooting.secondary_button"
+        >
+          ← Back to Study Home
+        </Button>
+        <ElectricalTroubleshootingModule studyMode={studyMode} />
+        <RelatedVideos
+          keywords={["electrical", "contactor", "transformer", "schematic"]}
+        />
+      </div>
+    );
+  }
+
+  if (currentView === "visual-learning") {
+    return (
+      <div className="space-y-6">
+        <Button
+          variant="ghost"
+          onClick={() => setCurrentView("home")}
+          data-ocid="visual-learning.back.button"
+        >
+          ← Back to Study Home
+        </Button>
+        <VisualLearningLibrary
+          onNavigate={setCurrentView}
+          studyMode={studyMode}
+        />
       </div>
     );
   }

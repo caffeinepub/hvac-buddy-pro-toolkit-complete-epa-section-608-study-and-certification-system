@@ -76,16 +76,16 @@ export default function EPA608Content({
   // Filter videos by section
   const sectionVideos = useMemo(() => {
     const categoryMap: Record<string, VideoCategory> = {
-      core: VideoCategory.epaCore,
-      type1: VideoCategory.typeI,
-      type2: VideoCategory.typeII,
-      type3: VideoCategory.typeIII,
-      universal: VideoCategory.epaCore, // Universal shows core videos
+      core: VideoCategory.epa608Prep,
+      type1: VideoCategory.epa608Prep,
+      type2: VideoCategory.epa608Prep,
+      type3: VideoCategory.epa608Prep,
+      universal: VideoCategory.epa608Prep,
     };
 
     const category = selectedSection
       ? categoryMap[selectedSection]
-      : VideoCategory.epaCore;
+      : VideoCategory.epa608Prep;
     return allVideos.filter((v) => v.category === category);
   }, [allVideos, selectedSection]);
 
@@ -376,8 +376,11 @@ export default function EPA608Content({
               )}
 
               {/* Video Link Buttons for Type I */}
-              {allVideos.filter((v) => v.category === VideoCategory.typeI)
-                .length > 0 && (
+              {allVideos.filter(
+                (v) =>
+                  v.category === VideoCategory.epa608Prep &&
+                  v.linkedLessonTopic.includes("Type I"),
+              ).length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <PlayCircle className="h-5 w-5 text-primary" />
@@ -385,7 +388,11 @@ export default function EPA608Content({
                   </h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     {allVideos
-                      .filter((v) => v.category === VideoCategory.typeI)
+                      .filter(
+                        (v) =>
+                          v.category === VideoCategory.epa608Prep &&
+                          v.linkedLessonTopic.includes("Type I"),
+                      )
                       .slice(0, 2)
                       .map((video) => (
                         <VideoLinkButton
@@ -414,8 +421,11 @@ export default function EPA608Content({
               )}
 
               {/* Video Link Buttons for Type II */}
-              {allVideos.filter((v) => v.category === VideoCategory.typeII)
-                .length > 0 && (
+              {allVideos.filter(
+                (v) =>
+                  v.category === VideoCategory.epa608Prep &&
+                  v.linkedLessonTopic.includes("Type II"),
+              ).length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <PlayCircle className="h-5 w-5 text-primary" />
@@ -423,7 +433,11 @@ export default function EPA608Content({
                   </h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     {allVideos
-                      .filter((v) => v.category === VideoCategory.typeII)
+                      .filter(
+                        (v) =>
+                          v.category === VideoCategory.epa608Prep &&
+                          v.linkedLessonTopic.includes("Type II"),
+                      )
                       .slice(0, 2)
                       .map((video) => (
                         <VideoLinkButton
@@ -452,8 +466,11 @@ export default function EPA608Content({
               )}
 
               {/* Video Link Buttons for Type III */}
-              {allVideos.filter((v) => v.category === VideoCategory.typeIII)
-                .length > 0 && (
+              {allVideos.filter(
+                (v) =>
+                  v.category === VideoCategory.epa608Prep &&
+                  v.linkedLessonTopic.includes("Type III"),
+              ).length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <PlayCircle className="h-5 w-5 text-primary" />
@@ -461,7 +478,11 @@ export default function EPA608Content({
                   </h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     {allVideos
-                      .filter((v) => v.category === VideoCategory.typeIII)
+                      .filter(
+                        (v) =>
+                          v.category === VideoCategory.epa608Prep &&
+                          v.linkedLessonTopic.includes("Type III"),
+                      )
                       .slice(0, 2)
                       .map((video) => (
                         <VideoLinkButton

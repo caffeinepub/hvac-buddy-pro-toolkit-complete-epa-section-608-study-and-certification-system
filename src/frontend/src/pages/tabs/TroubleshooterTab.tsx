@@ -1,3 +1,4 @@
+import RelatedVideos from "@/components/RelatedVideos";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -1807,6 +1808,12 @@ ${currentSession.aiRecommendations.map((r, i) => `${i + 1}. ${r.message}`).join(
       {phase === "summary" && renderSummary()}
       {phase === "ac-beginner" && (
         <BeginnerACDiagnostic onBack={() => setPhase("mode-selection")} />
+      )}
+      {(phase === "summary" || phase === "mode-selection") && (
+        <RelatedVideos
+          keywords={["refrigerant", "pressure", "diagnostic", "troubleshoot"]}
+          title="Related Training Videos"
+        />
       )}
     </div>
   );

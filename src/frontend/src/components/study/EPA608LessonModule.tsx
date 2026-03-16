@@ -105,15 +105,18 @@ export default function EPA608LessonModule({
   const { data: allVideos = [] } = useGetVideos();
 
   // Get relevant videos for this section
-  const categoryMap: Record<string, VideoCategory> = {
-    core: VideoCategory.epaCore,
-    type1: VideoCategory.typeI,
-    type2: VideoCategory.typeII,
-    type3: VideoCategory.typeIII,
-    universal: VideoCategory.epaCore,
+  const topicKeywordMap: Record<string, string> = {
+    core: "EPA Core",
+    type1: "Type I",
+    type2: "Type II",
+    type3: "Type III",
+    universal: "EPA",
   };
+  const keyword = topicKeywordMap[section] ?? "EPA";
   const sectionVideos = allVideos.filter(
-    (v) => v.category === categoryMap[section],
+    (v) =>
+      v.category === VideoCategory.epa608Prep &&
+      v.linkedLessonTopic.includes(keyword),
   );
 
   if (!lesson) {

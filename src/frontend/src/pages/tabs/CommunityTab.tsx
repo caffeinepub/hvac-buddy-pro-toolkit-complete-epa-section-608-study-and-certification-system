@@ -26,6 +26,7 @@ export default function CommunityTab({
   const [showVideos, setShowVideos] = useState(false);
   const [showHelpAI, setShowHelpAI] = useState(false);
   const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState("");
 
   if (showChat) {
     return <TroubleshootingChat onBack={() => setShowChat(false)} />;
@@ -51,7 +52,15 @@ export default function CommunityTab({
   }
 
   if (showKnowledgeBase) {
-    return <AIKnowledgeBaseSearch onBack={() => setShowKnowledgeBase(false)} />;
+    return (
+      <AIKnowledgeBaseSearch
+        onBack={() => {
+          setShowKnowledgeBase(false);
+          setSelectedTopic("");
+        }}
+        initialQuery={selectedTopic}
+      />
+    );
   }
 
   return (
@@ -81,6 +90,7 @@ export default function CommunityTab({
               type="button"
               onClick={() => setShowHelpAI(true)}
               className="rounded-lg border-2 border-primary bg-gradient-to-br from-primary/10 to-accent/10 p-6 text-left transition-all hover:border-primary hover:shadow-lg"
+              data-ocid="community.ask_ai.button"
             >
               <div className="mb-4 flex items-center gap-2">
                 <Sparkles className="h-10 w-10 text-primary" />
@@ -100,6 +110,7 @@ export default function CommunityTab({
               type="button"
               onClick={() => setShowChat(true)}
               className="rounded-lg border border-border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-md"
+              data-ocid="community.chat.button"
             >
               <MessageCircle className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-lg font-semibold">
@@ -115,7 +126,7 @@ export default function CommunityTab({
               type="button"
               onClick={() => setShowKnowledgeBase(true)}
               className="rounded-lg border border-border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-md"
-              data-ocid="community.knowledge_base.button"
+              data-ocid="community.kb.button"
             >
               <div className="mb-4 flex items-center gap-2">
                 <BookOpen className="h-10 w-10 text-primary" />
@@ -135,6 +146,7 @@ export default function CommunityTab({
               type="button"
               onClick={() => setShowVideos(true)}
               className="rounded-lg border border-border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-md"
+              data-ocid="community.videos.button"
             >
               <Video className="mb-4 h-10 w-10 text-primary" />
               <h3 className="mb-2 text-lg font-semibold">Video Library</h3>
@@ -172,12 +184,18 @@ export default function CommunityTab({
                 "System Sizing",
                 "Maintenance Schedules",
               ].map((topic) => (
-                <span
+                <button
                   key={topic}
-                  className="rounded-full bg-background px-3 py-1 text-sm"
+                  type="button"
+                  onClick={() => {
+                    setSelectedTopic(topic);
+                    setShowKnowledgeBase(true);
+                  }}
+                  className="rounded-full bg-background px-3 py-1 text-sm hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer"
+                  data-ocid="community.topic.button"
                 >
                   {topic}
-                </span>
+                </button>
               ))}
             </div>
           </div>

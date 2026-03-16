@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { ThemeProvider } from "next-themes";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import GuestBanner from "./components/GuestBanner";
 import Header from "./components/Header";
@@ -37,6 +37,11 @@ export default function App() {
   const queryClient = useQueryClient();
   const isAuthenticated = !!identity;
 
+  // localStorage fallback so onboarding never re-appears if the backend call fails
+  const [localOnboardingDone] = useState(
+    () => localStorage.getItem("hvacbuddy_onboarding_done") === "true",
+  );
+
   // Fetch user profile (only when authenticated)
   const {
     data: userProfile,
@@ -47,8 +52,7 @@ export default function App() {
   // Fetch guest profile (works without authentication)
   const { data: guestProfile } = useGetGuestProfile();
 
-  const { data: walkthroughCompleted, isLoading: walkthroughLoading } =
-    useIsWalkthroughCompleted();
+  const { data: walkthroughCompleted } = useIsWalkthroughCompleted();
   const markWalkthroughCompleted = useMarkWalkthroughCompleted();
 
   // Guest mode is active when there's a guest profile and no authenticated user profile
@@ -74,11 +78,7 @@ export default function App() {
 
   // Show loading while profiles are being fetched after authentication
   // Only show loading if we're still fetching AND haven't received any data yet
-  if (
-    isAuthenticated &&
-    (profileLoading || walkthroughLoading) &&
-    !profileFetched
-  ) {
+  if (isAuthenticated && profileLoading && !profileFetched) {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <LoadingScreen />
@@ -92,16 +92,21 @@ export default function App() {
     isAuthenticated && profileFetched && !userProfile && !guestProfile;
 
   // Determine if we should show onboarding walkthrough
-  // Show if: (authenticated with profile OR guest mode), and walkthrough not completed
+  // Show if: (authenticated with profile OR guest mode), and walkthrough not completed,
+  // and localStorage fallback also says not done
+  // Use !== true so that undefined (never set) also shows onboarding
   const showOnboarding =
     ((isAuthenticated && userProfile) || isGuest) &&
-    walkthroughCompleted === false;
+    walkthroughCompleted !== true &&
+    !localOnboardingDone;
 
   const handleOnboardingComplete = () => {
+    localStorage.setItem("hvacbuddy_onboarding_done", "true");
     markWalkthroughCompleted.mutate();
   };
 
   const handleOnboardingSkip = () => {
+    localStorage.setItem("hvacbuddy_onboarding_done", "true");
     markWalkthroughCompleted.mutate();
   };
 

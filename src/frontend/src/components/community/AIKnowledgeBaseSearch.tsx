@@ -1,3 +1,4 @@
+import RelatedVideos from "@/components/RelatedVideos";
 import {
   type ExternalResource,
   type ExternalResourceTier,
@@ -28,6 +29,7 @@ import { useMemo, useState } from "react";
 interface AIKnowledgeBaseSearchProps {
   onBack: () => void;
   onNavigateToStudy?: (module: string) => void;
+  initialQuery?: string;
 }
 
 // ─── Internal module tier labels ────────────────────────────────────────────
@@ -392,8 +394,9 @@ function SectionHeader({
 export default function AIKnowledgeBaseSearch({
   onBack,
   onNavigateToStudy,
+  initialQuery = "",
 }: AIKnowledgeBaseSearchProps) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [activeCategory, setActiveCategory] = useState<KBCategory | "all">(
     "all",
   );
@@ -507,8 +510,40 @@ export default function AIKnowledgeBaseSearch({
       {/* ── No query state ── */}
       {!hasQuery && (
         <div className="space-y-4">
+          {/* Browse by Category */}
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">
+              Browse by Category
+            </p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {(
+                [
+                  "hvac-fundamentals",
+                  "epa-608",
+                  "electrical",
+                  "refrigeration",
+                  "diagnostics",
+                  "safety",
+                ] as KBCategory[]
+              ).map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => {
+                    setActiveCategory(cat);
+                    setQuery(CATEGORY_LABELS[cat]);
+                  }}
+                  className={`rounded-lg border border-border bg-card px-4 py-3 text-left text-sm font-medium hover:border-primary hover:bg-primary/5 transition-colors ${CATEGORY_COLORS[cat]}`}
+                  data-ocid="ai-kb.category.button"
+                >
+                  {CATEGORY_LABELS[cat]}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div
-            className="rounded-lg border border-dashed border-border bg-muted/20 p-6 text-center"
+            className="rounded-lg border border-dashed border-border bg-muted/20 p-5 text-center"
             data-ocid="ai-kb.empty_state"
           >
             <Zap className="mx-auto mb-3 h-8 w-8 text-primary/50" />
@@ -623,6 +658,18 @@ export default function AIKnowledgeBaseSearch({
             Try different keywords or browse by category
           </p>
         </div>
+      )}
+
+      {/* ── Related Videos ── */}
+      {hasQuery && (
+        <RelatedVideos
+          keywords={query
+            .trim()
+            .split(/\s+/)
+            .filter((w) => w.length > 2)}
+          title="Video Tutorials"
+          maxVideos={2}
+        />
       )}
 
       {/* Disclaimer */}

@@ -1,115 +1,196 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetVideos } from "@/hooks/useQueries";
+import { curatedVideos, getEmbedUrl, isPlaylist } from "@/data/videoLibrary";
 import { VideoCategory, type VideoRecord } from "@/types/local";
 import {
   BookOpen,
-  Clock,
   ExternalLink,
-  List,
+  ListVideo,
   PlayCircle,
   Search,
+  Wrench,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-const CATEGORY_LABELS: Record<VideoCategory, string> = {
-  [VideoCategory.epaCore]: "EPA Core",
-  [VideoCategory.typeI]: "EPA Type I",
-  [VideoCategory.typeII]: "EPA Type II",
-  [VideoCategory.typeIII]: "EPA Type III",
-  [VideoCategory.epaPlaylists]: "EPA Playlists",
-  [VideoCategory.hvacFundamentals]: "HVAC Fundamentals",
-  [VideoCategory.diagnosticsMeasurements]: "Diagnostics & Measurements",
-  [VideoCategory.electricalControls]: "Electrical & Controls",
-  [VideoCategory.refrigerantHandling]: "Refrigerant Handling",
-  [VideoCategory.toolsInstruments]: "Tools & Instruments",
+// ─── Category config ──────────────────────────────────────────────────────────
+
+const TABS = [
+  { key: "all", label: "All" },
+  { key: VideoCategory.epa608Prep, label: "EPA 608 Certification Prep" },
+  { key: VideoCategory.hvacFundamentals, label: "HVAC Fundamentals" },
+  {
+    key: VideoCategory.electricalCircuits,
+    label: "Electrical & Control Circuits",
+  },
+  {
+    key: VideoCategory.refrigerantDiagnostics,
+    label: "Refrigerant Diagnostics",
+  },
+  {
+    key: VideoCategory.hvacToolsService,
+    label: "HVAC Tools & Service Procedures",
+  },
+] as const;
+
+type TabKey = (typeof TABS)[number]["key"];
+
+const CATEGORY_BADGE_STYLES: Partial<Record<VideoCategory, string>> = {
+  [VideoCategory.epa608Prep]:
+    "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-300/30",
+  [VideoCategory.hvacFundamentals]:
+    "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-300/30",
+  [VideoCategory.electricalCircuits]:
+    "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-300/30",
+  [VideoCategory.refrigerantDiagnostics]:
+    "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-300/30",
+  [VideoCategory.hvacToolsService]:
+    "bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-300/30",
 };
 
-const CATEGORY_ORDER: VideoCategory[] = [
-  VideoCategory.epaCore,
-  VideoCategory.typeI,
-  VideoCategory.typeII,
-  VideoCategory.typeIII,
-  VideoCategory.epaPlaylists,
-  VideoCategory.hvacFundamentals,
-  VideoCategory.diagnosticsMeasurements,
-  VideoCategory.electricalControls,
-  VideoCategory.refrigerantHandling,
-  VideoCategory.toolsInstruments,
-];
+const CATEGORY_LABELS: Partial<Record<VideoCategory, string>> = {
+  [VideoCategory.epa608Prep]: "EPA 608 Certification Prep",
+  [VideoCategory.hvacFundamentals]: "HVAC Fundamentals",
+  [VideoCategory.electricalCircuits]: "Electrical & Control Circuits",
+  [VideoCategory.refrigerantDiagnostics]: "Refrigerant Diagnostics",
+  [VideoCategory.hvacToolsService]: "HVAC Tools & Service",
+};
 
-function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  return `${minutes}m`;
-}
-
-function isPlaylist(url: string): boolean {
-  return url.includes("playlist?list=");
-}
+// ─── VideoCard ────────────────────────────────────────────────────────────────
 
 interface VideoCardProps {
   video: VideoRecord;
+  index: number;
 }
 
-function VideoCard({ video }: VideoCardProps) {
-  const isPlaylistLink = isPlaylist(video.url);
+function VideoCard({ video, index }: VideoCardProps) {
+  const playlist = isPlaylist(video.url);
+  const embedUrl = getEmbedUrl(video.url);
+  const badgeStyle =
+    CATEGORY_BADGE_STYLES[video.category] ?? "bg-muted text-muted-foreground";
+  const catLabel = CATEGORY_LABELS[video.category] ?? "Training";
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="pb-3">
-        <div className="flex items-start gap-2">
-          {isPlaylistLink ? (
-            <List className="h-5 w-5 flex-shrink-0 text-primary mt-0.5" />
-          ) : (
-            <PlayCircle className="h-5 w-5 flex-shrink-0 text-primary mt-0.5" />
-          )}
-          <CardTitle className="line-clamp-2 text-base">
+    <Card
+      className="overflow-hidden border border-border/70 transition-shadow hover:shadow-lg"
+      data-ocid={`video-library.item.${index + 1}`}
+    >
+      {/* Video embed or playlist thumbnail */}
+      <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+        {playlist ? (
+          <>
+            <img
+              src={video.thumbnailUrl}
+              alt={video.title}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/50">
+              <ListVideo className="h-10 w-10 text-white" />
+              <Button
+                size="sm"
+                className="gap-1.5 text-xs"
+                asChild
+                data-ocid={`video-library.link.${index + 1}`}
+              >
+                <a href={video.url} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-3 w-3" />
+                  Open Playlist
+                </a>
+              </Button>
+            </div>
+          </>
+        ) : (
+          <iframe
+            className="absolute inset-0 h-full w-full"
+            src={embedUrl}
+            title={video.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            loading="lazy"
+          />
+        )}
+      </div>
+
+      <CardHeader className="pb-2 pt-4">
+        <div className="mb-1 flex items-start justify-between gap-2">
+          <CardTitle className="text-base leading-snug">
             {video.title}
           </CardTitle>
+          {playlist ? (
+            <ListVideo className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+          ) : (
+            <PlayCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" />
+          )}
         </div>
-        <CardDescription className="line-clamp-2 text-sm">
-          {video.description}
-        </CardDescription>
+        <span
+          className={`inline-block w-fit rounded-full border px-2 py-0.5 text-xs font-medium ${badgeStyle}`}
+        >
+          {catLabel}
+        </span>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="h-3 w-3" />
-          <span>{formatDuration(Number(video.duration))}</span>
-        </div>
-        {video.linkedLessonTopic && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <BookOpen className="h-3 w-3" />
-            <span className="line-clamp-1">{video.linkedLessonTopic}</span>
+
+      <CardContent className="space-y-4 pb-4">
+        {/* Description */}
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {video.description}
+        </p>
+
+        {/* Related Study Modules */}
+        {video.relatedModules && video.relatedModules.length > 0 && (
+          <div>
+            <p className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-foreground/60">
+              <BookOpen className="h-3 w-3" />
+              Study Modules
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {video.relatedModules.map((mod) => (
+                <Badge
+                  key={mod}
+                  variant="secondary"
+                  className="cursor-default text-xs"
+                >
+                  {mod}
+                </Badge>
+              ))}
+            </div>
           </div>
         )}
-        <Badge variant="secondary" className="text-xs">
-          {CATEGORY_LABELS[video.category]}
-        </Badge>
-        <Button asChild className="w-full" variant="default">
-          <a
-            href={video.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2"
-          >
-            <ExternalLink className="h-4 w-4" />
-            {isPlaylistLink ? "Open Playlist" : "Watch Video"}
+
+        {/* Related Tools */}
+        {video.relatedTools && video.relatedTools.length > 0 && (
+          <div>
+            <p className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-foreground/60">
+              <Wrench className="h-3 w-3" />
+              Related Tools
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {video.relatedTools.map((tool) => (
+                <Badge
+                  key={tool}
+                  variant="outline"
+                  className="cursor-default text-xs"
+                >
+                  {tool}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Watch on YouTube */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full gap-1.5 text-xs"
+          asChild
+          data-ocid={`video-library.link.${index + 1}`}
+        >
+          <a href={video.url} target="_blank" rel="noopener noreferrer">
+            <ExternalLink className="h-3.5 w-3.5" />
+            Watch on YouTube
           </a>
         </Button>
       </CardContent>
@@ -117,184 +198,98 @@ function VideoCard({ video }: VideoCardProps) {
   );
 }
 
+// ─── Main VideoLibrary component ──────────────────────────────────────────────
+
 export default function VideoLibrary() {
+  const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<
-    VideoCategory | "all"
-  >("all");
 
-  const { data: videos = [], isLoading, error } = useGetVideos();
-
-  const filteredVideos = useMemo(() => {
-    let filtered = videos;
-
-    // Filter by category
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((v) => v.category === selectedCategory);
+  const filtered = useMemo(() => {
+    let list = curatedVideos;
+    if (activeTab !== "all") {
+      list = list.filter((v) => v.category === activeTab);
     }
-
-    // Filter by search query
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
         (v) =>
-          v.title.toLowerCase().includes(query) ||
-          v.description.toLowerCase().includes(query) ||
-          v.linkedLessonTopic.toLowerCase().includes(query),
+          v.title.toLowerCase().includes(q) ||
+          v.description.toLowerCase().includes(q) ||
+          v.linkedLessonTopic.toLowerCase().includes(q),
       );
     }
-
-    return filtered;
-  }, [videos, selectedCategory, searchQuery]);
-
-  const videosByCategory = useMemo(() => {
-    const grouped: Record<VideoCategory, VideoRecord[]> = {
-      [VideoCategory.epaCore]: [],
-      [VideoCategory.typeI]: [],
-      [VideoCategory.typeII]: [],
-      [VideoCategory.typeIII]: [],
-      [VideoCategory.epaPlaylists]: [],
-      [VideoCategory.hvacFundamentals]: [],
-      [VideoCategory.diagnosticsMeasurements]: [],
-      [VideoCategory.electricalControls]: [],
-      [VideoCategory.refrigerantHandling]: [],
-      [VideoCategory.toolsInstruments]: [],
-    };
-
-    for (const video of filteredVideos) {
-      grouped[video.category].push(video);
-    }
-
-    return grouped;
-  }, [filteredVideos]);
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-8 w-48" />
-        </div>
-        <Skeleton className="h-10 w-full" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i}>
-              <CardHeader>
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-10 w-full" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>
-          Failed to load videos. Please try again later.
-        </AlertDescription>
-      </Alert>
-    );
-  }
+    return list;
+  }, [activeTab, searchQuery]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-ocid="video-library.section">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Video Library</h2>
-          <p className="text-sm text-muted-foreground">
-            {videos.length} educational videos across {CATEGORY_ORDER.length}{" "}
-            categories
-          </p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Video Library</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Structured training videos organized by category. Embed players,
+          descriptions, and links to study modules.
+        </p>
       </div>
 
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search videos by title, description, or topic..."
+          className="pl-9"
+          placeholder="Search videos by title, topic, or keyword…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9"
+          data-ocid="video-library.search_input"
         />
       </div>
 
-      {/* Category Tabs */}
-      <Tabs
-        value={selectedCategory}
-        onValueChange={(v) => setSelectedCategory(v as VideoCategory | "all")}
-      >
-        <ScrollArea className="w-full">
-          <TabsList className="inline-flex w-max">
-            <TabsTrigger value="all">All ({videos.length})</TabsTrigger>
-            {CATEGORY_ORDER.map((category) => {
-              const count = videosByCategory[category].length;
-              return (
-                <TabsTrigger key={category} value={category}>
-                  {CATEGORY_LABELS[category]} ({count})
-                </TabsTrigger>
-              );
-            })}
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabKey)}>
+        <ScrollArea className="w-full pb-2">
+          <TabsList className="flex h-auto w-max gap-1 bg-transparent p-0">
+            {TABS.map((tab) => (
+              <TabsTrigger
+                key={tab.key}
+                value={tab.key}
+                className="whitespace-nowrap rounded-full border border-border/60 px-3 py-1.5 text-xs font-medium data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                data-ocid={"video-library.tab"}
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </ScrollArea>
 
-        <TabsContent value="all" className="mt-6">
-          {filteredVideos.length === 0 ? (
-            <Alert>
-              <PlayCircle className="h-4 w-4" />
-              <AlertDescription>
-                {searchQuery
-                  ? "No videos found matching your search."
-                  : "No videos available yet."}
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredVideos.map((video) => (
-                <VideoCard key={video.id.toString()} video={video} />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        {CATEGORY_ORDER.map((category) => (
-          <TabsContent key={category} value={category} className="mt-6">
-            {videosByCategory[category].length === 0 ? (
-              <Alert>
-                <PlayCircle className="h-4 w-4" />
-                <AlertDescription>
-                  No videos in this category yet.
-                </AlertDescription>
-              </Alert>
+        {TABS.map((tab) => (
+          <TabsContent key={tab.key} value={tab.key} className="mt-6">
+            {filtered.length === 0 ? (
+              <div
+                className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center"
+                data-ocid="video-library.empty_state"
+              >
+                <PlayCircle className="mb-3 h-10 w-10 text-muted-foreground/40" />
+                <p className="text-sm font-medium text-muted-foreground">
+                  No videos match your search
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground/60">
+                  Try different keywords or select another category
+                </p>
+              </div>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {videosByCategory[category].map((video) => (
-                  <VideoCard key={video.id.toString()} video={video} />
+              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {filtered.map((video, idx) => (
+                  <VideoCard
+                    key={video.id.toString()}
+                    video={video}
+                    index={idx}
+                  />
                 ))}
               </div>
             )}
           </TabsContent>
         ))}
       </Tabs>
-
-      {/* Integration Note */}
-      {videos.length > 0 && (
-        <Alert>
-          <BookOpen className="h-4 w-4" />
-          <AlertDescription>
-            These videos complement the EPA 608 study modules and core HVAC
-            lessons. Click the buttons to watch videos in a new tab, then
-            practice with interactive tools and simulators in the Study tab.
-          </AlertDescription>
-        </Alert>
-      )}
     </div>
   );
 }

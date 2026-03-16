@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import {
   BarChart3,
   BookOpen,
+  Bot,
   Briefcase,
   Calculator,
   Camera,
@@ -15,10 +16,10 @@ import {
 } from "lucide-react";
 import { Suspense, lazy, useState } from "react";
 
-// Lazy load tab components for better performance
 const TroubleshooterTab = lazy(() => import("./tabs/TroubleshooterTab"));
 const StudyTab = lazy(() => import("./tabs/StudyTab"));
 const JobsTab = lazy(() => import("./tabs/JobsTab"));
+const FieldAIAssistantTab = lazy(() => import("./tabs/FieldAIAssistantTab"));
 const PartsTab = lazy(() => import("./tabs/PartsTab"));
 const PhotoDiagnosticTab = lazy(() => import("./tabs/PhotoDiagnosticTab"));
 const CalculatorsTab = lazy(() => import("./tabs/CalculatorsTab"));
@@ -30,7 +31,6 @@ interface DashboardProps {
   isGuest: boolean;
 }
 
-// Loading fallback for lazy-loaded tabs
 function TabLoader() {
   return (
     <div className="flex items-center justify-center py-12">
@@ -62,7 +62,6 @@ export default function Dashboard({ isGuest }: DashboardProps) {
         </p>
       </div>
 
-      {/* Guest Mode Checklist */}
       {isGuest && (
         <div className="mb-6 sm:mb-8">
           <GuestModeChecklist onUpgrade={handleUpgrade} />
@@ -70,7 +69,7 @@ export default function Dashboard({ isGuest }: DashboardProps) {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 sm:mb-8 grid w-full grid-cols-3 gap-1 sm:gap-2 lg:grid-cols-9 h-auto">
+        <TabsList className="mb-6 sm:mb-8 grid w-full grid-cols-5 gap-1 sm:gap-2 lg:grid-cols-10 h-auto">
           <TabsTrigger
             value="troubleshooter"
             className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
@@ -93,6 +92,15 @@ export default function Dashboard({ isGuest }: DashboardProps) {
           >
             <Briefcase className="h-3 w-3 sm:h-4 sm:w-4" />
             <span>Jobs</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="field-ai"
+            className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2"
+            data-ocid="field-ai.tab"
+          >
+            <Bot className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Field AI</span>
+            <span className="sm:hidden">AI</span>
           </TabsTrigger>
           <TabsTrigger
             value="parts"
@@ -152,6 +160,9 @@ export default function Dashboard({ isGuest }: DashboardProps) {
           <TabsContent value="jobs" className="mt-0">
             <JobsTab isGuest={isGuest} />
           </TabsContent>
+          <TabsContent value="field-ai" className="mt-0">
+            <FieldAIAssistantTab isGuest={isGuest} />
+          </TabsContent>
           <TabsContent value="parts" className="mt-0">
             <PartsTab />
           </TabsContent>
@@ -173,7 +184,6 @@ export default function Dashboard({ isGuest }: DashboardProps) {
         </Suspense>
       </Tabs>
 
-      {/* Upgrade Modal */}
       {showUpgradeModal && (
         <ProfileSetupModal
           isGuestUpgrade={true}
