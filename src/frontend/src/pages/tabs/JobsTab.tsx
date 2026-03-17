@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AlertTriangle,
@@ -35,6 +36,7 @@ import {
   Plus,
   Search,
   Sparkles,
+  Thermometer,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -51,6 +53,13 @@ type SystemType =
   | "Heat Pump"
   | "Mini-Split"
   | "Other";
+type RefrigerantType =
+  | "R-410A"
+  | "R-22"
+  | "R-32"
+  | "R-454B"
+  | "R-407C"
+  | "Other";
 
 interface LocalJob {
   id: string;
@@ -62,9 +71,22 @@ interface LocalJob {
   issueDescription: string;
   status: JobStatus;
   createdAt: string;
+  refrigerantType?: RefrigerantType;
+  symptoms?: string;
+  measurements?: {
+    suctionPressure?: string;
+    headPressure?: string;
+    superheat?: string;
+    subcooling?: string;
+    tempSplit?: string;
+  };
+  finalRepair?: string;
+  diagnosticInfo?: string;
 }
 
-const EMPTY_FORM: Omit<LocalJob, "id" | "createdAt"> = {
+type FormShape = Omit<LocalJob, "id" | "createdAt">;
+
+const EMPTY_FORM: FormShape = {
   customerName: "",
   address: "",
   systemType: "Split System",
@@ -72,6 +94,17 @@ const EMPTY_FORM: Omit<LocalJob, "id" | "createdAt"> = {
   unitSerial: "",
   issueDescription: "",
   status: "open",
+  refrigerantType: "R-410A",
+  symptoms: "",
+  measurements: {
+    suctionPressure: "",
+    headPressure: "",
+    superheat: "",
+    subcooling: "",
+    tempSplit: "",
+  },
+  finalRepair: "",
+  diagnosticInfo: "",
 };
 
 function statusBadge(status: JobStatus) {
@@ -160,7 +193,7 @@ const JOB_KNOWLEDGE_BASE: Record<string, AIResponse> = {
       },
     ],
     modules: ["Digital Gauges & Smart Probes", "Multimeter Training"],
-    estimatedTime: "1.5–3 hours",
+    estimatedTime: "1.5\u20133 hours",
   },
   "compressor not starting": {
     symptom: "Compressor Not Starting",
@@ -197,7 +230,7 @@ const JOB_KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Multimeter Training",
       "Electrical Troubleshooting for HVAC Systems",
     ],
-    estimatedTime: "1–2.5 hours",
+    estimatedTime: "1\u20132.5 hours",
   },
   "low suction pressure": {
     symptom: "Low Suction Pressure",
@@ -236,7 +269,7 @@ const JOB_KNOWLEDGE_BASE: Record<string, AIResponse> = {
       },
     ],
     modules: ["Digital Gauges & Smart Probes"],
-    estimatedTime: "1.5–4 hours",
+    estimatedTime: "1.5\u20134 hours",
   },
   "fan running no cooling": {
     symptom: "Fan Running, No Cooling",
@@ -251,17 +284,18 @@ const JOB_KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Confirm indoor blower is running",
       "Check if outdoor compressor is running",
       "Test contactor coil voltage",
-      "Check capacitor",
-      "Measure suction pressure",
+      "Test run capacitor",
+      "Measure compressor amp draw with clamp meter",
     ],
     tools: [
       "Clamp meter",
-      "Multimeter",
-      "Manifold gauges",
+      "Digital multimeter",
+      "Digital manifold gauges",
       "Capacitance meter",
     ],
-    parts: ["Contactor", "Dual run capacitor", "Refrigerant"],
-    safety: "Do not touch outdoor unit while power is on without proper PPE.",
+    parts: ["Dual run capacitor", "Contactor", "Refrigerant", "Hard start kit"],
+    safety:
+      "Do not touch outdoor unit with power on without proper PPE. Discharge capacitors before testing.",
     videos: [
       {
         title: "How to Test HVAC Relays, Contactors, and Transformers",
@@ -272,35 +306,7 @@ const JOB_KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Electrical Troubleshooting for HVAC Systems",
       "Multimeter Training",
     ],
-    estimatedTime: "1–2 hours",
-  },
-  "frozen coil": {
-    symptom: "Frozen Evaporator Coil",
-    causes: [
-      "Low indoor airflow",
-      "Low refrigerant charge",
-      "Dirty evaporator coil",
-      "Blower motor failure",
-    ],
-    steps: [
-      "Switch to Fan Only mode and allow full defrost",
-      "Replace air filter",
-      "Check all vents are open",
-      "After defrost: connect gauges and measure pressures",
-      "Measure delta T",
-    ],
-    tools: ["Digital manifold gauges", "Digital thermometer", "Clamp meter"],
-    parts: ["Air filter", "Blower motor", "Blower capacitor", "Refrigerant"],
-    safety:
-      "Never chip or scrape ice from coil — allow natural defrost. Ensure drain pan is clear.",
-    videos: [
-      {
-        title: "HVAC AC Pressure, Superheat & Subcooling Explained",
-        url: "https://youtu.be/5UU2c5e2ork",
-      },
-    ],
-    modules: ["Digital Gauges & Smart Probes"],
-    estimatedTime: "1.5–3 hours + defrost wait",
+    estimatedTime: "1\u20132 hours",
   },
   "refrigerant leak": {
     symptom: "Refrigerant Leak",
@@ -348,7 +354,7 @@ const JOB_KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Refrigerant Handling Procedures",
       "Digital Gauges & Smart Probes",
     ],
-    estimatedTime: "2–5 hours",
+    estimatedTime: "2\u20135 hours",
   },
 };
 
@@ -362,8 +368,8 @@ function lookupJobResponse(query: string): AIResponse | null {
     cooling: "ac not cooling",
     compress: "compressor not starting",
     suction: "low suction pressure",
-    frozen: "frozen coil",
-    ice: "frozen coil",
+    frozen: "refrigerant leak",
+    ice: "refrigerant leak",
     leak: "refrigerant leak",
     refrigerant: "refrigerant leak",
     "no start": "compressor not starting",
@@ -383,7 +389,11 @@ function JobAIAnalysisDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  const response = lookupJobResponse(job.issueDescription);
+  const response = lookupJobResponse(
+    `${job.issueDescription} ${job.symptoms ?? ""}`,
+  );
+  const hasMeasurements =
+    job.measurements && Object.values(job.measurements).some((v) => v?.trim());
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -391,131 +401,225 @@ function JobAIAnalysisDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bot className="h-4 w-4 text-primary" />
-            AI Job Analysis — {job.customerName}
+            AI Job Analysis \u2014 {job.customerName}
           </DialogTitle>
         </DialogHeader>
 
-        {!response ? (
-          <div className="py-8 text-center text-muted-foreground">
-            <Bot className="mx-auto h-10 w-10 mb-3 opacity-30" />
-            <p className="text-sm font-medium">No matching diagnosis found</p>
-            <p className="text-xs mt-1">
-              Try adding more specific symptoms to the job description (e.g. "AC
-              not cooling", "compressor not starting")
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4 pt-2">
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
-              <p className="text-xs font-medium text-muted-foreground mb-1">
-                Analyzing symptom:
-              </p>
-              <p className="text-sm italic">"{job.issueDescription}"</p>
-            </div>
-
-            <div>
-              <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Diagnostic Plan
-              </h4>
-              <ol className="space-y-1.5">
-                {response.steps.map((s, i) => (
-                  <li key={s} className="flex items-start gap-2 text-sm">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
-                      {i + 1}
-                    </span>
-                    <span>{s}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                  <Search className="h-3 w-3" /> Parts List
-                </h4>
-                <ul className="space-y-1">
-                  {response.parts.map((p) => (
-                    <li key={p} className="flex items-center gap-2 text-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground shrink-0" />
-                      {p}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" /> Tool List
-                </h4>
-                <ul className="space-y-1">
-                  {response.tools.map((t) => (
-                    <li key={t} className="flex items-center gap-2 text-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">
-                Estimated repair time:
+        <div className="space-y-4 pt-2">
+          {/* Job Details */}
+          <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-1.5">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              <span>
+                <span className="font-medium text-foreground">System:</span>{" "}
+                {job.systemType}
               </span>
-              <span className="font-semibold">{response.estimatedTime}</span>
+              {job.refrigerantType && (
+                <span>
+                  <span className="font-medium text-foreground">
+                    Refrigerant:
+                  </span>{" "}
+                  {job.refrigerantType}
+                </span>
+              )}
+              <span>
+                <span className="font-medium text-foreground">Status:</span>{" "}
+                {job.status}
+              </span>
+              <span>
+                <span className="font-medium text-foreground">Created:</span>{" "}
+                {job.createdAt}
+              </span>
             </div>
-
-            <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-              <div>
-                <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-0.5">
-                  Safety Warning
-                </p>
-                <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-                  {response.safety}
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Related Resources
+            {job.symptoms && (
+              <p className="text-xs mt-1">
+                <span className="font-medium">Symptoms:</span> {job.symptoms}
               </p>
-              <div className="flex flex-wrap gap-1.5">
-                {response.modules.map((m) => (
-                  <Badge key={m} variant="secondary" className="text-xs">
-                    <BookOpen className="mr-1 h-3 w-3" />
-                    {m}
-                  </Badge>
-                ))}
-                {response.videos.map((v) => (
-                  <a
-                    key={v.url}
-                    href={v.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Badge
-                      variant="outline"
-                      className="text-xs cursor-pointer hover:bg-primary/10"
-                    >
-                      <PlayCircle className="mr-1 h-3 w-3" />
-                      {v.title.length > 25
-                        ? `${v.title.slice(0, 25)}…`
-                        : v.title}
-                    </Badge>
-                  </a>
-                ))}
+            )}
+          </div>
+
+          {/* Measurements */}
+          {hasMeasurements && (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+                <Thermometer className="h-3 w-3" /> Field Measurements
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {job.measurements?.suctionPressure && (
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">Suction:</span>{" "}
+                    <span className="font-semibold">
+                      {job.measurements.suctionPressure} psig
+                    </span>
+                  </div>
+                )}
+                {job.measurements?.headPressure && (
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">Head:</span>{" "}
+                    <span className="font-semibold">
+                      {job.measurements.headPressure} psig
+                    </span>
+                  </div>
+                )}
+                {job.measurements?.superheat && (
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">Superheat:</span>{" "}
+                    <span className="font-semibold">
+                      {job.measurements.superheat}°F
+                    </span>
+                  </div>
+                )}
+                {job.measurements?.subcooling && (
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">Subcooling:</span>{" "}
+                    <span className="font-semibold">
+                      {job.measurements.subcooling}°F
+                    </span>
+                  </div>
+                )}
+                {job.measurements?.tempSplit && (
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">Temp Split:</span>{" "}
+                    <span className="font-semibold">
+                      {job.measurements.tempSplit}°F
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
+          )}
 
-            <div className="flex justify-end pt-2">
-              <Button onClick={onClose}>Close</Button>
+          {!response ? (
+            <div className="py-8 text-center text-muted-foreground">
+              <Bot className="mx-auto h-10 w-10 mb-3 opacity-30" />
+              <p className="text-sm font-medium">No matching diagnosis found</p>
+              <p className="text-xs mt-1">
+                Add more specific symptoms to the job description (e.g. \"AC not
+                cooling\", \"compressor not starting\")
+              </p>
             </div>
+          ) : (
+            <>
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                <p className="text-xs font-medium text-muted-foreground mb-1">
+                  Analyzing symptom:
+                </p>
+                <p className="text-sm italic">\"{job.issueDescription}\"</p>
+              </div>
+
+              <div>
+                <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Diagnostic Plan
+                </h4>
+                <ol className="space-y-1.5">
+                  {response.steps.map((s, i) => (
+                    <li key={s} className="flex items-start gap-2 text-sm">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
+                        {i + 1}
+                      </span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                    <Search className="h-3 w-3" /> Parts List
+                  </h4>
+                  <ul className="space-y-1">
+                    {response.parts.map((p) => (
+                      <li key={p} className="flex items-center gap-2 text-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground shrink-0" />
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                    <Sparkles className="h-3 w-3" /> Tool List
+                  </h4>
+                  <ul className="space-y-1">
+                    {response.tools.map((t) => (
+                      <li key={t} className="flex items-center gap-2 text-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">
+                  Estimated repair time:
+                </span>
+                <span className="font-semibold">{response.estimatedTime}</span>
+              </div>
+
+              <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                <div>
+                  <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mb-0.5">
+                    Safety Warning
+                  </p>
+                  <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+                    {response.safety}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Related Resources
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {response.modules.map((m) => (
+                    <Badge key={m} variant="secondary" className="text-xs">
+                      <BookOpen className="mr-1 h-3 w-3" />
+                      {m}
+                    </Badge>
+                  ))}
+                  {response.videos.map((v) => (
+                    <a
+                      key={v.url}
+                      href={v.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Badge
+                        variant="outline"
+                        className="text-xs cursor-pointer hover:bg-primary/10"
+                      >
+                        <PlayCircle className="mr-1 h-3 w-3" />
+                        {v.title.length > 25
+                          ? `${v.title.slice(0, 25)}\u2026`
+                          : v.title}
+                      </Badge>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Final Repair */}
+          {job.finalRepair && (
+            <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-green-700 dark:text-green-400 mb-1">
+                Final Repair Performed
+              </p>
+              <p className="text-sm">{job.finalRepair}</p>
+            </div>
+          )}
+
+          <div className="flex justify-end pt-2">
+            <Button onClick={onClose}>Close</Button>
           </div>
-        )}
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -525,9 +629,18 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
   const [jobs, setJobs] = useState<LocalJob[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] =
-    useState<Omit<LocalJob, "id" | "createdAt">>(EMPTY_FORM);
+  const [form, setForm] = useState<FormShape>(EMPTY_FORM);
   const [aiAnalysisJob, setAiAnalysisJob] = useState<LocalJob | null>(null);
+
+  const setMeasurement = (
+    field: keyof NonNullable<LocalJob["measurements"]>,
+    value: string,
+  ) => {
+    setForm((f) => ({
+      ...f,
+      measurements: { ...f.measurements, [field]: value },
+    }));
+  };
 
   const openNewJob = () => {
     if (isGuest) {
@@ -553,6 +666,11 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
       unitSerial: job.unitSerial,
       issueDescription: job.issueDescription,
       status: job.status,
+      refrigerantType: job.refrigerantType ?? "R-410A",
+      symptoms: job.symptoms ?? "",
+      measurements: job.measurements ?? {},
+      finalRepair: job.finalRepair ?? "",
+      diagnosticInfo: job.diagnosticInfo ?? "",
     });
     setIsDialogOpen(true);
   };
@@ -601,9 +719,17 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
       "Customer Name",
       "Address",
       "System Type",
+      "Refrigerant Type",
       "Unit Model",
       "Unit Serial",
       "Issue Description",
+      "Symptoms",
+      "Suction Pressure",
+      "Head Pressure",
+      "Superheat",
+      "Subcooling",
+      "Temp Split",
+      "Final Repair",
       "Status",
       "Created At",
     ];
@@ -611,9 +737,17 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
       `"${j.customerName}"`,
       `"${j.address}"`,
       `"${j.systemType}"`,
+      `"${j.refrigerantType ?? ""}"`,
       `"${j.unitModel}"`,
       `"${j.unitSerial}"`,
       `"${j.issueDescription.replace(/"/g, '""')}"`,
+      `"${(j.symptoms ?? "").replace(/"/g, '""')}"`,
+      `"${j.measurements?.suctionPressure ?? ""}"`,
+      `"${j.measurements?.headPressure ?? ""}"`,
+      `"${j.measurements?.superheat ?? ""}"`,
+      `"${j.measurements?.subcooling ?? ""}"`,
+      `"${j.measurements?.tempSplit ?? ""}"`,
+      `"${(j.finalRepair ?? "").replace(/"/g, '""')}"`,
       j.status,
       j.createdAt,
     ]);
@@ -641,7 +775,7 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
                 Job Management
               </CardTitle>
               <CardDescription>
-                Create, track, and export service jobs with customer and unit
+                Create, track, and export service jobs with customer and system
                 details
               </CardDescription>
             </div>
@@ -672,7 +806,7 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
               <Briefcase className="mb-3 h-10 w-10 text-muted-foreground/40" />
               <p className="font-medium text-muted-foreground">No jobs yet</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Click "New Job" to create your first work order
+                Click \"New Job\" to create your first work order
               </p>
             </div>
           ) : (
@@ -690,15 +824,30 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
                           {job.customerName}
                         </p>
                         {statusBadge(job.status)}
+                        {job.refrigerantType && (
+                          <Badge variant="outline" className="text-xs">
+                            {job.refrigerantType}
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-xs text-muted-foreground mb-1">
                         {job.systemType}
-                        {job.address ? ` · ${job.address}` : ""} ·{" "}
+                        {job.address ? ` \u00b7 ${job.address}` : ""} \u00b7{" "}
                         {job.createdAt}
                       </p>
                       {job.issueDescription && (
                         <p className="text-sm text-muted-foreground line-clamp-2">
                           {job.issueDescription}
+                        </p>
+                      )}
+                      {job.symptoms && (
+                        <p className="text-xs text-muted-foreground mt-0.5 italic line-clamp-1">
+                          Symptoms: {job.symptoms}
+                        </p>
+                      )}
+                      {job.finalRepair && (
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium line-clamp-1">
+                          \u2713 {job.finalRepair}
                         </p>
                       )}
                     </div>
@@ -733,41 +882,47 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
 
       {/* Create / Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          data-ocid="jobs.dialog"
+        >
           <DialogHeader>
             <DialogTitle>
               {editingId ? "Edit Job" : "Create New Job"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label htmlFor="customerName">Customer Name *</Label>
-              <Input
-                id="customerName"
-                value={form.customerName}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, customerName: e.target.value }))
-                }
-                placeholder="e.g. John Smith"
-                required
-                data-ocid="jobs.input"
-              />
+            {/* Customer & Address */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="customerName">Customer Name *</Label>
+                <Input
+                  id="customerName"
+                  value={form.customerName}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, customerName: e.target.value }))
+                  }
+                  placeholder="e.g. John Smith"
+                  required
+                  data-ocid="jobs.input"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={form.address}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, address: e.target.value }))
+                  }
+                  placeholder="e.g. 123 Main St, Orlando, FL"
+                  data-ocid="jobs.input"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                value={form.address}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, address: e.target.value }))
-                }
-                placeholder="e.g. 123 Main St, Orlando, FL"
-                data-ocid="jobs.input"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+            {/* System & Refrigerant */}
+            <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="systemType">System Type</Label>
                 <Select
@@ -788,7 +943,34 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="refrigerantType">Refrigerant Type</Label>
+                <Select
+                  value={form.refrigerantType ?? "R-410A"}
+                  onValueChange={(v) =>
+                    setForm((f) => ({
+                      ...f,
+                      refrigerantType: v as RefrigerantType,
+                    }))
+                  }
+                >
+                  <SelectTrigger id="refrigerantType" data-ocid="jobs.select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="R-410A">R-410A</SelectItem>
+                    <SelectItem value="R-22">R-22</SelectItem>
+                    <SelectItem value="R-32">R-32</SelectItem>
+                    <SelectItem value="R-454B">R-454B</SelectItem>
+                    <SelectItem value="R-407C">R-407C</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
+            {/* Status & Model */}
+            <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="status">Job Status</Label>
                 <Select
@@ -807,9 +989,6 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="unitModel">Unit Model</Label>
                 <Input
@@ -822,21 +1001,9 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
                   data-ocid="jobs.input"
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="unitSerial">Unit Serial</Label>
-                <Input
-                  id="unitSerial"
-                  value={form.unitSerial}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, unitSerial: e.target.value }))
-                  }
-                  placeholder="e.g. 4819A12345"
-                  data-ocid="jobs.input"
-                />
-              </div>
             </div>
 
+            {/* Issue Description */}
             <div className="space-y-2">
               <Label htmlFor="issueDescription">Issue Description *</Label>
               <Textarea
@@ -845,14 +1012,128 @@ export default function JobsTab({ isGuest }: JobsTabProps) {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, issueDescription: e.target.value }))
                 }
-                placeholder="Describe the reported issue and any initial findings..."
-                rows={4}
+                placeholder="Describe the reported issue and initial findings..."
+                rows={2}
                 required
                 data-ocid="jobs.textarea"
               />
             </div>
 
-            <div className="flex gap-3 pt-2">
+            {/* Symptoms */}
+            <div className="space-y-2">
+              <Label htmlFor="symptoms">Symptoms</Label>
+              <Textarea
+                id="symptoms"
+                value={form.symptoms ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, symptoms: e.target.value }))
+                }
+                placeholder="e.g. AC not cooling, warm air from supply vents, outdoor unit running..."
+                rows={2}
+                data-ocid="jobs.textarea"
+              />
+            </div>
+
+            {/* Measurements */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Thermometer className="h-4 w-4 text-muted-foreground" />
+                <Label className="text-sm font-semibold">
+                  Field Measurements (Optional)
+                </Label>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-lg border border-border p-3 bg-muted/20">
+                <div className="space-y-1">
+                  <Label htmlFor="suctionPressure" className="text-xs">
+                    Suction Pressure (psig)
+                  </Label>
+                  <Input
+                    id="suctionPressure"
+                    value={form.measurements?.suctionPressure ?? ""}
+                    onChange={(e) =>
+                      setMeasurement("suctionPressure", e.target.value)
+                    }
+                    placeholder="e.g. 125"
+                    data-ocid="jobs.input"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="headPressure" className="text-xs">
+                    Head Pressure (psig)
+                  </Label>
+                  <Input
+                    id="headPressure"
+                    value={form.measurements?.headPressure ?? ""}
+                    onChange={(e) =>
+                      setMeasurement("headPressure", e.target.value)
+                    }
+                    placeholder="e.g. 295"
+                    data-ocid="jobs.input"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="superheat" className="text-xs">
+                    Superheat (°F)
+                  </Label>
+                  <Input
+                    id="superheat"
+                    value={form.measurements?.superheat ?? ""}
+                    onChange={(e) =>
+                      setMeasurement("superheat", e.target.value)
+                    }
+                    placeholder="e.g. 12"
+                    data-ocid="jobs.input"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="subcooling" className="text-xs">
+                    Subcooling (°F)
+                  </Label>
+                  <Input
+                    id="subcooling"
+                    value={form.measurements?.subcooling ?? ""}
+                    onChange={(e) =>
+                      setMeasurement("subcooling", e.target.value)
+                    }
+                    placeholder="e.g. 10"
+                    data-ocid="jobs.input"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="tempSplit" className="text-xs">
+                    Temp Split (°F)
+                  </Label>
+                  <Input
+                    id="tempSplit"
+                    value={form.measurements?.tempSplit ?? ""}
+                    onChange={(e) =>
+                      setMeasurement("tempSplit", e.target.value)
+                    }
+                    placeholder="e.g. 20"
+                    data-ocid="jobs.input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Final Repair */}
+            <div className="space-y-2">
+              <Label htmlFor="finalRepair">Final Repair Performed</Label>
+              <Textarea
+                id="finalRepair"
+                value={form.finalRepair ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, finalRepair: e.target.value }))
+                }
+                placeholder="e.g. Replaced dual run capacitor (45/5 µF), recharged R-410A to 10 lbs..."
+                rows={2}
+                data-ocid="jobs.textarea"
+              />
+            </div>
+
+            <Separator />
+
+            <div className="flex gap-3 pt-1">
               <Button
                 type="button"
                 variant="outline"

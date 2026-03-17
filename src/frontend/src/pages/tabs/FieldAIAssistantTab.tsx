@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AlertTriangle,
@@ -31,11 +33,13 @@ import {
   Clock,
   ExternalLink,
   History,
+  ImageIcon,
   Loader2,
   PlayCircle,
   Save,
   Search,
   Sparkles,
+  Thermometer,
   Wrench,
   Zap,
 } from "lucide-react";
@@ -46,7 +50,7 @@ interface FieldAIAssistantTabProps {
   isGuest: boolean;
 }
 
-// ─── AI Knowledge Base ────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────────────
 
 interface VideoRef {
   title: string;
@@ -64,7 +68,45 @@ interface AIResponse {
   modules: string[];
   kbArticles: string[];
   estimatedTime: string;
+  diagrams?: string[];
 }
+
+interface MeasurementResult {
+  issue: string;
+  confidence: number;
+  explanation: string;
+  nextStep: string;
+}
+
+interface DiagnosticSession {
+  id: string;
+  symptom: string;
+  response: AIResponse;
+  timestamp: string;
+  status: "Resolved" | "In Progress";
+}
+
+interface SavedJob {
+  id: string;
+  customerName: string;
+  address: string;
+  systemType: string;
+  refrigerantType: string;
+  symptoms: string;
+  measurements: {
+    suctionPressure: string;
+    headPressure: string;
+    superheat: string;
+    subcooling: string;
+    tempSplit: string;
+  };
+  finalRepair: string;
+  status: string;
+  createdAt: string;
+  diagnosticInfo?: string;
+}
+
+// ─── AI Knowledge Base ─────────────────────────────────────────────────────────────
 
 const KNOWLEDGE_BASE: Record<string, AIResponse> = {
   "ac not cooling": {
@@ -125,6 +167,11 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Refrigeration Cycle Fundamentals",
       "Pressure-Temperature Relationships",
     ],
+    diagrams: [
+      "Refrigeration Cycle Diagram",
+      "Pressure-Temperature Chart",
+      "Superheat & Subcooling Diagram",
+    ],
     estimatedTime: "1.5–3 hours",
   },
   "no cooling": {
@@ -174,6 +221,7 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Superheat & Subcooling Explained",
       "Refrigeration Cycle Fundamentals",
     ],
+    diagrams: ["Refrigeration Cycle Diagram", "Pressure-Temperature Chart"],
     estimatedTime: "1.5–3 hours",
   },
   "compressor not starting": {
@@ -229,6 +277,11 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "HVAC Electrical Safety",
       "Compressor Diagnostics",
     ],
+    diagrams: [
+      "Contactor Wiring Diagram",
+      "Capacitor Wiring Diagram",
+      "Compressor Winding Diagram",
+    ],
     estimatedTime: "1–2.5 hours",
   },
   "low suction pressure": {
@@ -243,61 +296,60 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
     steps: [
       "Connect gauges — record suction and head pressure with a calibrated digital manifold.",
       "Calculate superheat at the suction line: target 8–12°F for TXV systems.",
-      "Inspect air filter and evaporator coil — look for icing or heavy dust buildup.",
-      "Check outdoor airflow — condenser fan should be pulling air through top of unit.",
-      "If superheat is very high + low suction pressure: suspect low charge or metering restriction.",
-      "Perform electronic leak check on service ports, coil joints, and line set fittings.",
-      "Check liquid line drier — elevated temperature drop across drier indicates blockage.",
+      "Inspect air filter and check blower CFM — low airflow causes low suction pressure.",
+      "Visually inspect evaporator coil for ice buildup.",
+      "If superheat is high (>25°F), suspect low charge or liquid line restriction.",
+      "If superheat is low (<6°F), suspect restricted TXV or metering device.",
+      "Perform leak check if low charge is confirmed.",
     ],
     tools: [
       "Digital manifold gauges",
-      "Temperature clamps (suction line measurement)",
-      "Electronic leak detector",
-      "Micron gauge (if evacuating to repair leak)",
+      "Temperature clamps",
+      "Leak detector",
+      "Micron gauge",
     ],
     parts: [
-      "Filter drier (after any leak repair)",
       "TXV / metering device",
-      "Refrigerant (per EPA 608 procedures)",
-      "Evaporator coil (if leaking)",
+      "Filter drier",
+      "Refrigerant",
+      "Evaporator coil",
     ],
     safety:
-      "Use refrigerant-rated gloves and goggles. Follow EPA 608 recovery procedures before opening any refrigerant circuit. Never add refrigerant without repairing the leak first.",
+      "Use refrigerant-safe gloves and goggles. Follow EPA 608 recovery procedures.",
     videos: [
-      {
-        title: "HVAC AC Pressure, Superheat & Subcooling Explained",
-        url: "https://youtu.be/5UU2c5e2ork",
-      },
       {
         title: "HVAC Metering Device Basics",
         url: "https://youtu.be/qV-DIqIxPGk",
       },
+      {
+        title: "HVAC AC Pressure, Superheat & Subcooling Explained",
+        url: "https://youtu.be/5UU2c5e2ork",
+      },
     ],
     modules: ["Digital Gauges & Smart Probes", "Refrigeration Diagnostics"],
     kbArticles: [
-      "Superheat & Subcooling Explained",
-      "TXV Diagnostics",
-      "Refrigerant Leak Detection",
+      "Superheat & Subcooling Calculations",
+      "Metering Device Diagnostics",
     ],
+    diagrams: ["Refrigeration Cycle Diagram", "Pressure-Temperature Chart"],
     estimatedTime: "1.5–4 hours",
   },
   "fan running no cooling": {
     symptom: "Fan Running, No Cooling",
     causes: [
-      "Compressor not running — contactor or capacitor failure",
-      "Failed dual run capacitor (fan runs, compressor won't start)",
-      "High pressure lockout — condenser overheated",
-      "Low refrigerant charge",
-      "Open internal compressor overload",
+      "Compressor not running",
+      "Failed capacitor",
+      "Faulty contactor",
+      "High pressure lockout",
+      "Low refrigerant",
     ],
     steps: [
-      "Confirm indoor blower is running and circulating air.",
-      "Go to outdoor unit — listen and feel for compressor vibration.",
-      "Check contactor — is it pulled in (closed)? Measure coil voltage (24V expected).",
-      "Test run capacitor — failure here is the most common cause of fan-only operation.",
-      "Connect manifold gauges to verify pressures.",
-      "If contactor is pulled in and capacitor is good, check high/low pressure switches.",
+      "Confirm indoor blower is running.",
+      "Check if outdoor compressor is running by listening and feeling for vibration.",
+      "Test contactor coil voltage — should read 24VAC when thermostat calls for cooling.",
+      "Discharge and test run capacitor with capacitance meter.",
       "Measure compressor amp draw with clamp meter.",
+      "Connect manifold gauges to check operating pressures.",
     ],
     tools: [
       "Clamp meter",
@@ -323,6 +375,7 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Multimeter Training",
     ],
     kbArticles: ["Testing Contactors and Capacitors", "Compressor Diagnostics"],
+    diagrams: ["Contactor Wiring Diagram", "24V Control Circuit"],
     estimatedTime: "1–2 hours",
   },
   "high head pressure": {
@@ -355,7 +408,7 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Coil cleaning solution",
     ],
     safety:
-      "Coil cleaning chemicals are corrosive — wear gloves and eye protection. Turn off power before servicing condenser fan. High head pressure can cause refrigerant circuit failures.",
+      "Coil cleaning chemicals are corrosive — wear gloves and eye protection. Turn off power before servicing condenser fan.",
     videos: [
       {
         title: "HVAC AC Pressure, Superheat & Subcooling Explained",
@@ -371,6 +424,7 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Reading Refrigerant Pressure Patterns",
       "Condenser Coil Maintenance",
     ],
+    diagrams: ["Refrigeration Cycle Diagram", "Pressure-Temperature Chart"],
     estimatedTime: "1–3 hours",
   },
   "frozen coil": {
@@ -417,6 +471,7 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
     ],
     modules: ["Digital Gauges & Smart Probes", "Refrigeration Diagnostics"],
     kbArticles: ["Airflow Diagnostics", "Superheat & Subcooling Explained"],
+    diagrams: ["Refrigeration Cycle Diagram", "Superheat & Subcooling Diagram"],
     estimatedTime: "1.5–3 hours (plus defrost wait time)",
   },
   "short cycling": {
@@ -436,7 +491,6 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Check if high or low pressure switch is tripping — use manifold to monitor.",
       "Inspect filter and coil for airflow restriction.",
       "Verify thermostat location is not causing false temperature readings.",
-      "Compare equipment capacity to Manual J load calculation if possible.",
     ],
     tools: ["Digital manifold gauges", "Digital multimeter", "Thermometer"],
     parts: [
@@ -461,6 +515,7 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Pressure Switch Diagnostics",
       "Refrigeration Cycle Fundamentals",
     ],
+    diagrams: ["Refrigeration Cycle Diagram", "24V Control Circuit"],
     estimatedTime: "1–2.5 hours",
   },
   "refrigerant leak": {
@@ -494,10 +549,10 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Filter drier (always replace after opening system)",
       "Refrigerant (correct type per nameplate)",
       "Schrader valve cores",
-      "Copper fittings and braze alloy (if repairing line)",
+      "Copper fittings and braze alloy",
     ],
     safety:
-      "NEVER vent refrigerant — EPA 608 violation and environmental hazard. Wear gloves and goggles. Nitrogen pressure testing can be dangerous — use a regulator and never exceed system test pressure. Brazing requires fire safety equipment.",
+      "NEVER vent refrigerant — EPA 608 violation and environmental hazard. Wear gloves and goggles. Nitrogen pressure testing can be dangerous — use a regulator and never exceed system test pressure.",
     videos: [
       {
         title: "HVAC Refrigerant Recovery (3D)",
@@ -509,44 +564,36 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       },
       { title: "HVAC Vacuum Procedures", url: "https://youtu.be/TllrD0Mt2LU" },
     ],
-    modules: [
-      "Digital Gauges & Smart Probes",
-      "Refrigerant Handling Procedures",
-    ],
-    kbArticles: [
-      "EPA 608 Recovery Requirements",
-      "Refrigerant Leak Detection",
-      "Evacuation Best Practices",
-    ],
+    modules: ["EPA 608 Certification", "Digital Gauges & Smart Probes"],
+    kbArticles: ["Refrigerant Recovery Requirements", "Leak Detection Methods"],
+    diagrams: ["Refrigeration Cycle Diagram", "Pressure-Temperature Chart"],
     estimatedTime: "2–5 hours",
   },
   "no heat heat pump": {
     symptom: "No Heat (Heat Pump)",
     causes: [
       "Reversing valve stuck in cooling position",
-      "Low refrigerant charge affecting heating performance",
-      "Defrost system not functioning (ice buildup on outdoor coil)",
-      "Backup/auxiliary heat strips not energizing",
-      "Outdoor unit fan not running",
+      "Defrost board failure preventing heat mode",
+      "Low refrigerant charge",
+      "Heat strips not energizing (emergency heat)",
+      "Outdoor ambient too low for heat pump to operate efficiently",
     ],
     steps: [
-      "Verify thermostat is in Heat mode and set above room temperature.",
-      "Check outdoor unit — is it running? Is there ice buildup?",
-      "Listen for reversing valve solenoid click when switching between heat and cool.",
-      "Connect gauges — in heating mode, suction side is outdoor coil, head side is indoor.",
-      "Check defrost board and defrost thermostat operation.",
-      "Test emergency/auxiliary heat strips with clamp meter — verify amp draw.",
-      "If reversing valve solenoid coil is failed, it may need replacement.",
+      "Verify thermostat is set to heating mode and set point is above room temperature.",
+      "Check if reversing valve coil is energized in heat mode (24VAC at coil terminals).",
+      "Connect manifold gauges — in heat mode, the outdoor coil is the evaporator.",
+      "Check defrost board for fault codes or stuck operation.",
+      "Test heat strip operation (if electric backup) — check sequencers and elements.",
+      "Verify outdoor ambient is above minimum operating temperature for the unit.",
     ],
     tools: [
       "Digital manifold gauges",
+      "Multimeter",
       "Clamp meter",
-      "Digital multimeter",
       "Thermometer",
     ],
     parts: [
-      "Reversing valve (complete assembly if internally stuck)",
-      "Reversing valve solenoid coil",
+      "Reversing valve",
       "Defrost board",
       "Defrost thermostat",
       "Heat strip elements",
@@ -570,6 +617,10 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
     kbArticles: [
       "Heat Pump Reversing Valve Operation",
       "Defrost System Diagnostics",
+    ],
+    diagrams: [
+      "Heat Pump Reversing Valve Diagram",
+      "Refrigeration Cycle Diagram",
     ],
     estimatedTime: "2–4 hours",
   },
@@ -620,7 +671,197 @@ const KNOWLEDGE_BASE: Record<string, AIResponse> = {
       "Electrical Troubleshooting for HVAC Systems",
     ],
     kbArticles: ["Compressor Electrical Testing", "HVAC Electrical Safety"],
+    diagrams: ["Compressor Winding Diagram", "Contactor Wiring Diagram"],
     estimatedTime: "1.5–3 hours",
+  },
+  // ─── NEW ENTRIES ───
+  "weak airflow": {
+    symptom: "Weak Airflow",
+    causes: [
+      "Dirty/clogged air filter",
+      "Blocked return air grille",
+      "Collapsed duct or disconnected section",
+      "Blower motor failure or capacitor issue",
+      "Evaporator coil iced over",
+      "Undersized duct system",
+    ],
+    steps: [
+      "Check and replace air filter.",
+      "Inspect all supply and return grilles for blockages.",
+      "Measure static pressure across air handler.",
+      "Check blower motor amps vs. rated FLA.",
+      "Inspect evaporator coil for ice buildup.",
+      "Check blower capacitor with capacitance meter.",
+      "Inspect accessible ductwork for disconnects or collapses.",
+    ],
+    tools: [
+      "Manometer/magnehelic",
+      "Clamp meter",
+      "Capacitance meter",
+      "Flashlight",
+    ],
+    parts: [
+      "Air filter",
+      "Blower capacitor",
+      "Blower motor",
+      "Duct tape/mastic",
+    ],
+    safety:
+      "Disconnect power before accessing blower compartment. Do not bypass safety switches.",
+    videos: [
+      {
+        title: "HVAC Multimeter 101 (3D)",
+        url: "https://youtu.be/fa8NM7JzISM",
+      },
+      {
+        title: "HVAC Refrigerant Pressure Gauges",
+        url: "https://youtu.be/eEZAgzkS_sA",
+      },
+    ],
+    modules: ["Digital Gauges & Smart Probes", "HVAC Electrical Fundamentals"],
+    kbArticles: ["Airflow Fundamentals", "Blower Motor Diagnostics"],
+    diagrams: ["Refrigeration Cycle Diagram", "Compressor Winding Diagram"],
+    estimatedTime: "45–90 min",
+  },
+  "thermostat not responding": {
+    symptom: "Thermostat Not Responding",
+    causes: [
+      "Thermostat wiring fault",
+      "Blown 24V fuse on control board",
+      "Transformer failure",
+      "Thermostat batteries dead or thermostat failed",
+      "Loose wire at R, C, G, Y, or W terminals",
+      "Control board fault",
+    ],
+    steps: [
+      "Check thermostat display — replace batteries if blank.",
+      "Verify 24VAC at R and C terminals.",
+      "Check low-voltage fuse on air handler/furnace board.",
+      "Measure transformer output (24–28VAC expected).",
+      "Inspect all thermostat wire terminals for loose connections.",
+      "Jumper R to Y and R to G at air handler to test contactor and blower independently.",
+      "If unit responds to jumper test, suspect thermostat or wiring.",
+    ],
+    tools: ["Multimeter", "Voltage tester", "Small screwdriver set"],
+    parts: ["24V fuse (3A or 5A)", "Control transformer", "Thermostat"],
+    safety:
+      "Always verify 240V power is off at breaker before working inside air handler. Low-voltage wiring can still cause board damage if shorted.",
+    videos: [
+      {
+        title: "How to Wire a Thermostat for Beginners",
+        url: "https://youtu.be/mIsXWXicB48",
+      },
+      {
+        title: "HVAC Low Voltage Circuit Explained",
+        url: "https://youtu.be/5UU2c5e2ork",
+      },
+      {
+        title: "How Power Moves Through An AC System Schematic",
+        url: "https://youtu.be/VtC25cV1mU0",
+      },
+    ],
+    modules: [
+      "HVAC Electrical Fundamentals",
+      "Electrical Troubleshooting for HVAC Systems",
+    ],
+    kbArticles: ["24V Control Circuit Basics", "Thermostat Wiring Guide"],
+    diagrams: ["24V Control Circuit", "Contactor Wiring Diagram"],
+    estimatedTime: "30–60 min",
+  },
+  "low refrigerant": {
+    symptom: "Low Refrigerant Charge",
+    causes: [
+      "Refrigerant leak at service valve, evaporator coil, or line set",
+      "Undercharge from install",
+      "Schrader valve core leak",
+    ],
+    steps: [
+      "Check suction and head pressure against PT chart for refrigerant type.",
+      "Calculate superheat (suction line temp − saturation temp at suction pressure).",
+      "Calculate subcooling (sat. temp at head pressure − liquid line temp).",
+      "Inspect accessible components for oil stains indicating leak.",
+      "Use electronic leak detector at common leak points.",
+      "If confirmed low, recover, repair leak, evacuate, recharge to spec.",
+    ],
+    tools: [
+      "Manifold gauge set",
+      "Electronic leak detector",
+      "Thermometer clamps",
+      "PT chart",
+    ],
+    parts: [
+      "Refrigerant (per system spec)",
+      "Schrader cores",
+      "Leak sealant (if applicable)",
+    ],
+    safety:
+      "Wear safety glasses and gloves when working with refrigerant. Never vent refrigerant — EPA Section 608 violation. Recover refrigerant before opening system.",
+    videos: [
+      {
+        title: "HVAC AC Pressure, Superheat & Subcooling Explained",
+        url: "https://youtu.be/5UU2c5e2ork",
+      },
+      {
+        title: "HVAC Refrigerant Pressure Gauges",
+        url: "https://youtu.be/eEZAgzkS_sA",
+      },
+      {
+        title: "HVAC Refrigerant Recovery (3D)",
+        url: "https://youtu.be/fROHlPXw_H0",
+      },
+    ],
+    modules: ["Digital Gauges & Smart Probes", "EPA 608 Certification"],
+    kbArticles: [
+      "Refrigerant Recovery Requirements",
+      "Superheat & Subcooling Calculations",
+    ],
+    diagrams: [
+      "Refrigeration Cycle Diagram",
+      "Pressure-Temperature Chart",
+      "Superheat & Subcooling Diagram",
+    ],
+    estimatedTime: "60–120 min",
+  },
+  "low charge": {
+    symptom: "Low Refrigerant Charge",
+    causes: [
+      "Refrigerant leak at service valve, evaporator coil, or line set",
+      "Undercharge from install",
+      "Schrader valve core leak",
+    ],
+    steps: [
+      "Check suction and head pressure against PT chart for refrigerant type.",
+      "Calculate superheat and subcooling.",
+      "Inspect for oil stains indicating refrigerant leak.",
+      "Use electronic leak detector.",
+      "If confirmed low, recover, repair leak, evacuate, recharge to spec.",
+    ],
+    tools: [
+      "Manifold gauge set",
+      "Electronic leak detector",
+      "Thermometer clamps",
+      "PT chart",
+    ],
+    parts: ["Refrigerant (per system spec)", "Schrader cores", "Filter drier"],
+    safety:
+      "Wear safety glasses and gloves when working with refrigerant. Never vent refrigerant — EPA Section 608 violation.",
+    videos: [
+      {
+        title: "HVAC AC Pressure, Superheat & Subcooling Explained",
+        url: "https://youtu.be/5UU2c5e2ork",
+      },
+      {
+        title: "HVAC Refrigerant Recovery (3D)",
+        url: "https://youtu.be/fROHlPXw_H0",
+      },
+    ],
+    modules: ["Digital Gauges & Smart Probes", "EPA 608 Certification"],
+    kbArticles: [
+      "Refrigerant Recovery Requirements",
+      "Superheat & Subcooling Calculations",
+    ],
+    diagrams: ["Refrigeration Cycle Diagram", "Pressure-Temperature Chart"],
+    estimatedTime: "60–120 min",
   },
 };
 
@@ -628,7 +869,8 @@ const QUICK_SYMPTOMS = [
   "AC not cooling",
   "Compressor not starting",
   "Low suction pressure",
-  "Fan running, no cooling",
+  "Weak airflow",
+  "Thermostat not responding",
   "High head pressure",
   "Frozen coil",
   "Short cycling",
@@ -657,6 +899,11 @@ function lookupResponse(query: string): AIResponse | null {
     trip: "electrical tripping",
     breaker: "electrical tripping",
     "no start": "compressor not starting",
+    airflow: "weak airflow",
+    "weak air": "weak airflow",
+    thermostat: "thermostat not responding",
+    "low charge": "low refrigerant",
+    "low refrigerant": "low refrigerant",
   };
   for (const [kw, key] of Object.entries(keywords)) {
     if (q.includes(kw)) return KNOWLEDGE_BASE[key];
@@ -664,25 +911,198 @@ function lookupResponse(query: string): AIResponse | null {
   return null;
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Measurement Analysis ───────────────────────────────────────────────────────
 
-interface DiagnosticSession {
-  id: string;
-  symptom: string;
-  response: AIResponse;
-  timestamp: string;
-  status: "Resolved" | "In Progress";
+type RefrigerantType = "R-410A" | "R-22" | "R-32" | "R-454B" | "R-407C";
+
+interface MeasurementVals {
+  suctionPressure: string;
+  headPressure: string;
+  superheat: string;
+  subcooling: string;
+  tempSplit: string;
 }
 
-interface JobAnalysis {
-  symptom: string;
-  diagnosticPlan: string[];
-  partsList: { item: string; qty: number }[];
-  toolList: string[];
-  estimatedTime: string;
+function analyzeMeasurements(
+  vals: MeasurementVals,
+  refrigerantType: RefrigerantType,
+): MeasurementResult[] {
+  const suction = Number.parseFloat(vals.suctionPressure);
+  const head = Number.parseFloat(vals.headPressure);
+  const sh = Number.parseFloat(vals.superheat);
+  const sc = Number.parseFloat(vals.subcooling);
+  const split = Number.parseFloat(vals.tempSplit);
+
+  const hasAny = [suction, head, sh, sc, split].some((v) => !Number.isNaN(v));
+  if (!hasAny) return [];
+
+  const ranges =
+    refrigerantType === "R-22"
+      ? {
+          suctionLow: 58,
+          suctionHigh: 75,
+          headLow: 200,
+          headHigh: 260,
+          shLow: 8,
+          shHigh: 18,
+          scLow: 8,
+          scHigh: 15,
+          splitLow: 16,
+          splitHigh: 22,
+        }
+      : {
+          suctionLow: 102,
+          suctionHigh: 145,
+          headLow: 250,
+          headHigh: 350,
+          shLow: 8,
+          shHigh: 18,
+          scLow: 8,
+          scHigh: 18,
+          splitLow: 16,
+          splitHigh: 22,
+        };
+
+  const results: MeasurementResult[] = [];
+
+  const lowSuction = !Number.isNaN(suction) && suction < ranges.suctionLow - 7;
+  const highSuction =
+    !Number.isNaN(suction) && suction > ranges.suctionHigh + 10;
+  const lowHead = !Number.isNaN(head) && head < ranges.headLow - 20;
+  const highHead = !Number.isNaN(head) && head > ranges.headHigh + 40;
+  const lowSH = !Number.isNaN(sh) && sh < ranges.shLow - 2;
+  const highSH = !Number.isNaN(sh) && sh > ranges.shHigh + 7;
+  const lowSC = !Number.isNaN(sc) && sc < ranges.scLow - 3;
+  const highSC = !Number.isNaN(sc) && sc > ranges.scHigh + 2;
+  const lowSplit = !Number.isNaN(split) && split < ranges.splitLow - 4;
+  const highSplit = !Number.isNaN(split) && split > ranges.splitHigh + 3;
+
+  // All very low — system not running
+  if (
+    !Number.isNaN(suction) &&
+    suction < 10 &&
+    !Number.isNaN(head) &&
+    head < 50
+  ) {
+    results.push({
+      issue: "System Not Running / Electrical Control Problem",
+      confidence: 70,
+      explanation:
+        "Pressures are extremely low (near ambient). The system is not operating. Check electrical controls, contactor, and thermostat before further refrigerant diagnostics.",
+      nextStep:
+        "Verify power, thermostat call, contactor operation, and control board before refrigerant diagnostics.",
+    });
+    return results;
+  }
+
+  // Pattern 1: Low charge
+  if (lowSuction && highSH && lowSC) {
+    results.push({
+      issue: "Low Refrigerant Charge",
+      confidence: 90,
+      explanation: `Low suction (${vals.suctionPressure} psig), high superheat (${vals.superheat}°F), and low subcooling (${vals.subcooling}°F) together are a classic low-charge pattern. The system is starved for refrigerant.`,
+      nextStep:
+        "Perform a leak check. If leak confirmed, recover refrigerant, repair, evacuate, and recharge to nameplate weight.",
+    });
+  }
+
+  // Pattern 2: TXV restriction
+  if (lowSuction && lowSH && !lowSC) {
+    results.push({
+      issue: "Metering Device Restriction (TXV / EEV)",
+      confidence: 85,
+      explanation: `Low suction (${vals.suctionPressure} psig) with low superheat (${vals.superheat}°F) and normal/high subcooling suggests a restricted or underfeeding metering device.`,
+      nextStep:
+        "Check TXV bulb attachment, sensing bulb orientation, and system superheat at multiple conditions. Consider replacing TXV.",
+    });
+  }
+
+  // Pattern 3: Dirty condenser / overcharge
+  if (highHead && !lowSuction && highSC) {
+    results.push({
+      issue: "Dirty Condenser Coil / High Ambient",
+      confidence: 80,
+      explanation: `High head pressure (${vals.headPressure} psig) with high subcooling (${vals.subcooling}°F) and normal suction indicates condenser heat rejection issues or refrigerant overcharge.`,
+      nextStep:
+        "Inspect and clean condenser coil. Check condenser fan operation and ambient temperature. Verify refrigerant charge.",
+    });
+  }
+
+  // Pattern 4: Airflow restriction (low suction + low superheat)
+  if (
+    lowSuction &&
+    lowSH &&
+    !results.some((r) => r.issue.includes("Metering"))
+  ) {
+    results.push({
+      issue: "Indoor Airflow Restriction",
+      confidence: 75,
+      explanation:
+        "Low suction and low superheat without clear metering device symptoms often indicate restricted indoor airflow — dirty filter, blocked return, or failed blower.",
+      nextStep:
+        "Replace air filter, inspect evaporator coil for icing, check blower motor operation and amp draw.",
+    });
+  }
+
+  // Pattern 5: Airflow from split only
+  if (lowSplit && !lowSuction && !highSuction) {
+    results.push({
+      issue: "Airflow Restriction",
+      confidence: 70,
+      explanation: `Low temperature split (${vals.tempSplit}°F) with normal pressures suggests reduced indoor airflow. The system is running but not transferring enough heat.`,
+      nextStep:
+        "Check air filter, blower speed, return/supply duct static pressure. Ensure all vents are open.",
+    });
+  }
+
+  // Pattern 6: Overcharge
+  if (highSuction && highHead && lowSH) {
+    results.push({
+      issue: "Refrigerant Overcharge",
+      confidence: 85,
+      explanation: `High suction (${vals.suctionPressure} psig), high head (${vals.headPressure} psig), and low superheat (${vals.superheat}°F) indicate the system is overcharged with refrigerant.`,
+      nextStep:
+        "Recover excess refrigerant and recharge by weight. Recheck superheat and subcooling.",
+    });
+  }
+
+  // Pattern 7: Dirty evaporator
+  if (highSplit && !lowSuction && !highSuction) {
+    results.push({
+      issue: "Possible Dirty Evaporator Coil",
+      confidence: 65,
+      explanation: `High temperature split (${vals.tempSplit}°F) with otherwise normal pressures may indicate a partially blocked evaporator coil limiting capacity.`,
+      nextStep:
+        "Inspect evaporator coil for debris or microbial growth. Clean with approved coil cleaner.",
+    });
+  }
+
+  // Low head
+  if (lowHead && !lowSuction) {
+    results.push({
+      issue: "Low Condensing Pressure / Condenser Fan Issue",
+      confidence: 70,
+      explanation: `Head pressure is lower than expected (${vals.headPressure} psig). This can indicate a condenser fan running too fast, very low ambient temperature, or partial refrigerant loss.`,
+      nextStep:
+        "Verify condenser fan motor speed and direction. Check ambient temperature vs system operating range.",
+    });
+  }
+
+  if (results.length === 0) {
+    results.push({
+      issue: "Readings Within Normal Range",
+      confidence: 80,
+      explanation:
+        "The entered measurements appear to be within normal operating parameters. If the customer complaint persists, consider non-refrigerant causes (airflow, controls, or zoning).",
+      nextStep:
+        "Verify measurements are accurate. Check airflow, thermostat calibration, and building envelope.",
+    });
+  }
+
+  return results;
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Sub-components ───────────────────────────────────────────────────────────────────
 
 function SafetyWarning({ text }: { text: string }) {
   return (
@@ -700,6 +1120,22 @@ function SafetyWarning({ text }: { text: string }) {
   );
 }
 
+function ConfidenceBadge({ confidence }: { confidence: number }) {
+  const color =
+    confidence >= 80
+      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+      : confidence >= 65
+        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+        : "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${color}`}
+    >
+      {confidence}% confidence
+    </span>
+  );
+}
+
 function ResponseCard({ response }: { response: AIResponse }) {
   return (
     <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-4">
@@ -709,7 +1145,7 @@ function ResponseCard({ response }: { response: AIResponse }) {
         </div>
         <div>
           <p className="text-sm font-semibold text-foreground">
-            Field AI Assistant
+            Field HVAC Assistant
           </p>
           <p className="text-xs text-muted-foreground">
             Diagnosis: {response.symptom}
@@ -769,7 +1205,6 @@ function ResponseCard({ response }: { response: AIResponse }) {
             ))}
           </ul>
         </div>
-
         <div>
           <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
             <Search className="h-3 w-3" /> Possible Replacement Parts
@@ -797,33 +1232,83 @@ function ResponseCard({ response }: { response: AIResponse }) {
         </span>
       </div>
 
-      <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+      {/* Resources */}
+      <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Sources — Internal Resources Prioritized
         </p>
-        <div className="flex flex-wrap gap-1.5">
-          {response.modules.map((m) => (
-            <Badge key={m} variant="secondary" className="text-xs">
-              <BookOpen className="mr-1 h-3 w-3" />
-              {m}
-            </Badge>
-          ))}
-          {response.videos.map((v) => (
-            <a
-              key={v.url}
-              href={v.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Badge
-                variant="outline"
-                className="text-xs cursor-pointer hover:bg-primary/10"
-              >
-                <PlayCircle className="mr-1 h-3 w-3" />
-                {v.title.length > 30 ? `${v.title.slice(0, 30)}…` : v.title}
+
+        {response.diagrams && response.diagrams.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+              <ImageIcon className="h-3 w-3" /> Diagrams
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {response.diagrams.map((d) => (
+                <Badge
+                  key={d}
+                  variant="outline"
+                  className="text-xs cursor-pointer hover:bg-muted"
+                >
+                  <ImageIcon className="mr-1 h-3 w-3" />
+                  {d}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+            <BookOpen className="h-3 w-3" /> Study Modules
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {response.modules.map((m) => (
+              <Badge key={m} variant="secondary" className="text-xs">
+                <BookOpen className="mr-1 h-3 w-3" />
+                {m}
               </Badge>
-            </a>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+            <PlayCircle className="h-3 w-3" /> Training Videos
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {response.videos.map((v) => (
+              <a
+                key={v.url}
+                href={v.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Badge
+                  variant="outline"
+                  className="text-xs cursor-pointer hover:bg-primary/10"
+                >
+                  <PlayCircle className="mr-1 h-3 w-3" />
+                  {v.title.length > 30
+                    ? `${v.title.slice(0, 30)}\u2026`
+                    : v.title}
+                </Badge>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+            <Search className="h-3 w-3" /> Knowledge Base
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {response.kbArticles.map((a) => (
+              <Badge key={a} variant="outline" className="text-xs">
+                {a}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -852,6 +1337,31 @@ function ResourcesSidebar({ response }: { response: AIResponse | null }) {
           Prioritized
         </Badge>
       </div>
+
+      {response.diagrams && response.diagrams.length > 0 && (
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+            <ImageIcon className="h-3 w-3" /> Diagrams
+          </p>
+          <div className="space-y-1.5">
+            {response.diagrams.map((d) => (
+              <div
+                key={d}
+                className="flex items-center justify-between rounded-md border border-border bg-card p-2"
+              >
+                <span className="text-xs font-medium line-clamp-1">{d}</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 text-xs px-2 text-primary"
+                >
+                  View
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
@@ -927,10 +1437,28 @@ function ResourcesSidebar({ response }: { response: AIResponse | null }) {
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Main Component ───────────────────────────────────────────────────────────────────
+
+const EMPTY_JOB: Omit<SavedJob, "id" | "createdAt"> = {
+  customerName: "",
+  address: "",
+  systemType: "Split System",
+  refrigerantType: "R-410A",
+  symptoms: "",
+  measurements: {
+    suctionPressure: "",
+    headPressure: "",
+    superheat: "",
+    subcooling: "",
+    tempSplit: "",
+  },
+  finalRepair: "",
+  status: "Open",
+  diagnosticInfo: "",
+};
 
 export default function FieldAIAssistantTab({
-  isGuest,
+  isGuest: _isGuest,
 }: FieldAIAssistantTabProps) {
   const [symptomInput, setSymptomInput] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -940,12 +1468,27 @@ export default function FieldAIAssistantTab({
     null,
   );
 
+  // Measurement panel
+  const [measurePanelOpen, setMeasurePanelOpen] = useState(false);
+  const [measureVals, setMeasureVals] = useState<MeasurementVals>({
+    suctionPressure: "",
+    headPressure: "",
+    superheat: "",
+    subcooling: "",
+    tempSplit: "",
+  });
+  const [measureRefrigerant, setMeasureRefrigerant] =
+    useState<RefrigerantType>("R-410A");
+  const [measureResults, setMeasureResults] = useState<MeasurementResult[]>([]);
+  const [isAnalyzingMeasure, setIsAnalyzingMeasure] = useState(false);
+
+  // Job panel
   const [jobPanelOpen, setJobPanelOpen] = useState(false);
-  const [jobSymptom, setJobSymptom] = useState("");
-  const [jobSystemType, setJobSystemType] = useState("Split System");
-  const [jobUnitAge, setJobUnitAge] = useState("");
-  const [jobAnalysis, setJobAnalysis] = useState<JobAnalysis | null>(null);
-  const [isAnalyzingJob, setIsAnalyzingJob] = useState(false);
+  const [jobForm, setJobForm] =
+    useState<Omit<SavedJob, "id" | "createdAt">>(EMPTY_JOB);
+  const [savedJobs, setSavedJobs] = useState<SavedJob[]>([]);
+  const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
+  const [isSavingJob, setIsSavingJob] = useState(false);
 
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
@@ -982,50 +1525,43 @@ export default function FieldAIAssistantTab({
     }, 900);
   };
 
-  const handleAnalyzeJob = () => {
-    if (!jobSymptom.trim()) {
-      toast.error("Please enter symptoms or issue description");
+  const handleAnalyzeMeasurements = () => {
+    const hasAny = Object.values(measureVals).some((v) => v.trim());
+    if (!hasAny) {
+      toast.error("Enter at least one measurement value.");
       return;
     }
-    setIsAnalyzingJob(true);
+    setIsAnalyzingMeasure(true);
     setTimeout(() => {
-      const result = lookupResponse(jobSymptom);
-      if (result) {
-        const analysis: JobAnalysis = {
-          symptom: jobSymptom,
-          diagnosticPlan: result.steps.slice(0, 5),
-          partsList: result.parts.map((p, i) => ({
-            item: p,
-            qty: i === 0 ? 2 : 1,
-          })),
-          toolList: result.tools,
-          estimatedTime: result.estimatedTime,
-        };
-        setJobAnalysis(analysis);
-        toast.success("Job analysis complete");
-      } else {
-        toast.error(
-          "Could not analyze these symptoms. Try adding more specific details.",
-        );
-      }
-      setIsAnalyzingJob(false);
-    }, 1200);
+      const results = analyzeMeasurements(measureVals, measureRefrigerant);
+      setMeasureResults(results);
+      setIsAnalyzingMeasure(false);
+      toast.success(
+        `${results.length} pattern${results.length !== 1 ? "s" : ""} detected`,
+      );
+    }, 800);
   };
 
-  const saveJobAnalysisToHistory = () => {
-    if (!jobAnalysis) return;
-    const result = lookupResponse(jobAnalysis.symptom);
-    if (result) {
-      const newSession: DiagnosticSession = {
-        id: `session-${Date.now()}`,
-        symptom: jobAnalysis.symptom,
-        response: result,
-        timestamp: new Date().toLocaleString(),
-        status: "In Progress",
-      };
-      setSessions((prev) => [newSession, ...prev]);
-      toast.success("Saved to job history");
+  const handleSaveJob = () => {
+    if (!jobForm.customerName.trim()) {
+      toast.error("Customer name is required.");
+      return;
     }
+    setIsSavingJob(true);
+    setTimeout(() => {
+      const diagSnap =
+        measureResults.length > 0 ? JSON.stringify(measureResults) : "";
+      const newJob: SavedJob = {
+        id: `job-${Date.now()}`,
+        createdAt: new Date().toLocaleString(),
+        ...jobForm,
+        diagnosticInfo: diagSnap || jobForm.diagnosticInfo,
+      };
+      setSavedJobs((prev) => [newJob, ...prev]);
+      setJobForm(EMPTY_JOB);
+      setIsSavingJob(false);
+      toast.success(`Job saved for ${newJob.customerName}`);
+    }, 600);
   };
 
   const markResolved = (id: string) => {
@@ -1034,6 +1570,12 @@ export default function FieldAIAssistantTab({
     );
     toast.success("Marked as resolved");
   };
+
+  const setMeasInput = (k: keyof MeasurementVals, v: string) =>
+    setMeasureVals((prev) => ({ ...prev, [k]: v }));
+
+  const setJobMeas = (k: keyof SavedJob["measurements"], v: string) =>
+    setJobForm((f) => ({ ...f, measurements: { ...f.measurements, [k]: v } }));
 
   return (
     <div className="space-y-6">
@@ -1045,27 +1587,187 @@ export default function FieldAIAssistantTab({
           </div>
           <div>
             <h2 className="text-xl font-bold flex items-center gap-2">
-              Field AI Assistant
+              Field HVAC Assistant
               <Badge className="text-[10px] bg-primary/20 text-primary border-primary/30 font-medium">
                 <Sparkles className="mr-1 h-2.5 w-2.5" /> AI Powered
               </Badge>
             </h2>
             <p className="text-sm text-muted-foreground">
-              HVAC diagnostics, repair guidance, and job analysis
+              Real-time HVAC diagnostics, repair guidance, and job documentation
             </p>
           </div>
         </div>
       </div>
 
-      {/* Job Analysis Panel (Collapsible) */}
-      <Collapsible open={jobPanelOpen} onOpenChange={setJobPanelOpen}>
+      {/* Measurement Analysis Panel */}
+      <Collapsible
+        open={measurePanelOpen}
+        onOpenChange={setMeasurePanelOpen}
+        data-ocid="field-hvac.measurement_panel"
+      >
+        <Card className="border-blue-500/20">
+          <CollapsibleTrigger asChild>
+            <CardHeader className="cursor-pointer hover:bg-muted/30 transition-colors rounded-t-lg pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Thermometer className="h-4 w-4 text-blue-500" />
+                  Measurement Analysis
+                  <Badge
+                    variant="outline"
+                    className="text-xs border-blue-500/30 text-blue-600 dark:text-blue-400"
+                  >
+                    Pattern Detection
+                  </Badge>
+                </CardTitle>
+                {measurePanelOpen ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="pt-0 space-y-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Refrigerant Type</Label>
+                  <Select
+                    value={measureRefrigerant}
+                    onValueChange={(v) =>
+                      setMeasureRefrigerant(v as RefrigerantType)
+                    }
+                  >
+                    <SelectTrigger data-ocid="field-hvac.refrigerant_select">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="R-410A">R-410A</SelectItem>
+                      <SelectItem value="R-22">R-22</SelectItem>
+                      <SelectItem value="R-32">R-32</SelectItem>
+                      <SelectItem value="R-454B">R-454B</SelectItem>
+                      <SelectItem value="R-407C">R-407C</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Suction Pressure (psig)</Label>
+                  <Input
+                    type="number"
+                    value={measureVals.suctionPressure}
+                    onChange={(e) =>
+                      setMeasInput("suctionPressure", e.target.value)
+                    }
+                    placeholder="e.g. 125"
+                    data-ocid="field-hvac.suction_input"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Head Pressure (psig)</Label>
+                  <Input
+                    type="number"
+                    value={measureVals.headPressure}
+                    onChange={(e) =>
+                      setMeasInput("headPressure", e.target.value)
+                    }
+                    placeholder="e.g. 295"
+                    data-ocid="field-hvac.head_input"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Superheat (°F)</Label>
+                  <Input
+                    type="number"
+                    value={measureVals.superheat}
+                    onChange={(e) => setMeasInput("superheat", e.target.value)}
+                    placeholder="e.g. 12"
+                    data-ocid="field-hvac.superheat_input"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Subcooling (°F)</Label>
+                  <Input
+                    type="number"
+                    value={measureVals.subcooling}
+                    onChange={(e) => setMeasInput("subcooling", e.target.value)}
+                    placeholder="e.g. 10"
+                    data-ocid="field-hvac.subcooling_input"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Temp Split (°F)</Label>
+                  <Input
+                    type="number"
+                    value={measureVals.tempSplit}
+                    onChange={(e) => setMeasInput("tempSplit", e.target.value)}
+                    placeholder="e.g. 20"
+                    data-ocid="field-hvac.tempsplit_input"
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={handleAnalyzeMeasurements}
+                disabled={isAnalyzingMeasure}
+                data-ocid="field-hvac.analyze_measurements_button"
+              >
+                {isAnalyzingMeasure ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Analyze Measurements
+                  </>
+                )}
+              </Button>
+
+              {measureResults.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Detected Patterns
+                  </p>
+                  {measureResults.map((r, idx) => (
+                    <div
+                      key={r.issue}
+                      className="rounded-lg border border-border p-3 space-y-2"
+                      data-ocid={`field-hvac.measurement_result.${idx + 1}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold">{r.issue}</p>
+                        <ConfidenceBadge confidence={r.confidence} />
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {r.explanation}
+                      </p>
+                      <div className="flex items-start gap-1.5 rounded-md bg-muted/50 px-2.5 py-2">
+                        <Zap className="h-3 w-3 text-primary mt-0.5 shrink-0" />
+                        <p className="text-xs font-medium">{r.nextStep}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
+
+      {/* Job Creation Panel */}
+      <Collapsible
+        open={jobPanelOpen}
+        onOpenChange={setJobPanelOpen}
+        data-ocid="field-hvac.job_panel"
+      >
         <Card className="border-primary/20">
           <CollapsibleTrigger asChild>
             <CardHeader className="cursor-pointer hover:bg-muted/30 transition-colors rounded-t-lg pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Wrench className="h-4 w-4 text-primary" />
-                  Analyze a Job
+                  Create Job &amp; Diagnose
                   <Badge variant="outline" className="text-xs">
                     Job Integration
                   </Badge>
@@ -1080,21 +1782,42 @@ export default function FieldAIAssistantTab({
           </CollapsibleTrigger>
           <CollapsibleContent>
             <CardContent className="pt-0 space-y-4">
+              {/* Customer & Address */}
               <div className="grid sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2 space-y-1.5">
-                  <Label>Symptoms / Issue Description</Label>
-                  <Textarea
-                    value={jobSymptom}
-                    onChange={(e) => setJobSymptom(e.target.value)}
-                    placeholder="e.g. AC not cooling, compressor humming but not starting, customer reports warm air..."
-                    rows={3}
+                <div className="space-y-1.5">
+                  <Label>Customer Name *</Label>
+                  <Input
+                    value={jobForm.customerName}
+                    onChange={(e) =>
+                      setJobForm((f) => ({
+                        ...f,
+                        customerName: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g. John Smith"
+                    data-ocid="field-hvac.customer_input"
                   />
                 </div>
                 <div className="space-y-1.5">
+                  <Label>Address</Label>
+                  <Input
+                    value={jobForm.address}
+                    onChange={(e) =>
+                      setJobForm((f) => ({ ...f, address: e.target.value }))
+                    }
+                    placeholder="e.g. 123 Main St, Orlando, FL"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
                   <Label>System Type</Label>
                   <Select
-                    value={jobSystemType}
-                    onValueChange={setJobSystemType}
+                    value={jobForm.systemType}
+                    onValueChange={(v) =>
+                      setJobForm((f) => ({ ...f, systemType: v }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -1104,130 +1827,145 @@ export default function FieldAIAssistantTab({
                       <SelectItem value="Package Unit">Package Unit</SelectItem>
                       <SelectItem value="Heat Pump">Heat Pump</SelectItem>
                       <SelectItem value="Mini-Split">Mini-Split</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Unit Age (years, optional)</Label>
-                  <input
-                    type="number"
-                    value={jobUnitAge}
-                    onChange={(e) => setJobUnitAge(e.target.value)}
-                    placeholder="e.g. 8"
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  />
+                  <Label>Refrigerant Type</Label>
+                  <Select
+                    value={jobForm.refrigerantType}
+                    onValueChange={(v) =>
+                      setJobForm((f) => ({ ...f, refrigerantType: v }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="R-410A">R-410A</SelectItem>
+                      <SelectItem value="R-22">R-22</SelectItem>
+                      <SelectItem value="R-32">R-32</SelectItem>
+                      <SelectItem value="R-454B">R-454B</SelectItem>
+                      <SelectItem value="R-407C">R-407C</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Status</Label>
+                  <Select
+                    value={jobForm.status}
+                    onValueChange={(v) =>
+                      setJobForm((f) => ({ ...f, status: v }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Open">Open</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
+
+              <div className="space-y-1.5">
+                <Label>Issue / Symptoms</Label>
+                <Textarea
+                  value={jobForm.symptoms}
+                  onChange={(e) =>
+                    setJobForm((f) => ({ ...f, symptoms: e.target.value }))
+                  }
+                  placeholder="e.g. AC not cooling, customer reports warm air, outdoor unit running..."
+                  rows={2}
+                />
+              </div>
+
+              {/* Measurements */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                  <Thermometer className="h-3.5 w-3.5" /> Field Measurements
+                </Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-lg border border-border p-3 bg-muted/20">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Suction Pressure (psig)</Label>
+                    <Input
+                      value={jobForm.measurements.suctionPressure}
+                      onChange={(e) =>
+                        setJobMeas("suctionPressure", e.target.value)
+                      }
+                      placeholder="e.g. 125"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Head Pressure (psig)</Label>
+                    <Input
+                      value={jobForm.measurements.headPressure}
+                      onChange={(e) =>
+                        setJobMeas("headPressure", e.target.value)
+                      }
+                      placeholder="e.g. 295"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Superheat (°F)</Label>
+                    <Input
+                      value={jobForm.measurements.superheat}
+                      onChange={(e) => setJobMeas("superheat", e.target.value)}
+                      placeholder="e.g. 12"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Subcooling (°F)</Label>
+                    <Input
+                      value={jobForm.measurements.subcooling}
+                      onChange={(e) => setJobMeas("subcooling", e.target.value)}
+                      placeholder="e.g. 10"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Temp Split (°F)</Label>
+                    <Input
+                      value={jobForm.measurements.tempSplit}
+                      onChange={(e) => setJobMeas("tempSplit", e.target.value)}
+                      placeholder="e.g. 20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label>Final Repair Performed</Label>
+                <Textarea
+                  value={jobForm.finalRepair}
+                  onChange={(e) =>
+                    setJobForm((f) => ({ ...f, finalRepair: e.target.value }))
+                  }
+                  placeholder="Fill in after completing the repair (e.g. Replaced dual run capacitor 45/5 µF, recharged R-410A...)"
+                  rows={2}
+                />
+              </div>
+
               <Button
-                onClick={handleAnalyzeJob}
-                disabled={isAnalyzingJob}
-                data-ocid="field-ai.analyze_button"
+                onClick={handleSaveJob}
+                disabled={isSavingJob}
+                data-ocid="field-hvac.save_job_button"
               >
-                {isAnalyzingJob ? (
+                {isSavingJob ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
+                    Saving...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Analyze Job
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Job
                   </>
                 )}
               </Button>
-
-              {jobAnalysis && (
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-4 mt-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-sm flex items-center gap-2">
-                      <Bot className="h-4 w-4 text-primary" /> AI Job Analysis
-                    </h4>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={saveJobAnalysisToHistory}
-                    >
-                      <Save className="mr-1.5 h-3.5 w-3.5" /> Save to History
-                    </Button>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        Diagnostic Plan
-                      </p>
-                      <ol className="space-y-1">
-                        {jobAnalysis.diagnosticPlan.map((step, i) => (
-                          <li
-                            key={step}
-                            className="flex items-start gap-2 text-xs"
-                          >
-                            <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">
-                              {i + 1}
-                            </span>
-                            <span className="leading-relaxed">{step}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                          Tool List
-                        </p>
-                        <ul className="space-y-0.5">
-                          {jobAnalysis.toolList.map((t) => (
-                            <li
-                              key={t}
-                              className="flex items-center gap-1.5 text-xs"
-                            >
-                              <span className="h-1 w-1 rounded-full bg-primary" />
-                              {t}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-xs">
-                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="text-muted-foreground">
-                          Est. time:
-                        </span>
-                        <span className="font-medium">
-                          {jobAnalysis.estimatedTime}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      Estimated Parts List
-                    </p>
-                    <div className="rounded-md border border-border overflow-hidden">
-                      <table className="w-full text-xs">
-                        <thead className="bg-muted/50">
-                          <tr>
-                            <th className="text-left px-3 py-2 font-medium">
-                              Part
-                            </th>
-                            <th className="text-center px-3 py-2 font-medium">
-                              Qty
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {jobAnalysis.partsList.map((p) => (
-                            <tr key={p.item} className="border-t border-border">
-                              <td className="px-3 py-2">{p.item}</td>
-                              <td className="px-3 py-2 text-center">{p.qty}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
             </CardContent>
           </CollapsibleContent>
         </Card>
@@ -1241,7 +1979,7 @@ export default function FieldAIAssistantTab({
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Bot className="h-4 w-4 text-primary" />
-                Ask the AI Assistant
+                Ask the Field HVAC Assistant
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -1275,7 +2013,7 @@ export default function FieldAIAssistantTab({
                       submitSymptom(symptomInput);
                     }
                   }}
-                  placeholder="Describe the symptom or ask a question (e.g. 'AC not cooling', 'compressor humming but won't start')..."
+                  placeholder="Describe the symptom or ask a question (e.g. 'AC not cooling', 'thermostat not responding', 'weak airflow')..."
                   rows={3}
                   data-ocid="field-ai.symptom_input"
                 />
@@ -1298,39 +2036,25 @@ export default function FieldAIAssistantTab({
                   )}
                 </Button>
               </div>
+
+              {activeResponse && (
+                <div className="mt-2">
+                  <ResponseCard response={activeResponse} />
+                </div>
+              )}
+              <div ref={chatBottomRef} />
             </CardContent>
           </Card>
-
-          {isAnalyzing && (
-            <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              <div>
-                <p className="text-sm font-medium">AI is analyzing symptoms…</p>
-                <p className="text-xs text-muted-foreground">
-                  Checking internal knowledge base and diagnostics
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeResponse && !isAnalyzing && (
-            <ResponseCard response={activeResponse} />
-          )}
-
-          <div ref={chatBottomRef} />
         </div>
 
-        {/* Resources Sidebar */}
+        {/* Sidebar */}
         <div className="space-y-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Zap className="h-4 w-4 text-primary" />
-                Related Resources
-              </CardTitle>
+              <CardTitle className="text-sm">Related Resources</CardTitle>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[500px] pr-2">
+              <ScrollArea className="h-[500px] pr-1">
                 <ResourcesSidebar response={activeResponse} />
               </ScrollArea>
             </CardContent>
@@ -1339,140 +2063,276 @@ export default function FieldAIAssistantTab({
       </div>
 
       {/* Session History */}
-      <Card data-ocid="field-ai.history_panel">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <History className="h-4 w-4" />
-            Diagnostic Session History
-            {sessions.length > 0 && (
-              <Badge variant="secondary" className="ml-1">
-                {sessions.length}
-              </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {sessions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
-              <History className="h-8 w-8 mb-2 opacity-30" />
-              <p className="text-sm">
-                No sessions yet — ask a question to get started
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {sessions.map((session, i) => (
-                <div
-                  key={session.id}
-                  className="rounded-lg border border-border bg-card p-3 flex items-start justify-between gap-3"
-                  data-ocid={`field-ai.session_item.${i + 1}`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <p className="text-sm font-medium truncate">
-                        {session.response.symptom}
-                      </p>
-                      <Badge
-                        variant={
-                          session.status === "Resolved"
-                            ? "default"
-                            : "secondary"
-                        }
-                        className="text-[10px] py-0"
-                      >
-                        {session.status}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {session.timestamp}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1 italic">
-                      "{session.symptom}"
-                    </p>
-                  </div>
-                  <div className="flex gap-1.5 shrink-0">
-                    {session.status === "In Progress" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs"
-                        onClick={() => markResolved(session.id)}
-                      >
-                        Resolve
-                      </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 text-xs"
-                      onClick={() => setReviewSession(session)}
-                    >
-                      Review
-                    </Button>
-                  </div>
+      {sessions.length > 0 && (
+        <Collapsible>
+          <Card data-ocid="field-ai.history_panel">
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/30 transition-colors rounded-t-lg pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <History className="h-4 w-4" />
+                    Session History
+                    <Badge variant="secondary" className="text-xs">
+                      {sessions.length}
+                    </Badge>
+                  </CardTitle>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Review Dialog */}
-      <Dialog
-        open={!!reviewSession}
-        onOpenChange={(o) => !o && setReviewSession(null)}
-      >
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Bot className="h-4 w-4 text-primary" />
-              Session Review — {reviewSession?.response.symptom}
-            </DialogTitle>
-          </DialogHeader>
-          {reviewSession && (
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" />
-                {reviewSession.timestamp}
-                <Badge
-                  variant={
-                    reviewSession.status === "Resolved"
-                      ? "default"
-                      : "secondary"
-                  }
-                  className="text-[10px] py-0"
-                >
-                  {reviewSession.status}
-                </Badge>
-              </div>
-              <ResponseCard response={reviewSession.response} />
-              <div className="flex justify-end gap-2 pt-2">
-                {reviewSession.status === "In Progress" && (
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      markResolved(reviewSession.id);
-                      setReviewSession(null);
-                    }}
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-0 space-y-2">
+                {sessions.map((session, idx) => (
+                  <div
+                    key={session.id}
+                    className="rounded-lg border border-border p-3 hover:bg-muted/20 transition-colors"
+                    data-ocid={`field-ai.session_item.${idx + 1}`}
                   >
-                    Mark Resolved
-                  </Button>
-                )}
-                <Button onClick={() => setReviewSession(null)}>Close</Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {session.symptom}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {session.timestamp}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] ${session.status === "Resolved" ? "border-green-500/40 text-green-600 dark:text-green-400" : "border-yellow-500/40 text-yellow-600 dark:text-yellow-400"}`}
+                        >
+                          {session.status}
+                        </Badge>
+                        {session.status !== "Resolved" && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 text-xs px-2"
+                            onClick={() => markResolved(session.id)}
+                          >
+                            Resolve
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 text-xs px-2 text-primary"
+                          onClick={() => setReviewSession(session)}
+                        >
+                          Review
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+      )}
 
-      {isGuest && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-center">
-          <p className="text-sm text-amber-700 dark:text-amber-300">
-            <strong>Guest Mode:</strong> AI diagnostics are available to
-            preview. Sign in to save session history and access full job
-            integration.
-          </p>
-        </div>
+      {/* Job History */}
+      {savedJobs.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Wrench className="h-4 w-4 text-primary" />
+              Job History
+              <Badge variant="secondary" className="text-xs">
+                {savedJobs.length}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {savedJobs.map((job, idx) => (
+              <div
+                key={job.id}
+                className="rounded-lg border border-border overflow-hidden"
+              >
+                <button
+                  type="button"
+                  className="w-full text-left p-3 hover:bg-muted/20 transition-colors"
+                  onClick={() =>
+                    setExpandedJobId(expandedJobId === job.id ? null : job.id)
+                  }
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                        <p className="text-sm font-semibold">
+                          {job.customerName}
+                        </p>
+                        <Badge variant="outline" className="text-xs">
+                          {job.systemType}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {job.refrigerantType}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {job.status}
+                        </span>
+                      </div>
+                      {job.symptoms && (
+                        <p className="text-xs text-muted-foreground line-clamp-1">
+                          {job.symptoms}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {job.createdAt}
+                      </p>
+                    </div>
+                    {expandedJobId === job.id ? (
+                      <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                    )}
+                  </div>
+                </button>
+
+                {expandedJobId === job.id && (
+                  <div className="border-t border-border p-3 space-y-3 bg-muted/10">
+                    {/* Measurements */}
+                    {Object.values(job.measurements).some((v) => v) && (
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+                          <Thermometer className="h-3 w-3" /> Measurements
+                          Entered
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {job.measurements.suctionPressure && (
+                            <div className="text-xs">
+                              <span className="text-muted-foreground">
+                                Suction:
+                              </span>{" "}
+                              <span className="font-semibold">
+                                {job.measurements.suctionPressure} psig
+                              </span>
+                            </div>
+                          )}
+                          {job.measurements.headPressure && (
+                            <div className="text-xs">
+                              <span className="text-muted-foreground">
+                                Head:
+                              </span>{" "}
+                              <span className="font-semibold">
+                                {job.measurements.headPressure} psig
+                              </span>
+                            </div>
+                          )}
+                          {job.measurements.superheat && (
+                            <div className="text-xs">
+                              <span className="text-muted-foreground">
+                                Superheat:
+                              </span>{" "}
+                              <span className="font-semibold">
+                                {job.measurements.superheat}°F
+                              </span>
+                            </div>
+                          )}
+                          {job.measurements.subcooling && (
+                            <div className="text-xs">
+                              <span className="text-muted-foreground">
+                                Subcooling:
+                              </span>{" "}
+                              <span className="font-semibold">
+                                {job.measurements.subcooling}°F
+                              </span>
+                            </div>
+                          )}
+                          {job.measurements.tempSplit && (
+                            <div className="text-xs">
+                              <span className="text-muted-foreground">
+                                Temp Split:
+                              </span>{" "}
+                              <span className="font-semibold">
+                                {job.measurements.tempSplit}°F
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* AI Diagnostic Snapshot */}
+                    {job.diagnosticInfo &&
+                      (() => {
+                        let parsed: MeasurementResult[] | null = null;
+                        try {
+                          parsed = JSON.parse(job.diagnosticInfo);
+                        } catch {
+                          /* no-op */
+                        }
+                        if (!parsed || !Array.isArray(parsed)) return null;
+                        return (
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+                              <Sparkles className="h-3 w-3" /> AI Suggested
+                              Issues
+                            </p>
+                            <div className="space-y-2">
+                              {parsed.map((r) => (
+                                <div
+                                  key={r.issue}
+                                  className="rounded-md border border-border p-2"
+                                >
+                                  <div className="flex items-center justify-between gap-2 mb-1">
+                                    <p className="text-xs font-semibold">
+                                      {r.issue}
+                                    </p>
+                                    <ConfidenceBadge
+                                      confidence={r.confidence}
+                                    />
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    {r.nextStep}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                    {/* Final Repair */}
+                    {job.finalRepair && (
+                      <div className="rounded-md border border-green-500/30 bg-green-500/10 p-2">
+                        <p className="text-xs font-bold text-green-700 dark:text-green-400 mb-0.5">
+                          Final Repair
+                        </p>
+                        <p className="text-xs">{job.finalRepair}</p>
+                      </div>
+                    )}
+
+                    <p className="text-[10px] text-muted-foreground text-right">
+                      Job #{idx + 1} · {job.createdAt}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Session Review Dialog */}
+      {reviewSession && (
+        <Dialog
+          open={!!reviewSession}
+          onOpenChange={(o) => !o && setReviewSession(null)}
+        >
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Bot className="h-4 w-4 text-primary" />
+                Session Review: {reviewSession.symptom}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="pt-2">
+              <ResponseCard response={reviewSession.response} />
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

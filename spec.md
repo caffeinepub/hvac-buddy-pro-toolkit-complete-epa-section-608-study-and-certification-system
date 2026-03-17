@@ -1,35 +1,34 @@
 # HVAC Buddy: Pro Toolkit
 
 ## Current State
-
-The app is a comprehensive HVAC training and fieldwork platform with tabs for Troubleshooter, Study, Jobs, Parts, Suppliers, Photo, Calculators, Logging, and Community. The Jobs tab manages service jobs with customer info, system type, status, and issue description. The TroubleshootingChat component provides basic AI-assisted chat with symptom selection and rule-based responses. The Community tab has a Knowledge Base, Help AI, and Video Library.
+The app has a `FieldAIAssistantTab` that handles symptom-based chat with a static KNOWLEDGE_BASE, quick symptom chips, session history, and a basic "Analyze a Job" panel. The `JobsTab` has a `LocalJob` interface with customer name, address, system type, model, serial, issue description, and status — but lacks refrigerant type, measurements, final repair, and diagnostic info fields.
 
 ## Requested Changes (Diff)
 
 ### Add
-- New `FieldAIAssistant` tab in the Dashboard as a top-level module alongside Jobs
-- `FieldAIAssistant.tsx` component with:
-  - Chat interface for HVAC diagnostics accepting free-text symptoms
-  - AI response engine with: probable causes, step-by-step diagnostic checks, recommended tools, possible replacement parts, safety warnings
-  - Related resources panel showing videos, study modules, and KB articles contextually
-  - Job AI Analysis panel: when a job symptom is entered, generate parts list, tool list, diagnostic plan, and estimated repair time
-  - Session history so technicians can review past diagnostic sessions
-  - Internal resource prioritization (study modules, KB articles, videos shown before external links)
+- New symptoms to KNOWLEDGE_BASE: "weak airflow", "thermostat not responding", expanded coverage
+- Measurement Analysis panel inside Field HVAC Assistant: input fields for suction pressure, head pressure, superheat, subcooling, temperature split — with pattern-matching logic that suggests likely issues (low refrigerant charge, airflow restriction, dirty condenser coil, metering device restriction, electrical control problem) with confidence levels
+- Enhanced job creation form inside the assistant: customer name, system type, refrigerant type, symptoms (text), measurements (all 5 fields), final repair performed
+- Diagnostic info storage per job: each saved job stores the full AI response + measurements + suggested issues
+- Job history review inside the assistant: past jobs showing symptoms, measurements, diagnosis, and repair
+- Related Resources section: diagrams (labeled links), training videos (YouTube buttons), study modules, KB articles — shown alongside every AI response
+- Safety reminders surfaced prominently for electrical and refrigerant work
 
 ### Modify
-- `Dashboard.tsx` — add new "Field AI" tab with Bot icon, lazy-loaded
-- `JobsTab.tsx` — add "Analyze with AI" button on job cards and in create/edit dialog to send job symptoms to Field AI Assistant
+- `FieldAIAssistantTab`: rename/rebrand to "Field HVAC Assistant", expand KNOWLEDGE_BASE with new symptoms, add measurement analysis panel, upgrade job creation form with all required fields, store diagnostic data with each job
+- `JobsTab`: expand `LocalJob` interface to include `refrigerantType`, `symptoms`, `measurements` (object with 5 fields), `finalRepair`, `diagnosticInfo` (AI response snapshot)
+- Resource sidebar: ensure it shows diagrams, videos (YouTube link buttons), study modules, and KB articles for every response
 
 ### Remove
 - Nothing removed
 
 ## Implementation Plan
-
-1. Create `src/frontend/src/pages/tabs/FieldAIAssistantTab.tsx` — full AI chat module with:
-   - Symptom input (free text + quick chips)
-   - AI knowledge base responses keyed to HVAC symptom patterns
-   - Related resources sidebar (videos, study modules, KB articles)
-   - Job integration panel (analyze job symptoms, generate parts/tools/time estimate)
-   - Session history list with past sessions reviewable
-2. Update `Dashboard.tsx` to add the new Field AI tab (10 tabs total)
-3. Update `JobsTab.tsx` to add an "AI Analysis" button that opens Field AI with the job's issue description pre-loaded
+1. Expand `LocalJob` interface in `JobsTab.tsx` with new fields; update the job creation dialog to include refrigerant type, measurements, final repair inputs; display these fields in job detail cards
+2. Rewrite `FieldAIAssistantTab.tsx`:
+   a. Add "weak airflow" and "thermostat not responding" entries to KNOWLEDGE_BASE
+   b. Add a Measurement Analysis panel with 5 numeric inputs and pattern-matching logic returning confidence-ranked suggestions
+   c. Upgrade job creation form inside assistant to include all required fields (customer name, system type, refrigerant type, symptoms, measurements, final repair)
+   d. Store diagnostic snapshot (AI response + measurements analysis) with each saved job
+   e. Show job history with full diagnostic detail review
+   f. Ensure ResourcesSidebar shows diagrams, video buttons, study modules, KB articles for every response
+   g. Rebrand header to "Field HVAC Assistant"
